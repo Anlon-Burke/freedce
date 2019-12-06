@@ -574,7 +574,7 @@ extern EXCEPTION pthread_unimp_e;               /* Unimplemented feature */
  * of the list is stored under _exc_key in the thread specific data.
  */
 
-extern void _pthread_cleanup_push(void*, void*, void*);
+/*extern void _pthread_cleanup_push(void*, void*, void*);*/
 
 static inline void
 _exc_push_buf(_exc_buf * buf)
@@ -600,7 +600,7 @@ _exc_push_buf(_exc_buf * buf)
 }
 
 
-extern void _pthread_cleanup_pop(void*, int);
+/*extern void _pthread_cleanup_pop(void*, int);*/
 
 static inline void
 _exc_pop_buf(_exc_buf * buf)
