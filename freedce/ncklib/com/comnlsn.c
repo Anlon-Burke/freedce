@@ -67,6 +67,18 @@
 */
 
 
+/* The fd_set member is required to be an array of longs.  */
+typedef long int __fd_mask;
+/* Some versions of <linux/posix_types.h> define this macros.  */
+#undef	__NFDBITS
+/* It's easier to assume 8-bit bytes than to get CHAR_BIT.  */
+#define __NFDBITS	(8 * (int) sizeof (__fd_mask))
+/* Sometimes the fd_set member is assumed to have this type.  */
+typedef __fd_mask fd_mask;
+/* Number of bits per word of `fd_set' (some code assumes this is 32).  */
+# define NFDBITS		__NFDBITS
+
+
 /*
  * Some defaults related to select() fd_sets.
  */
