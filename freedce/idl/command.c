@@ -785,7 +785,7 @@ boolean CMD_parse_args          /* Returns TRUE on success */
 
     if (cmd_opt[opt_version])
     {
-        message_print(NIDL_VERSION, IDL_VERSION_TEXT);
+        message_print(21, "FreeDCE 1.1-3 64-bit with GNU Flex/Bison");
     }
 
     /*
