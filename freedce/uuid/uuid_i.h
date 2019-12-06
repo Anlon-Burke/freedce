@@ -64,7 +64,7 @@
 #define UUID_C_100NS_PER_USEC           10
 #endif
 
-
+
 
 /*
  * UADD_UVLW_2_UVLW - macro to add two unsigned 64-bit long integers
@@ -112,7 +112,7 @@
             (sum)->hi++ ;                                               \
     }
 
-
+
 /*
  * UADD_ULW_2_UVLW - macro to add a 32-bit unsigned integer to
  *                   a 64-bit unsigned integer
@@ -163,7 +163,7 @@
     }                                                                   \
 }
 
-
+
 
 /*
  * a macro to set *status uuid_s_coding_error

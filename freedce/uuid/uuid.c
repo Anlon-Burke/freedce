@@ -55,7 +55,7 @@
 #include <dce/dce_win32mem.h>
 #endif
 
-
+
 /*
  * structure of universal unique IDs (UUIDs).
  *
@@ -163,7 +163,7 @@
  * +--------------------------...-----+
  *
  */
-
+
 /***************************************************************************
  *
  * Local definitions
@@ -239,7 +239,7 @@
 #define IS_OLD_UUID(uuid) (((uuid)->clock_seq_hi_and_reserved & 0xc0) != 0x80)
 
 
-
+
 /****************************************************************************
  *
  * data declarations
@@ -351,6 +351,7 @@ static uuid_compval_t time_cmp _DCE_PROTOTYPE_ ((
         uuid_time_p_t        /*time2*/
     ));
 #endif
+
 /*
  * U U I D _ G E T _ A D D R E S S
  *
@@ -363,7 +364,7 @@ void uuid_get_address _DCE_PROTOTYPE_ ((
     ));
 
 
-
+
 /*****************************************************************************
  *
  *  Macro definitions
@@ -437,7 +438,7 @@ static boolean uuid_init_done = FALSE;
         return (result); \
     } \
 }
-
+
 /*
 **++
 **
@@ -513,7 +514,7 @@ unsigned32              *status;
 
     *status = uuid_s_ok;
 }
-
+
 /*
 **++
 **
@@ -657,7 +658,7 @@ unsigned32              *status;
     *status = uuid_s_ok;
 #endif
 }
-
+
 /*
 **++
 **
@@ -711,7 +712,7 @@ unsigned32          *status;
 
     *status = uuid_s_ok;
 }
-
+
 /*
 **++
 **
@@ -810,7 +811,7 @@ unsigned32              *status;
 
     *status = uuid_s_ok;
 }
-
+
 /*
 **++
 **
@@ -1004,7 +1005,7 @@ unsigned32              *status;
 
     *status = uuid_s_ok;
 }
-
+
 /*
 **++
 **
@@ -1086,7 +1087,7 @@ register unsigned32              *status;
         return (FALSE);
     }
 }
-
+
 /*
 **++
 **
@@ -1158,7 +1159,7 @@ unsigned32          *status;
         return (FALSE);
     }
 }
-
+
 /*
 **++
 **
@@ -1321,7 +1322,7 @@ unsigned32              *status;
             return (1);
     }                       /* end else - time_low */
 }
-
+
 /*
 **++
 **
@@ -1462,7 +1463,7 @@ unsigned32              *status;
 
     return ((y * 256) + x);
 }
-
+
 /*****************************************************************************
  *
  *  LOCAL MATH PROCEDURES - math procedures used internally by the UUID module
@@ -1502,7 +1503,7 @@ uuid_time_p_t           time2;
     return (uuid_e_equal_to);
 }
 #endif
-
+
 /*
 **  U U I D _ _ U E M U L
 **
@@ -1560,7 +1561,7 @@ unsigned64_t        *prodPtr;
     prodPtr->lo += (temp & 0xffff) << 16;
     prodPtr->hi += uuid1 * v1 + (temp >> 16);
 }
-
+
 /****************************************************************************
 **
 **    U U I D   T R U E   R A N D O M   N U M B E R   G E N E R A T O R
@@ -1594,7 +1595,7 @@ unsigned64_t        *prodPtr;
 ** While the second RNG passes all the emperical tests, there are "states"
 ** that become "stable", albeit contrived.
 **
-** Gries then presents the MPRNG and says that it passes all emperical
+** Gries then presents the MPRNG and says that it passes all empirical
 ** tests listed in reference #2.  In addition, the number of calls to the
 ** MPRNG before a sequence of bit position repeats appears to have a normal
 ** distribution.
@@ -1604,7 +1605,7 @@ unsigned64_t        *prodPtr;
 ** for the range of numbers we are dealing with.
 **
 ****************************************************************************/
-
+
 /*
 ** T R U E _ R A N D O M _ I N I T
 **
@@ -1650,7 +1651,7 @@ static void true_random_init (void)
     seed ^= *seedp++;
     rand_irand += seed + uuid__get_os_pid();
 }
-
+
 /*
 ** T R U E _ R A N D O M
 **
@@ -1672,7 +1673,7 @@ static unsigned16 true_random (void)
 
     return (HI_WORD (rand_irand) ^ (rand_irand & RAND_MASK));
 }
-
+
 /*****************************************************************************
  *
  *  LOCAL PROCEDURES - procedures used staticly by the UUID module
@@ -1729,7 +1730,7 @@ unsigned16              *clkseq;
 #endif
 }
 #endif
-
+
 /*
 **++
 **
