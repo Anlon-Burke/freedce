@@ -1,8 +1,0 @@
-Makefile
-netlogond
-.libs
-.deps
-.gdb_history
-*.la
-*.lo
-*~
