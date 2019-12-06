@@ -134,9 +134,6 @@ void    *arg;
 
     struct db       *h;
     struct timeval  now;
-#ifndef HAVE_OS_WIN32
-    struct timezone tz;
-#endif
     unsigned32      ndeletes;
     db_lists_t      *lp,
                     *lp_next;
@@ -153,7 +150,7 @@ void    *arg;
 #ifdef HAVE_OS_WIN32
     win32_gettimeofday(&now, NULL);
 #else
-    gettimeofday(&now, &tz);
+    gettimeofday(&now, (struct timezone *) 0);
 #endif
 
     while (true)
@@ -163,7 +160,7 @@ void    *arg;
 #ifdef HAVE_OS_WIN32
 	win32_gettimeofday(&now, NULL);
 #else
-        gettimeofday(&now, &tz);
+        gettimeofday(&now, (struct timezone *) 0);
 #endif
 
         db_lock(h);
@@ -239,9 +236,6 @@ void    *arg;
 {
     struct db       *h;
     struct timeval  now;
-#ifndef HAVE_OS_WIN32
-    struct timezone tz;
-#endif
     struct timespec waketime;
     unsigned32      waitsecs;
     boolean32       have_db_lock;
@@ -265,7 +259,7 @@ void    *arg;
 #ifdef HAVE_OS_WIN32
     win32_gettimeofday(&now, NULL);
 #else
-    gettimeofday(&now, &tz);
+    gettimeofday(&now, (struct timezone *) 0);
 #endif
     waitsecs = slive_c_long_wait;
 
@@ -293,7 +287,7 @@ void    *arg;
 #ifdef HAVE_OS_WIN32
 	    win32_gettimeofday(&now, NULL);
 #else
-            gettimeofday(&now, &tz);
+            gettimeofday(&now, (struct timezone *) 0);
 #endif
             waitsecs = slive_c_long_wait;   /* so far no bad servers */
     

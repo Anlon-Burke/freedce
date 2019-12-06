@@ -202,16 +202,13 @@ unsigned32      nsecs;
 {
     unsigned32      waketime; 
     struct timeval  now;
-#ifndef HAVE_OS_WIN32
-    struct timezone tz;
-#endif
     unsigned32      sleep_secs;
 
     waketime = starttime->tv_sec + nsecs;
 #ifdef HAVE_OS_WIN32
     win32_gettimeofday(&now, NULL);
 #else
-    gettimeofday(&now, &tz);
+    gettimeofday(&now, (struct timezone *) 0);
 #endif
 
     if (waketime > (unsigned32)now.tv_sec)
