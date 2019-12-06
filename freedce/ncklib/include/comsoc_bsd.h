@@ -180,7 +180,20 @@ typedef int rpc_socket_error_t;                 /* a UNIX errno */
 #define _SOCKADDR_LEN
 #include <linux/types.h>
 #endif
-	
+
+
+
+typedef __caddr_t caddr_t;
+struct osockaddr2
+  {
+
+    unsigned short int sa_family;
+    unsigned char sa_data[14];
+
+  };
+
+
+
 #ifdef _SOCKADDR_LEN
 
      /*
@@ -194,7 +207,7 @@ typedef int rpc_socket_error_t;                 /* a UNIX errno */
 )
 #else
   #define RPC_SOCKET_FIX_ADDRLEN(addrp) ( \
-      ((struct osockaddr *) &(addrp)->sa)->sa_family = \
+      ((struct osockaddr2 *) &(addrp)->sa)->sa_family = \
               ((struct sockaddr *) &(addrp)->sa)->sa_family \
   )
 #endif /* FreeBSD */
