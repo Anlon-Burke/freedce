@@ -1,12 +1,12 @@
 Summary: A free implementation of the DCE RPC API
 Name: FreeDCE
-Version: 1.1.0.7
+Version: 1.1.1
 Release: 1mdk
 Copyright: GPL
 Group: System/Libraries
 Packager: Paul-Andre Panon <ppanon@sierrasys.com>
 BuildArchitectures: i386
-Source: http://ftp1.sourceforge.net/freedce/freedce-1.1.0.7.tgz
+Source: http://ftp1.sourceforge.net/freedce/freedce-1.1.1.tgz
 
 BuildRoot: %{_tmppath}/%{name}-root
 #Prereq: 
@@ -28,7 +28,7 @@ The FreeDCE-devel package contains the header files and libraries needed
 to develop programs that use the FreeDCE remote procedure call libraries.
 
 %prep
-%setup -n freedce-1.1.0.7
+%setup -n freedce-1.1.1
 
 %build
 CFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=/usr \
