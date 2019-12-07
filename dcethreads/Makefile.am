@@ -4,6 +4,8 @@ SUBDIRS = include src tests
 
 EXTRA_DIST = acconfig.h
 
+#libdcethreads_la_LDFLAGS = -version-info $(LT_VERSION)
+
 ## 06.03.2003 schuetzk:   added tgz and rpm build rules
 REL_VERSION=$(shell cat $(top_srcdir)/RELEASE)
 RPMBUILD=$(shell which 2>/dev/null rpmbuild||which 2>/dev/null rpm)

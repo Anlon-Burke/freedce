@@ -6,7 +6,8 @@ INCLUDES=-I../include
 
 #  Build the exception/thread library
 lib_LTLIBRARIES = libdcethreads.la
-#libdcethreads_la_LDFLAGS = -version-info 2:1:0 -Wl,--version-script,./Versions
+#libdcethreads_la_LDFLAGS = -version-info 2:1:0 -Wl,--version-script,./RELEASE
+libdcethreads_la_LDFLAGS = -version-info $(LT_VERSION)
 libdcethreads_la_SOURCES = \
     exc_handling.c \
     pthread_dce.c \

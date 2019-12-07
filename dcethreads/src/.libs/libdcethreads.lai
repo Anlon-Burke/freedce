@@ -5,10 +5,10 @@
 # It is necessary for linking the library.
 
 # The name that we can dlopen(3).
-dlname='libdcethreads.so.0'
+dlname='libdcethreads.so.2'
 
 # Names of this library.
-library_names='libdcethreads.so.0.0.0 libdcethreads.so.0 libdcethreads.so'
+library_names='libdcethreads.so.2.0.2 libdcethreads.so.2 libdcethreads.so'
 
 # The name of the static archive.
 old_library='libdcethreads.a'
@@ -17,9 +17,9 @@ old_library='libdcethreads.a'
 dependency_libs=' -lpthread'
 
 # Version information for libdcethreads.
-current=0
+current=2
 age=0
-revision=0
+revision=2
 
 # Is this an already installed library?
 installed=yes
