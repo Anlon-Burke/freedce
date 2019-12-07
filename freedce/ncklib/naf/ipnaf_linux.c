@@ -57,8 +57,6 @@
 #ifndef HAVE_OS_WIN32
 #include <net/if.h>
 #include <sys/ioctl.h>
-#include <linux/if.h>
-#include <netinet/in.h>
 #endif
 
 
