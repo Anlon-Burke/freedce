@@ -8,7 +8,7 @@
 dlname='libdcerpc.so.0'
 
 # Names of this library.
-library_names='libdcerpc.so.0.0.1 libdcerpc.so.0 libdcerpc.so'
+library_names='libdcerpc.so.0.1.1 libdcerpc.so.0 libdcerpc.so'
 
 # The name of the static archive.
 old_library='libdcerpc.a'
@@ -17,8 +17,8 @@ old_library='libdcerpc.a'
 dependency_libs=' -L/opt/dce/lib /opt/dce/lib/libdcethreads.la -ldl -lpthread  '
 
 # Version information for libdcerpc.
-current=0
-age=0
+current=1
+age=1
 revision=1
 
 # Is this an already installed library?
