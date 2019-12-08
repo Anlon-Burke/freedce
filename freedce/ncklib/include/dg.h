@@ -257,8 +257,8 @@ typedef unsigned32 rpc_dg_ptype_t;
 #define RPC_C_DG_PT_MAX_TYPE RPC_C_DG_PT_QUACK
 
 
-typedef unsigned char   u_char;
-typedef unsigned long   u_long;
+/*typedef unsigned char    u_char;*/
+/*typedef unsigned long    u_long;*/
 
 
 /*
