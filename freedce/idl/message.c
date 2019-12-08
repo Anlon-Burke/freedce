@@ -117,7 +117,7 @@ static long max_message_number		/* Compute number of messages. */
 static char     msg_prefix[PATH_MAX+3];
 
 
-
+
 /*
  *  m e s s a g e _ o p e n
  *
@@ -199,7 +199,7 @@ void message_open
 #endif
 }
 #endif
-
+
 /*
  *  m e s s a g e _ c l o s e
  *
@@ -231,7 +231,7 @@ void message_close
 }
 
 #endif
-
+
 /*
  *  m e s s a g e _ p r i n t
  *
@@ -323,7 +323,7 @@ void message_print
 #endif
 
 
-
+
 #ifndef UUIDGEN
 /*
  *  m e s s a g e _ s p r i n t
@@ -421,7 +421,7 @@ void message_sprint
 }
 
 #endif
-
+
 /*
  *  m e s s a g e _ f p r i n t
  *

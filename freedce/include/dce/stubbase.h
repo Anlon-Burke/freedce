@@ -285,7 +285,7 @@ globalref ndr_format_t ndr_g_local_drep;
  * Define the versions of stubs that this instance of idl_base.h supports.
  */
 
-#define IDL_BASE_SUPPORTS_V1	1
+#define IDL_BASE_SUPPORTS_V1    1
 
 /***************************************************************************/
 
@@ -356,7 +356,7 @@ typedef ndr_ulong_int rpc_op_t;
 #endif  /* USE_DEFAULT_MP_REP */
 
 /***************************************************************************/
-/*
+/*
  ****
  **** Definitions of the default marshall, unmarshall, and convert macros.
  ****/
@@ -668,7 +668,7 @@ typedef void *rpc_ss_threads_dest_arg_t;
     (key),(pthread_addr_t)(value))
 
 #define RPC_SS_THREADS_KEY_GET_CONTEXT(key,value_addr) \
-	(*value_addr) = (void*)sys_pthread_getspecific( key)
+    (*value_addr) = (void*)sys_pthread_getspecific( key)
 
 #define RPC_SS_THREADS_CONDITION_T pthread_cond_t
 

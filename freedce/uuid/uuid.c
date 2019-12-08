@@ -469,7 +469,7 @@ static boolean uuid_init_done = FALSE;
 **
 **  SIDE EFFECTS:       sets uuid_init_done so this won't be done again
 **
-**--
+**
 **/
 
 static void init 
@@ -548,7 +548,7 @@ unsigned32              *status;
 **
 **  SIDE EFFECTS:       none
 **
-**--
+**
 **/
 unsigned int win32_uuid_create(uuid_t *uuid);
 
@@ -691,7 +691,7 @@ unsigned32              *status;
 **
 **  SIDE EFFECTS:       none
 **
-**--
+**
 **/
 
 void uuid_create_nil 
@@ -748,7 +748,7 @@ unsigned32          *status;
 **
 **  SIDE EFFECTS:       none
 **
-**--
+**
 **/
 
 void uuid_to_string 
@@ -848,7 +848,7 @@ unsigned32              *status;
 **
 **  SIDE EFFECTS:       none
 **
-**--
+**
 **/
 
 void uuid_from_string 
@@ -879,9 +879,9 @@ unsigned32              *status;
      */
     if (uuid_string == NULL || *uuid_string == '\0')
     {
-	memcpy (uuid, &uuid_g_nil_uuid, sizeof *uuid);
-	*status = uuid_s_ok;
-	return;
+        memcpy (uuid, &uuid_g_nil_uuid, sizeof *uuid);
+        *status = uuid_s_ok;
+        return;
     }
 
     /*
@@ -1044,7 +1044,7 @@ unsigned32              *status;
 **
 **  SIDE EFFECTS:       none
 **
-**--
+**
 **/
 
 boolean32 uuid_equal 
@@ -1074,13 +1074,13 @@ register unsigned32              *status;
      * because of portability problems with alignment and garbage in a UUID.
      */
     if ((uuid1->time_low == uuid2->time_low) && 
-	(uuid1->time_mid == uuid2->time_mid) &&
-	(uuid1->time_hi_and_version == uuid2->time_hi_and_version) && 
-	(uuid1->clock_seq_hi_and_reserved == uuid2->clock_seq_hi_and_reserved) &&
-	(uuid1->clock_seq_low == uuid2->clock_seq_low) &&
-	(memcmp(uuid1->node, uuid2->node, 6) == 0))
+        (uuid1->time_mid == uuid2->time_mid) &&
+        (uuid1->time_hi_and_version == uuid2->time_hi_and_version) && 
+        (uuid1->clock_seq_hi_and_reserved == uuid2->clock_seq_hi_and_reserved) &&
+        (uuid1->clock_seq_low == uuid2->clock_seq_low) &&
+        (memcmp(uuid1->node, uuid2->node, 6) == 0))
     {
-	return ( TRUE );
+        return ( TRUE );
     }
     else
     {
@@ -1124,7 +1124,7 @@ register unsigned32              *status;
 **
 **  SIDE EFFECTS:       none
 **
-**--
+**
 **/
 
 boolean32 uuid_is_nil 
@@ -1208,7 +1208,7 @@ unsigned32          *status;
 **
 **  SIDE EFFECTS:       none
 **
-**--
+**
 **/
 
 signed32 uuid_compare 
@@ -1363,7 +1363,7 @@ unsigned32              *status;
 **
 **  SIDE EFFECTS:       none
 **
-**--
+**
 **/
 
 unsigned16 uuid_hash 
@@ -1525,7 +1525,7 @@ uuid_time_p_t           time2;
 **        This algorithm is taken from: "The Art of Computer
 **        Programming", by Donald E. Knuth. Vol 2. Section 4.3.1
 **        Pages: 253-255.
-**--
+**
 **/
 
 void uuid__uemul 
@@ -1767,7 +1767,7 @@ unsigned16              *clkseq;
 **
 **  SIDE EFFECTS:       none
 **
-**--
+**
 **/
 
 void uuid_get_address 
@@ -1805,7 +1805,7 @@ unsigned32              *status;
 
 #ifdef  UUID_DEBUG
         RPC_DBG_GPRINTF ((
-	    "uuid_get_address:        %02x-%02x-%02x-%02x-%02x-%02x\n",
+        "uuid_get_address:        %02x-%02x-%02x-%02x-%02x-%02x\n",
             addr->eaddr[0], addr->eaddr[1], addr->eaddr[2],
             addr->eaddr[3], addr->eaddr[4], addr->eaddr[5] ));
 #endif
