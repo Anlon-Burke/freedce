@@ -57,7 +57,7 @@
 
 extern boolean  ERR_no_warnings;    /* Global copy of -no_warn cmd option */
 extern char     *last_string;       /* Last string parsed from cmd line */
-
+
 #ifdef MSDOS
 static int max_suffix_len;
 #endif
@@ -222,7 +222,7 @@ OPTIONS option_table[]={
 	{"version",      ASSERTARG|HIDARG,               FD(cmd_opt[opt_version])},
 	{0,              0,                              0}
 };
-
+
 /*
 **  C M D _ e x p l a i n _ a r g s
 **
@@ -248,7 +248,7 @@ void CMD_explain_args()
     else
         message_print(NIDL_CMDERR, "-confirm");
 }
-
+
 /*
 **  c h e c k _ s t r _ l i s t
 **
@@ -291,7 +291,7 @@ static int check_str_list
     fprintf(stderr, "\n");
     exit(pgm_error);
 }
-
+
 /*
 **  c h e c k _ s t r _ i n t _ l i s t
 **
@@ -338,7 +338,7 @@ static int check_str_int_list
     fprintf(stderr, "\n");
     exit(pgm_error);
 }
-
+
 /*
 **  d u m p _ c m d _ d a t a
 **
@@ -472,7 +472,7 @@ static void dump_cmd_data()
     }
 }
 #endif
-
+
 /*
 **  a l l o c _ a n d _ c o p y
 **
@@ -501,7 +501,7 @@ static char *alloc_and_copy     /* Returns address of new string */
 
     return new_str;
 }
-
+
 /*
 **  g e t _ s r c _ f i l e s p e c
 **
@@ -597,7 +597,7 @@ static boolean get_src_filespec
     last_string[0] = '\0';
     return TRUE;
 }
-
+
 /*
 **  C M D _ p a r s e _ a r g s
 **
@@ -785,7 +785,7 @@ boolean CMD_parse_args          /* Returns TRUE on success */
 
     if (cmd_opt[opt_version])
     {
-        message_print(21, "FreeDCE 1.1-3 64-bit with GNU Flex/Bison");
+        message_print(NIDL_VERSION, IDL_VERSION_TEXT);
     }
 
     /*
@@ -1112,7 +1112,7 @@ boolean CMD_parse_args          /* Returns TRUE on success */
                 error(NIDL_FILENOTDIR, out_dir);
             else
             {
-		out_dir = NEW_VEC (char, strlen(odir) + 1);
+                out_dir = NEW_VEC (char, strlen(odir) + 1);
                 strcpy(out_dir, odir);
             }
         else
