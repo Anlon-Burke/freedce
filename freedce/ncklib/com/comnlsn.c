@@ -57,7 +57,7 @@
 #include <com.h>
 #include <comp.h>
 #include <comnetp.h>
-
+
 /*
 *****************************************************************************
 *
@@ -65,18 +65,6 @@
 *
 *****************************************************************************
 */
-
-
-/* The fd_set member is required to be an array of longs.  */
-typedef long int __fd_mask;
-/* Some versions of <linux/posix_types.h> define this macros.  */
-#undef	__NFDBITS
-/* It's easier to assume 8-bit bytes than to get CHAR_BIT.  */
-#define __NFDBITS	(8 * (int) sizeof (__fd_mask))
-/* Sometimes the fd_set member is assumed to have this type.  */
-typedef __fd_mask fd_mask;
-/* Number of bits per word of `fd_set' (some code assumes this is 32).  */
-# define NFDBITS		__NFDBITS
 
 
 /*
@@ -142,7 +130,6 @@ INTERNAL void lthread _DCE_PROTOTYPE_ ((
 INTERNAL void lthread_loop _DCE_PROTOTYPE_ ((void));
 
 
-
 /*
  * R P C _ _ N L S N _ A C T I V A T E _ D E S C
  *
@@ -230,7 +217,7 @@ unsigned32              *status;
 
     *status = rpc_s_ok;
 }
-
+
 /*
  * R P C _ _ N L S N _ D E A C T I V A T E _ D E S C
  *
@@ -299,7 +286,7 @@ unsigned32              *status;
     }
 } 
 
-
+
 
 /*
  * C O P Y _ L I S T E N E R _ S T A T E
@@ -365,7 +352,7 @@ rpc_listener_state_p_t  lstate;
     RPC_COND_BROADCAST (lstate->cond, lstate->mutex);
 }
 
-
+
 /*
  * L T H R E A D
  *
@@ -421,7 +408,7 @@ rpc_listener_state_p_t  lstate;
     }
 }
 
-
+
 
 /*
  * L T H R E A D _ L O O P
@@ -539,7 +526,7 @@ INTERNAL void lthread_loop (void)
         }
     }
 }
-
+
 #ifdef ATFORK_SUPPORTED
 /*
  * R P C _ _ N L S N _ F O R K _ H A N D L E R
