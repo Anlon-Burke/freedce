@@ -33,7 +33,7 @@ interface echo {
     * Method ReverseIt()
     *
     *      Reverse the order of letters in words
-    #
+    *
     *      INPUT Arguments:
     * 		 An array of strings
     *      OUTPUT:

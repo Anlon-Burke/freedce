@@ -45,7 +45,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-
+
 /*
  * Define the Foo and Bar type UIDS.
  */
@@ -155,7 +155,7 @@ uuid_t NilObj = {0,0,0,0,0,{0,0,0,0,0,0} };
     
 
 
-
+
 char *authn_level_names[] =
 {
     "default",
@@ -184,7 +184,7 @@ char *authz_names[] =
     "dce",
     NULL
 };
-
+
 /*
  * Return error text.
  */
@@ -200,7 +200,7 @@ unsigned32      st;
     dce_error_inq_text (st, error_string, &inq_st);
     return ((char *) error_string);
 }
-
+
 /*
  * Dump storage usage info.
  */
@@ -215,7 +215,7 @@ void dump_stg_info(void)
 #endif
 }
 
-
+
 /*
  * Lookup a name in a table.
  */

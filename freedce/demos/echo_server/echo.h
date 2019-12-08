@@ -27,7 +27,7 @@ extern idl_boolean ReverseIt(
 #endif
 );
 typedef struct echo_v1_0_epv_t {
-	idl_boolean (*ReverseIt)(
+    idl_boolean (*ReverseIt)(
 #ifdef IDL_PROTOTYPES
     /* [in] */ handle_t h,
     /* [in] */ args *in_text,

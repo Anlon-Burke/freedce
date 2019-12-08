@@ -52,7 +52,7 @@
 #include <dce/id_base.h>
 #endif /* AUTH_KRB */
 
-
+
 idl_boolean auth = false;       /* should we check authentication? */
 
 unsigned16 server_loops = 1;    /* # of times to loop on calls to rpc_server_listen */
@@ -83,7 +83,7 @@ static struct
     }
 };
 
-
+
 /*
  * M G M T _ A U T H _ F N
  *
@@ -111,7 +111,7 @@ unsigned32          *st;
 
     return (b);
 }
-
+
 /*
  * I F _ I D _ I S _ E Q U A L
  *
@@ -126,7 +126,7 @@ rpc_if_id_p_t ifid1, ifid2;
         && ifid1->vers_minor == ifid2->vers_minor
         && uuid_equal(&ifid1->uuid, &ifid2->uuid, &st));
 }
-
+
 /*
  * T H R E A D _ P O O L _ F N
  *
@@ -168,7 +168,7 @@ unsigned32              *status;
     }
     *status = 0;
 }
-
+
 /*
  * S E T U P _ T H R E A D _ P O O L S
  *
@@ -208,7 +208,7 @@ static int setup_thread_pools()
 
     return 0;
 }
-
+
 /*
  * T E A R D O W N _ T H R E A D _ P O O L S
  *
@@ -245,7 +245,7 @@ idl_boolean wait_flg;
 
     return 0;
 }
-
+
 /*
  * R E G I S T E R _ I F S
  *
@@ -284,7 +284,7 @@ static void register_ifs ()
         exit(1);
     }
 }
-
+
 /*
  * R E G I S T E R _ O B J S
  *
@@ -336,7 +336,7 @@ static void register_objs ()
         exit(1);
     }
 }
-
+
 /*
  * G E T _ S O C K E T S
  *
@@ -418,7 +418,7 @@ unsigned32          max_calls;
         rpc_string_free(&sb, &st);
     }
 }
-
+
 /*
  * U S A G E
  */
@@ -448,7 +448,7 @@ void usage(void)
 
     exit(1);
 }
-
+
 /*
  * P R I N T _ B I N D I N G _ I N F O
  *
@@ -549,7 +549,7 @@ handle_t    h;
         }
     }
 }
-
+
 /*
  * M A I N
  *

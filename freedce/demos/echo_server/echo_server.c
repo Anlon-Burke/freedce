@@ -65,25 +65,25 @@ static void wait_for_signals();
  */
 
 PRIVATE void show_st(str, st)
-	char            *str;
-	error_status_t  *st;
+    char            *str;
+    error_status_t  *st;
 {
-	    dce_error_string_t estr;
-	        int             tmp_st;
-		    
-		    dce_error_inq_text(*st, estr, &tmp_st);
-		        fprintf(stderr, "(rpcd) %s: (0x%x) %s\n", str, *st, estr);
+        dce_error_string_t estr;
+            int             tmp_st;
+            
+            dce_error_inq_text(*st, estr, &tmp_st);
+                fprintf(stderr, "(rpcd) %s: (0x%x) %s\n", str, *st, estr);
 }
 
 PRIVATE boolean32 check_st_bad(str, st)
-	char            *str;
-	error_status_t  *st;
+    char            *str;
+    error_status_t  *st;
 {
-	    if (STATUS_OK(st)) 
-		            return false;
+        if (STATUS_OK(st)) 
+                    return false;
 
-	        show_st(str, st);
-		    return true;
+            show_st(str, st);
+            return true;
 }
 
 
@@ -141,12 +141,12 @@ int main(int argc, char *argv[])
 
   printf ("Registering server.... \n");
   rpc_server_register_if(echo_v1_0_s_ifspec, 
-			 NULL,
-			 NULL,
-			 &status);
+             NULL,
+             NULL,
+             &status);
       chk_dce_err(status, "rpc_server_register_if()", "", 1);
 
-	printf("registered.\nPreparing binding handle...\n");
+    printf("registered.\nPreparing binding handle...\n");
   
       /*
        * Prepare the server binding handle
@@ -164,16 +164,16 @@ int main(int argc, char *argv[])
        * Register bindings with the endpoint mapper
        */
 
-	printf("registering bindings with endpoint mapper\n");
-		
+    printf("registering bindings with endpoint mapper\n");
+        
   rpc_ep_register(echo_v1_0_s_ifspec,
-		  server_binding,
-		  NULL,
-		  (unsigned char *)"QDA application server",
-		  &status);
+          server_binding,
+          NULL,
+          (unsigned char *)"QDA application server",
+          &status);
       chk_dce_err(status, "rpc_ep_register()", "", 1);
 
-	printf("registered.\n");
+    printf("registered.\n");
 
       /*
        * Print out the servers endpoints (TCP and UDP port numbers)
@@ -184,11 +184,11 @@ int main(int argc, char *argv[])
   for (i=0; i<server_binding->count; i++)
     {
       rpc_binding_to_string_binding(server_binding->binding_h[i], 
-				    (unsigned char **)&string_binding,
-				    &status
-				    );
+                    (unsigned char **)&string_binding,
+                    &status
+                    );
       if (string_binding)
-		printf("\t%s\n",string_binding);
+        printf("\t%s\n",string_binding);
     }
 
 
@@ -231,9 +231,9 @@ int main(int argc, char *argv[])
 
   printf ("Unregistering server from the endpoint mapper.... \n");
   rpc_ep_unregister(echo_v1_0_s_ifspec,
-		    server_binding,
-		    NULL,
-		    &status);
+            server_binding,
+            NULL,
+            &status);
   chk_dce_err(status, "rpc_ep_unregister()", "", 0);
 
   /*
@@ -242,8 +242,8 @@ int main(int argc, char *argv[])
 
   printf("Cleaning up communications endpoints... \n");
   rpc_server_unregister_if(echo_v1_0_s_ifspec,
-			   NULL,
-			   &status);
+               NULL,
+               &status);
   chk_dce_err(status, "rpc_server_unregister_if()", "", 0);
 
   exit(0);
@@ -290,7 +290,7 @@ ReverseIt(h, in_text, out_text, status)
   printf("\n\nFunction ReverseIt() -- input argments\n");
   
   for (i=0; i<in_text->argc; i++)
-	printf("\t[arg %d]: %s\n", i, in_text->argv[i]);
+    printf("\t[arg %d]: %s\n", i, in_text->argv[i]);
 
   printf ("\n=========================================\n");
   
@@ -307,7 +307,7 @@ ReverseIt(h, in_text, out_text, status)
   for (i=0; i < in_text->argc; i++)
     {
       result->argv[i] = 
-	(string_t)rpc_ss_allocate(strlen((char*)in_text->argv[i]) + 1);
+    (string_t)rpc_ss_allocate(strlen((char*)in_text->argv[i]) + 1);
     }
 
   /* 
@@ -318,9 +318,9 @@ ReverseIt(h, in_text, out_text, status)
     {
       l = strlen((char*)in_text->argv[i]);
       for (j=0; j<l; j++)
-	{
-	  result->argv[i][j] = in_text->argv[i][l-j-1];
-	}
+    {
+      result->argv[i][j] = in_text->argv[i][l-j-1];
+    }
       result->argv[i][l]=0;           /* make sure its null terminated! */
     }
 
@@ -369,9 +369,9 @@ sigset_t old_signal_mask;
 
 #ifndef USE_BORING_SIGHANDLER
   sys_pthread_create(&sig_handler_thread, 
-		 &sys_pthread_attr_default,
-		 (void*)signal_handler,
-		 NULL);
+         &sys_pthread_attr_default,
+         (void*)signal_handler,
+         NULL);
 #endif
 
 #ifdef USE_BORING_SIGHANDLER
@@ -409,11 +409,11 @@ signal_handler(void * arg __attribute__((__unused__)))
       sigwait(&catch_signal_mask, &which_signal);
 
       if ((which_signal == SIGINT) || (which_signal == SIGQUIT))
-	rpc_mgmt_stop_server_listening(NULL, &status);
+    rpc_mgmt_stop_server_listening(NULL, &status);
 #endif
 
 #ifdef USE_BORING_SIGHANDLER
-	rpc_mgmt_stop_server_listening(NULL, &status);
+    rpc_mgmt_stop_server_listening(NULL, &status);
 #endif
 
     }

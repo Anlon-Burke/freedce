@@ -51,7 +51,7 @@
 #endif  /* NO_TIMES */
 #include <stdlib.h>
 #include <sys/wait.h>
-
+
 
 typedef struct
 {
@@ -129,7 +129,7 @@ struct tinfo_t
 
 #define N_TESTS (int)(sizeof tinfo / sizeof (struct tinfo_t))
 
-
+
 #ifdef _POSIX_THREADS
 
 #define MAX_TASKS 40
@@ -140,7 +140,7 @@ int n_tasks;
 pthread_mutex_t global_mutex;
 
 #endif
-
+
 idl_boolean authenticate;
 unsigned32  authn_level;
 idl_char    *auth_principal;
@@ -163,7 +163,7 @@ int wait_time;
 unsigned32 socket_buf_size = 0;	/* os default */
 
 int verbose = 1;
-
+
 #ifdef NO_TIMES
 struct msec_time
 {
@@ -218,7 +218,7 @@ struct timeval
 
 
 
-
+
 /*
  * Print how to use this program
  */
@@ -287,7 +287,7 @@ int             test;
 
     exit(1);
 }
-
+
 /*
  * If the specified point is a wait point, then sleep for the specified amount
  * of time.
@@ -304,7 +304,7 @@ int point;
         SLEEP(wait_time);
     }
 }
-
+
 #ifdef NO_TIMES
 /*
  * Take a starting time and an iteration count, and produce an average
@@ -398,7 +398,7 @@ struct msec_time *avg_time;
     avg_time->r_usec = (elapsed_usec / iterations) % 1000;
 }
 #endif  /* NO_TIMES */
-
+
 /*
  * Get an RPC handle for a name
  */
@@ -509,7 +509,7 @@ char                *name;
 
     return h;
 }
-
+
 /*
  * Convert a binding to a string binding.
  */
@@ -530,7 +530,7 @@ unsigned_char_p_t   *name;
         exit(1);
     }
 }
-
+
 /*
  * Reset a binding.
  */
@@ -551,7 +551,7 @@ handle_t    rh;
 }
 
 
-
+
 /*
  * Broadcast test
  */
@@ -662,7 +662,7 @@ char                *argv[];
     }
     ENDTRY
 }
-
+
 /*
  * Shutdown test
  */
@@ -713,7 +713,7 @@ char                *argv[];
     }
 
 }
-
+
 /*
  * Unregistered interface test.
  */
@@ -786,7 +786,7 @@ char                *argv[];
 #endif
     memcpy(&(if_rep->id), &if_uuid, sizeof(uuid_t));
 }
-
+
 /*
  * Inquire Interface ids test
  */
@@ -854,7 +854,7 @@ char                *argv[];
     do_inq_if_ids (argc == 2 ? NULL : argv[2]);
 }
 
-
+
 /*
  * Statistics test
  */
@@ -925,7 +925,7 @@ char                *argv[];
     do_stats (argc == 2 ? NULL : argv[2]);
 }
 
-
+
 /*
  * Auxiliary routine for forwarding test.
  */
@@ -999,7 +999,7 @@ char                *msg;
         exit(1);
     }
 }
-
+
 /*
  * Forwarding test.
  */
@@ -1179,7 +1179,7 @@ char                *argv[];
     }
     ENDTRY
 }
-
+
 /*
  * Exception test.
  */
@@ -1234,7 +1234,7 @@ char                *argv[];
     }
     ENDTRY
 }
-
+
 /*
  * Callback routines for callback test.
  */
@@ -1250,7 +1250,7 @@ unsigned32       *p;
     callback_count = 0;
     *p = callback_passes;
 }
-
+
 void perfc_cb (h, c)
 
 handle_t            h __attribute__((unused));
@@ -1260,7 +1260,7 @@ unsigned32       *c;
     *c = ++callback_count;
     printf("    ...in callback %u\n", *c);
 }
-
+
 void perfc_cb_idem (h, c)
 
 handle_t            h __attribute__((unused));
@@ -1270,7 +1270,7 @@ unsigned32       *c;
     *c = ++callback_count;
     printf("    ...in idempotent callback %u\n", *c);
 }
-
+
 perfc_v2_0_epv_t perfc_v2_mgr_epv =
 {
     perfc_init,
@@ -1327,7 +1327,7 @@ char                *argv[];
         exit(1);
     }
 }
-
+
 /*
  * Returns T if two double floats are "pretty close" to each other.
  */
@@ -1340,7 +1340,7 @@ double              d1, d2;
     double ratio = d1 / d2;
     return (ratio > .9999 && ratio < 1.00001);
 }
-
+
 /*
  * Generic interface test
  */
@@ -1447,7 +1447,7 @@ char                *argv[];
 
     printf("  ...OK\n");
 }
-
+
 /*
  * Static Cancel test
  *
@@ -1489,7 +1489,7 @@ static boolean32 cancel_was_pending()
 
     return pending;
 }
-
+
 /*
  * static_cancel_test1
  *
@@ -1557,7 +1557,7 @@ unsigned long           slow_secs;
     }
     ENDTRY
 }
-
+
 /*
  * static_cancel_test2
  *
@@ -1620,7 +1620,7 @@ unsigned long           slow_secs;
     }
     ENDTRY
 }
-
+
 /*
  * static_cancel_test3
  *
@@ -1704,7 +1704,7 @@ unsigned long           slow_secs;
     }
     ENDTRY
 }
-
+
 /*
  * Static Cancel test
  */
@@ -1767,7 +1767,7 @@ char                *argv[];
     }
 }
 
-
+
 /*
  * Context test
  */
@@ -1844,7 +1844,7 @@ char                *argv[];
 }
 
 
-
+
 /*
  * Looping test
  */
@@ -2217,7 +2217,7 @@ char                *argv[];
 
     }
 }
-
+
 /*
  * One shot test
  */
@@ -2279,7 +2279,7 @@ char                *argv[];
            avg_time.u_msec, avg_time.s_msec);
 #endif  /* NO_TIMES */
 }
-
+
 /*
  * Start test.  Catch and print any exceptions that are raised.
  */
@@ -2366,7 +2366,7 @@ char *argv[];
 }
 
 
-
+
 #ifdef _POSIX_THREADS
 
 struct task_info_t
@@ -2417,7 +2417,7 @@ int                 len __attribute__((unused));
 
 #endif
 
-
+
 #ifdef _POSIX_THREADS
 
 /*
@@ -2496,7 +2496,7 @@ char                *argv[];
 
 #endif
 
-
+
 /*
  * Parse authentication (-p) option.
  */
@@ -2545,7 +2545,7 @@ static void parse_auth_option()
     }
 }
 
-
+
 /*
  * Main program
  */
