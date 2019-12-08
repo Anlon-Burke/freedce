@@ -5,10 +5,10 @@
 # It is necessary for linking the library.
 
 # The name that we can dlopen(3).
-dlname='libdcerpc.so.0'
+dlname='libdcerpc.so.1'
 
 # Names of this library.
-library_names='libdcerpc.so.0.1.1 libdcerpc.so.0 libdcerpc.so'
+library_names='libdcerpc.so.1.0.1 libdcerpc.so.1 libdcerpc.so'
 
 # The name of the static archive.
 old_library='libdcerpc.a'
@@ -18,7 +18,7 @@ dependency_libs=' -L/opt/dce/lib /opt/dce/lib/libdcethreads.la -ldl -lpthread'
 
 # Version information for libdcerpc.
 current=1
-age=1
+age=0
 revision=1
 
 # Is this an already installed library?
