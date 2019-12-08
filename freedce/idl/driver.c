@@ -92,7 +92,7 @@ void
 }
 
 
-
+
 /*
 ** a t t e m p t _ t o _ p r i n t _ e r r o r s
 **
@@ -120,7 +120,7 @@ static long attempt_to_print_errors()
     return 0;
 }
 #endif
-
+
 /*
 **  o p e n _ f e _ f i l e s
 **
@@ -154,7 +154,7 @@ static boolean open_fe_files
 
     return TRUE;
 }
-
+
 /*
 **  o p e n _ b e _ f i l e s
 **
@@ -338,7 +338,7 @@ static boolean open_be_files
             ||  *cstub_fid  != NULL
             ||  *sstub_fid  != NULL);
 }
-
+
 /*
 **  s t u b _ c o m p i l e
 **
@@ -408,7 +408,7 @@ static int stub_compile
         ((cmd_opt[opt_verbose]) ? NIDL_STUBCOMPILE: 0)
         );
 }
-
+
 /*
 **  c l o s e _ f i l e s
 **
@@ -443,7 +443,7 @@ static void close_files
     if (cstub_fid   != NULL) fclose(cstub_fid);
     if (sstub_fid   != NULL) fclose(sstub_fid);
 }
-
+
 /*
 **  i n i t
 **
@@ -488,7 +488,7 @@ static boolean cleanup()        /* Returns TRUE on success */
 
     return TRUE;
 }
-
+
 /*
 **  D R I V E R _ m a i n
 **
@@ -707,14 +707,14 @@ boolean DRIVER_main
 
         tmpsts = stub_compile(cmd_opt, cmd_val, opt_cstub, cstub_fid, cc_cmd);
         if (ERROR_STATUS(tmpsts)) status = FALSE;
-	else
-	    tmpsts = stub_compile(cmd_opt, cmd_val, opt_sstub, sstub_fid, cc_cmd);
+        else
+        tmpsts = stub_compile(cmd_opt, cmd_val, opt_sstub, sstub_fid, cc_cmd);
         if (ERROR_STATUS(tmpsts)) status = FALSE;
-	else
-	    tmpsts = stub_compile(cmd_opt, cmd_val, opt_caux, caux_fid, cc_cmd);
+        else
+        tmpsts = stub_compile(cmd_opt, cmd_val, opt_caux, caux_fid, cc_cmd);
         if (ERROR_STATUS(tmpsts)) status = FALSE;
-	else
-	    tmpsts = stub_compile(cmd_opt, cmd_val, opt_saux, saux_fid, cc_cmd);
+        else
+        tmpsts = stub_compile(cmd_opt, cmd_val, opt_saux, saux_fid, cc_cmd);
         if (ERROR_STATUS(tmpsts)) status = FALSE;
     }
 
