@@ -17,9 +17,9 @@ old_library='libidl.a'
 dependency_libs=' -L/opt/dce/lib /opt/dce/lib/libdcethreads.la -ldl -lpthread'
 
 # Version information for libidl.
-current=2
+current=0
 age=0
-revision=2
+revision=0
 
 # Is this an already installed library?
 installed=no

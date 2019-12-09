@@ -271,6 +271,7 @@ NCK_IDLFLAGS = -keep object -no_cpp -v -no_mepv -I$(IDL_INCLUDE_DIR)/.. -I$(top_
 @PROT_NCACN_TRUE@	cnnet.c cnp.c cnpkt.c cnrcvr.c cnsasgsm.c \
 @PROT_NCACN_TRUE@	cnsassm.c cnsclsm.c cnsm.c cnxfer.c \
 @PROT_NCACN_TRUE@	$(am__append_1)
+@PROT_NCACN_TRUE@libprot_ncacn_la_LDFLAGS = -version-info $(LT_VERSION)
 all: all-am
 
 .SUFFIXES:

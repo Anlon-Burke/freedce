@@ -274,6 +274,7 @@ libs = -L/opt/dce/lib -ldcerpc -luuid -lstdc++
 #lsa_server_LDADD=lsa_sstub.o $(libs)
 #lsa_client_LDADD=lsa_cstub.o $(libs)
 liblsarpc_la_LIBADD = lsarpc_cstub.lo
+liblsarpc_la_LDFLAGS = -version-info $(LT_VERSION)
 all: all-am
 
 .SUFFIXES:

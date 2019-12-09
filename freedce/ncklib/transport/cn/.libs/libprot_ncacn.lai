@@ -5,10 +5,10 @@
 # It is necessary for linking the library.
 
 # The name that we can dlopen(3).
-dlname='libprot_ncacn.so.0'
+dlname='libprot_ncacn.so.1'
 
 # Names of this library.
-library_names='libprot_ncacn.so.0.0.0 libprot_ncacn.so.0 libprot_ncacn.so'
+library_names='libprot_ncacn.so.1.0.1 libprot_ncacn.so.1 libprot_ncacn.so'
 
 # The name of the static archive.
 old_library='libprot_ncacn.a'
@@ -17,9 +17,9 @@ old_library='libprot_ncacn.a'
 dependency_libs=' -L/opt/dce/lib /opt/dce/lib/libdcethreads.la -ldl -lpthread'
 
 # Version information for libprot_ncacn.
-current=0
+current=1
 age=0
-revision=0
+revision=1
 
 # Is this an already installed library?
 installed=yes

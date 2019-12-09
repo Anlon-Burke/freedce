@@ -16,4 +16,6 @@ if TARGET_OS_WIN32
 libprot_ncacn_la_SOURCES += cnnp.c
 endif
 
+libprot_ncacn_la_LDFLAGS = -version-info $(LT_VERSION)
+
 endif

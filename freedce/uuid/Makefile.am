@@ -16,7 +16,7 @@ libuuid_la_SOURCES = uuid.c uuid-cpp.cpp uuidsys.c get_ether_addr.c win32timeofd
 else
 libuuid_la_SOURCES = uuid.c uuid-cpp.cpp uuidsys.c get_ether_addr.c 
 endif
-libuuid_la_LDFLAGS=-lstdc++
+libuuid_la_LDFLAGS=-lstdc++ -version-info $(LT_VERSION)
 
 noinst_HEADERS= uuid_i.h uuid.hpp
 

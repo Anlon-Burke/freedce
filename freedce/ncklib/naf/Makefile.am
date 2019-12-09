@@ -5,6 +5,7 @@ include $(top_srcdir)/ncklib/ncklib.mk
 if NAF_UXD
 naf_uxd=libnaf_uxd.la
 libnaf_uxd_la_SOURCES=uxdnaf.c uxdnaf_linux.c twr_uxd.c
+libnaf_uxd_la_LDFLAGS = -version-info $(LT_VERSION)
 endif
 
 if NAF_IP
@@ -13,6 +14,7 @@ if TARGET_OS_WIN32
 libnaf_ip_la_SOURCES=ipnaf.c ipnaf_win32.c twr_ip.c
 else
 libnaf_ip_la_SOURCES=ipnaf.c ipnaf_linux.c twr_ip.c
+libnaf_ip_la_LDFLAGS = -version-info $(LT_VERSION)
 endif
 endif
 

@@ -254,8 +254,6 @@ NCK_IDLFLAGS = -keep object -no_cpp -v -no_mepv -I$(IDL_INCLUDE_DIR)/.. -I$(top_
 
 # Build the shared library
 lib_LTLIBRARIES = libdcerpc.la
-#libdcerpc_la_LDFLAGS = -version-info 1:1:1 -Wl,--version-script,./RELEASE
-#libdcerpc_la_LDFLAGS = -version-info 1:1:1
 libdcerpc_la_LDFLAGS = -version-info $(LT_VERSION)
 libdcerpc_la_SOURCES = dummyfuncs.c
 libdcerpc_la_LIBADD = ../ncklib/libnck.la ../idllib/libidl.la

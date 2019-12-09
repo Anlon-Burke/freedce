@@ -267,6 +267,7 @@ IDLFLAGS = $(IDL_CFLAGS) -cepv -client none -server none -I$(IDL_INCLUDE_DIR)/..
 NCK_IDLFLAGS = -keep object -no_cpp -v -no_mepv -I$(IDL_INCLUDE_DIR)/.. -I$(top_srcdir)/include $(DCETHREADINCLUDES) $(TARGET_OS) -cc_cmd '$(LIBTOOL) --mode=compile $(IDL_CC) -c $(IDL_CFLAGS) '
 idlobjs = conv_cstub.lo convc_cstub.lo convc_sstub.lo
 lib_LTLIBRARIES = libprot_ncadg.la
+libprot_ncadg_la_LDFLAGS = -version-info $(LT_VERSION)
 libprot_ncadg_la_SOURCES = conv.c dg.c dgcall.c dgccall.c \
  dgccallt.c dgcct.c dgclive.c dgclsn.c dgexec.c dgfwd.c \
  dgglob.c dghnd.c dginit.c dglossy.c dglsn.c dgpkt.c dgrq.c \

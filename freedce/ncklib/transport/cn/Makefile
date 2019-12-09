@@ -271,6 +271,7 @@ libprot_ncacn_la_SOURCES = cnassoc.c cnbind.c \
 	cnnet.c cnp.c cnpkt.c cnrcvr.c cnsasgsm.c \
 	cnsassm.c cnsclsm.c cnsm.c cnxfer.c \
 	$(am__append_1)
+libprot_ncacn_la_LDFLAGS = -version-info $(LT_VERSION)
 all: all-am
 
 .SUFFIXES:

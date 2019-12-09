@@ -10,6 +10,8 @@ idlobjs=conv_cstub.lo convc_cstub.lo convc_sstub.lo
 
 lib_LTLIBRARIES=libprot_ncadg.la
 
+libprot_ncadg_la_LDFLAGS = -version-info $(LT_VERSION)
+
 libprot_ncadg_la_SOURCES= conv.c dg.c dgcall.c dgccall.c \
  dgccallt.c dgcct.c dgclive.c dgclsn.c dgexec.c dgfwd.c \
  dgglob.c dghnd.c dginit.c dglossy.c dglsn.c dgpkt.c dgrq.c \

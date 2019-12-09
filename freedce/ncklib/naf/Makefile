@@ -266,9 +266,11 @@ IDLFLAGS = $(IDL_CFLAGS) -cepv -client none -server none -I$(IDL_INCLUDE_DIR)/..
 NCK_IDLFLAGS = -keep object -no_cpp -v -no_mepv -I$(IDL_INCLUDE_DIR)/.. -I$(top_srcdir)/include $(DCETHREADINCLUDES) $(TARGET_OS) -cc_cmd '$(LIBTOOL) --mode=compile $(IDL_CC) -c $(IDL_CFLAGS) '
 naf_uxd = libnaf_uxd.la
 libnaf_uxd_la_SOURCES = uxdnaf.c uxdnaf_linux.c twr_uxd.c
+libnaf_uxd_la_LDFLAGS = -version-info $(LT_VERSION)
 naf_ip = libnaf_ip.la
 libnaf_ip_la_SOURCES = ipnaf.c ipnaf_linux.c twr_ip.c
 #libnaf_ip_la_SOURCES = ipnaf.c ipnaf_win32.c twr_ip.c
+libnaf_ip_la_LDFLAGS = -version-info $(LT_VERSION)
 lib_LTLIBRARIES = $(naf_ip) $(naf_uxd)
 all: all-am
 
