@@ -107,13 +107,13 @@
 #define PACKAGE_NAME "freedce"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "freedce 1.1.1"
+#define PACKAGE_STRING "freedce 1.0.1"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "freedce"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1.1.1"
+#define PACKAGE_VERSION "1.0.1"
 
 /* Support connection based transports */
 #define PROT_NCACN 1
@@ -128,7 +128,7 @@
 #define USE_LOOPBACK 1
 
 /* Version number of package */
-#define VERSION "1.1.1"
+#define VERSION "1.0.1"
 
 /* Define to 1 if `lex' declares `yytext' as a `char *' by default, not a
    `char[]'. */
