@@ -175,7 +175,7 @@ typedef struct signed64_s_t {
 
 typedef struct unsigned48_s_t {
     unsigned int   lo;             /* least significant 32 bits */
-	unsigned short hi;             /* most significant 16 bits */
+    unsigned short hi;             /* most significant 16 bits */
 } unsigned48;
 
 typedef struct unsigned128_s_t {
