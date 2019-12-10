@@ -1,5 +1,4 @@
 /*
- * 
  * (c) Copyright 1993 OPEN SOFTWARE FOUNDATION, INC.
  * (c) Copyright 1993 HEWLETT-PACKARD COMPANY
  * (c) Copyright 1993 DIGITAL EQUIPMENT CORPORATION
@@ -16,7 +15,6 @@
  * Packard Company, nor Digital Equipment Corporation makes any
  * representations about the suitability of this software for any
  * purpose.
- * 
  */
 
 /*
@@ -170,8 +168,8 @@ Porting Message:  You must provide definitions for the symbols
 /*
 ** Commands to invoke C-Preprocessor, C-Compiler etc.
 */
-#define CPP           "gcc -E -x c-header "
-#define CC_DEF_CMD    "gcc -c -D_GNU_SOURCE -D_REENTRANT"
+#define CPP            "gcc -E -x c-header "
+#define CC_DEF_CMD     "gcc -c -D_GNU_SOURCE -D_REENTRANT"
 
 /*
 ** Default suffixes for IDL-generated files.
