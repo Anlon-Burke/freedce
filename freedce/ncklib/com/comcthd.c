@@ -46,12 +46,12 @@
 #include <comp.h>       /* Private communications services          */
 #include <comcthd.h>    /* Shared call thread services              */
 
-
+
 /*
  * The multiplier to apply to a pool's n_threads to get the queue depth.
  */
 #ifndef RPC_C_CTHREAD_QUEUE_MULTIPLIER
-#  define RPC_C_CTHREAD_QUEUE_MULTIPLIER    8
+#  define RPC_C_CTHREAD_QUEUE_MULTIPLIER    34
 #endif
 
 /*
@@ -187,7 +187,7 @@ typedef struct cthread_pool_elt_t {
     unsigned        stop : 1;       /* T => pool's threads stop when complete */
     unsigned        queue_elt_alloc : 1;   /* T => start() should allocate queue elts */
 } cthread_pool_elt_t, *cthread_pool_elt_p_t;
-
+
 
 /*
  * Pools are only associated with the MAJOR version of an interface.
@@ -252,8 +252,8 @@ typedef struct cthread_pool_elt_t {
         (p)->idle_cthread = ct; \
     }
 
-
- 
+
+
 /*
  * The reserved pools.
  *
@@ -301,7 +301,7 @@ INTERNAL boolean                cthread_invoke_enabled;
  * A global that points to the application specified thread pool lookup function.
  */
 INTERNAL rpc_thread_pool_fn_t   cthread_pool_lookup_fn;
-
+
 
 INTERNAL void cthread_create _DCE_PROTOTYPE_ ((
         cthread_elt_p_t          /*cthread*/,
@@ -362,7 +362,7 @@ INTERNAL boolean32 cthread_call_dequeue _DCE_PROTOTYPE_ ((
         rpc_call_rep_p_t         /*call_rep*/
     ));
 
-
+
 /*
 **++
 **
@@ -442,7 +442,7 @@ unsigned32              *status;
         
     return;
 }
-
+
 /*
 **++
 **
@@ -501,7 +501,7 @@ cthread_elt_p_t cthread;
     
     if (CTHREAD_POOL_IS_QUEUE_EMPTY(p))
     {
-	skip_startup = false;
+        skip_startup = false;
     }
 
     /*
@@ -584,7 +584,7 @@ cthread_elt_p_t cthread;
              * and setup to execute it.
              */
 
-	    skip_startup = false;
+            skip_startup = false;
             if (CTHREAD_POOL_IS_QUEUE_EMPTY(p))
             {
                 run_queued_call = false;
@@ -631,7 +631,7 @@ cthread_elt_p_t cthread;
     RPC_MUTEX_UNLOCK (cthread_mutex);
 }
 
-
+
 /*
 **++
 **
@@ -740,7 +740,7 @@ pointer_t   unused_arg;
 
     RPC_MUTEX_UNLOCK (cthread_mutex);
 }
-
+
 /*
 **++
 **
@@ -861,7 +861,7 @@ CLEANUP:
 
     return p;
 }
-
+
 /*
 **++
 **
@@ -939,7 +939,7 @@ unsigned32  *status;
 
     *status = rpc_s_ok;
 }
-
+
 /*
 **++
 **
@@ -1030,7 +1030,7 @@ unsigned32  *status;
 
     *status = rpc_s_ok;
 }
-
+
 /*
 **++
 **
@@ -1200,7 +1200,7 @@ CLEANUP:
         }
     }
 }
-
+
 /*
 **++
 **
@@ -1354,7 +1354,7 @@ unsigned32  *status;
 
     *status = rpc_s_ok;
 }
-
+
 /*
 **++
 **
@@ -1439,7 +1439,7 @@ cthread_pool_elt_p_t    p;
 
     return cthread;
 }
-
+
 /*
 **++
 **
@@ -1550,7 +1550,7 @@ unsigned32              *status;
 
     *status = rpc_s_ok;
 }
-
+
 /*
 **++
 **
@@ -1636,7 +1636,7 @@ cthread_pool_elt_p_t    p;
 
     return call_rep;
 }
-
+
 /*
 **++
 **
@@ -1745,7 +1745,7 @@ rpc_call_rep_p_t        call_rep;
 
     return true;
 }
-
+
 /*
 **++
 **
@@ -1794,7 +1794,7 @@ unsigned32  *status;
 
     *status = rpc_s_ok;
 }
-
+
 /*
 **++
 **
@@ -1871,7 +1871,7 @@ CLEANUP:
 
     RPC_MUTEX_UNLOCK (cthread_mutex);
 }
-
+
 /*
 **++
 **
@@ -1963,12 +1963,12 @@ unsigned32      *status;
 
     *phandle = NULL;
 
-	 /*
+/*
 CLEANUP:
 */
     RPC_MUTEX_UNLOCK (cthread_mutex);
 }
-
+
 /*
 **++
 **
@@ -2033,7 +2033,7 @@ CLEANUP:
 
     RPC_MUTEX_UNLOCK (cthread_mutex);
 }
-
+
 /*
 **++
 **
@@ -2178,7 +2178,7 @@ unsigned32 *status;
 
     RPC_MUTEX_UNLOCK (cthread_mutex);
 }
-
+
 /*
 **++
 **
@@ -2282,7 +2282,7 @@ CLEANUP:
 
     RPC_MUTEX_UNLOCK (cthread_mutex);
 }
-
+
 /*
 **++
 **
@@ -2378,7 +2378,7 @@ CLEANUP:
     RPC_MUTEX_UNLOCK (cthread_mutex);
 }
 
-
+
 /*
 **++
 **
@@ -2541,7 +2541,7 @@ CLEANUP:
     RPC_MUTEX_UNLOCK (cthread_mutex);
 }
 
-
+
 /*
 **++
 **
@@ -2594,7 +2594,7 @@ rpc_call_rep_p_t        call_rep;
     return was_dequeued;
 }
 
-
+
 /*
 **++
 **
@@ -2652,7 +2652,7 @@ rpc_call_rep_p_t        call;
         RPC_MUTEX_UNLOCK (cthread_mutex);
     }
 }
-
+
 /*
 **++
 **
@@ -2723,13 +2723,13 @@ rpc_call_rep_p_t        call;
     if (call->u.server.cancel.count)
     {
 #ifndef _PTHREAD_NO_CANCEL_SUPPORT
-    		oc = sys_pthread_setcancel(CANCEL_ON);
+        oc = sys_pthread_setcancel(CANCEL_ON);
         TRY	{
             sys_pthread_testcancel();
         } CATCH_ALL {
             call->u.server.cancel.had_pending = true;
         } ENDTRY
-    		sys_pthread_setcancel(oc);
+            sys_pthread_setcancel(oc);
 #else
         /*
          * Cancels not supported, so the previously accepted forwarded
@@ -2746,7 +2746,7 @@ rpc_call_rep_p_t        call;
      */
     return (call->u.server.cancel.had_pending);
 }
-
+
 /*
 **++
 **
