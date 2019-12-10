@@ -1,5 +1,5 @@
 /*
- * 
+ *
  * (c) Copyright 1989 OPEN SOFTWARE FOUNDATION, INC.
  * (c) Copyright 1989 HEWLETT-PACKARD COMPANY
  * (c) Copyright 1989 DIGITAL EQUIPMENT CORPORATION
@@ -16,7 +16,7 @@
  * Packard Company, nor Digital Equipment Corporation makes any
  * representations about the suitability of this software for any
  * purpose.
- * 
+ *
  */
 /*
  */
@@ -33,8 +33,8 @@
 **  ABSTRACT:
 **
 **  This daemon is a catch all for DCE RPC support functions.  This server
-**  exports the DCE 1.0 endpoint map (ept_) network interfaces and, optionally,  
-**  the NCS 1.5.1 llb_ network interfaces and .  Additionally, this server 
+**  exports the DCE 1.0 endpoint map (ept_) network interfaces and, optionally,
+**  the NCS 1.5.1 llb_ network interfaces and .  Additionally, this server
 **  provides the RPC forwarding map function used by non-connection oriented
 **  protocol services.
 **
@@ -72,7 +72,7 @@ EXTERNAL	IObjectExporter_v0_0_epv_t objex_mgr_epv;
 #ifdef RPC_LLB
 #include <rpcdlbdb.h>
 #endif
-          
+
 #include <dce/dce_error.h>
 
 
@@ -134,18 +134,18 @@ INTERNAL void fwd_map
     ));
 
 
-
+
 /*
- * These implementation constants can be redefined in the system specific 
+ * These implementation constants can be redefined in the system specific
  * config files if necessary (e.g. common/ultrix_mips.h).
  */
 
 #ifdef DCELOCAL_PATH
 #  define rpcd_c_database_name_prefix1 DCELOCAL_PATH
-#  define rpcd_c_database_name_prefix2 "/var/rpc/" 
+#  define rpcd_c_database_name_prefix2 "/var/rpc/"
 #else
 
-#ifndef rpcd_c_database_name_prefix1 
+#ifndef rpcd_c_database_name_prefix1
 #  define rpcd_c_database_name_prefix1 "/tmp/"
 #endif
 
@@ -168,7 +168,7 @@ INTERNAL void fwd_map
 #endif
 
 
-/* 
+/*
  *  Optional list of protocol sequences which rpcd will use.
  *  List is specified on the command line
  */
@@ -188,20 +188,20 @@ INTERNAL boolean32      foreground = false;
 
 INTERNAL char           rpcd_version_str[] =
 #if ENABLE_DCOM
-	"rpcd/orpcd version freedce 1.1";
+    "rpcd/orpcd version freedce 1.0.1";
 #else
-	"rpcd version freedce 1.1";
+    "rpcd version freedce 1.0.1";
 #endif
 
 GLOBAL   uuid_t         nil_uuid;
 
 
-
+
 PRIVATE boolean32 check_st_bad(str, st)
 char            *str;
 error_status_t  *st;
 {
-    if (STATUS_OK(st)) 
+    if (STATUS_OK(st))
         return false;
 
     show_st(str, st);
@@ -238,9 +238,9 @@ INTERNAL void usage()
     fprintf(stderr, "  If any <protseq>s are specified, the rpcd listens only on those; otherwise\n");
     fprintf(stderr, "  all protseqs are listened on.\n");
 }
-
-/* 
- * match_command 
+
+/*
+ * match_command
  * takes a key and string as input and returns whether the
  * string matches the key where at least min_len characters
  * of the key are required to be specified.
@@ -278,7 +278,7 @@ char            *argv[];
     unsigned32      status;
     extern int      optind;
     extern char     *optarg;
-    
+
 
     /*
      * Process args.
@@ -328,7 +328,7 @@ char            *argv[];
 
         if (num_protseq >= MAX_PROTSEQ_ARGS)
         {
-            SET_STATUS(&status, ept_s_cant_perform_op); 
+            SET_STATUS(&status, ept_s_cant_perform_op);
             show_st("Too many protseq args", &status);
             return;
         }
@@ -343,31 +343,30 @@ char            *argv[];
 INTERNAL void register_ifs(status)
 error_status_t  *status;
 {
-    rpc_server_register_if(ept_v3_0_s_ifspec, (uuid_p_t)NULL, 
+    rpc_server_register_if(ept_v3_0_s_ifspec, (uuid_p_t)NULL,
             (rpc_mgr_epv_t) &ept_v3_0_mgr_epv, status);
     if (check_st_bad("Unable to rpc_server_register_if for ept", status))
         return;
 
 #ifdef RPC_LLB
-    rpc_server_register_if(llb__v4_0_s_ifspec, (uuid_p_t)NULL, 
+    rpc_server_register_if(llb__v4_0_s_ifspec, (uuid_p_t)NULL,
             (rpc_mgr_epv_t) &llb_v4_0_mgr_epv, status);
     if (check_st_bad("Unable to rpc_server_register_if for llb", status))
         return;
 #endif
 
 #if ENABLE_DCOM
-	 rpc_server_register_if(IObjectExporter_v0_0_s_ifspec, (uuid_p_t)NULL,
-			 (rpc_mgr_epv_t)&objex_mgr_epv, status);
-	 if (check_st_bad("Unable to rpc_server_register_if for orpc", status))
-		 return;
+    rpc_server_register_if(IObjectExporter_v0_0_s_ifspec, (uuid_p_t)NULL,
+            (rpc_mgr_epv_t)&objex_mgr_epv, status);
+    if (check_st_bad("Unable to rpc_server_register_if for orpc", status))
+        return;
 #endif
-	 
 }
 
 /*
  * Arrange to handle calls on the protocol sequences of interest.
  * Note that while both interfaces specify well know endpoints,
- * the ept_ endpoints are a superset of the llb_ endpoints (which 
+ * the ept_ endpoints are a superset of the llb_ endpoints (which
  * precludes us from doing a "use_protseq_if" on both).
  */
 INTERNAL void use_protseqs(status)
@@ -378,7 +377,7 @@ error_status_t  *status;
     if (use_all_protseqs)
     {
         rpc_server_use_all_protseqs_if(0, ept_v3_0_s_ifspec, status);
-        if (! STATUS_OK(status)) 
+        if (! STATUS_OK(status))
         {
             if (*status == rpc_s_cant_bind_sock)
                 show_st("Verify that no other rpcd/llbd is running", status);
@@ -391,7 +390,7 @@ error_status_t  *status;
         for (i = 0; i < num_protseq; i++)
         {
             rpc_server_use_protseq_if(protseq[i], 0, ept_v3_0_s_ifspec, status);
-            if (! STATUS_OK(status)) 
+            if (! STATUS_OK(status))
             {
                 if (*status == rpc_s_cant_bind_sock)
                     show_st("Verify that no other rpcd/llbd is running", status);
@@ -419,7 +418,7 @@ error_status_t  *status;
             return;
 
         for (i = 0; i < bv->count; i++)
-        {   
+        {
             rpc_binding_to_string_binding(bv->binding_h[i], &bstr, &st);
             printf("    %s\n", bstr);
             rpc_string_free(&bstr, &st);
@@ -449,10 +448,10 @@ error_status_t  *status;
         return;
 
     if (dflag)
-        printf("(rpcd) initializing database\n"); 
+        printf("(rpcd) initializing database\n");
 
-    fname = (unsigned_char_p_t) sys_malloc(strlen(rpcd_c_database_name_prefix1) + 
-                                       strlen(rpcd_c_database_name_prefix2) + 
+    fname = (unsigned_char_p_t) sys_malloc(strlen(rpcd_c_database_name_prefix1) +
+                                       strlen(rpcd_c_database_name_prefix2) +
                                        strlen(rpcd_c_ep_database_name) + 1);
     sprintf((char *) fname, "%s%s%s", rpcd_c_database_name_prefix1,
             rpcd_c_database_name_prefix2, rpcd_c_ep_database_name);
@@ -462,10 +461,10 @@ error_status_t  *status;
         return;
 
     sys_free(fname);
-    
+
 #ifdef RPC_LLB
-    fname = (unsigned_char_p_t) sys_malloc(strlen(rpcd_c_database_name_prefix1) + 
-                                       strlen(rpcd_c_database_name_prefix2) + 
+    fname = (unsigned_char_p_t) sys_malloc(strlen(rpcd_c_database_name_prefix1) +
+                                       strlen(rpcd_c_database_name_prefix2) +
                                        strlen(rpcd_c_llb_database_name) + 1);
     sprintf((char *) fname, "%s%s%s", rpcd_c_database_name_prefix1,
             rpcd_c_database_name_prefix2, rpcd_c_llb_database_name);
@@ -482,8 +481,8 @@ error_status_t  *status;
     print_data((void*)&epdb_obj, sizeof(epdb_obj));
 #endif
     if (check_st_bad("Can't get ept object uuid", status))	{
-		 /* do nothing */;
-	 }
+        /* do nothing */;
+    }
 
     ept_if_rep = (rpc_if_rep_p_t) ept_v3_0_s_ifspec;
 #ifdef HACK_DEBUG
@@ -492,8 +491,8 @@ error_status_t  *status;
 
     rpc_object_set_type(&epdb_obj, &ept_if_rep->id, status);
     if (check_st_bad("Can't set ept object type", status))	{
-		 /* do nothing */;
-	 }
+        /* do nothing */;
+    }
 
     if (dflag)
     {
@@ -506,7 +505,7 @@ error_status_t  *status;
     }
 }
 
-
+
 /*
  * Perform the forwarding map algorithm to produce an rpc_addr to the
  * selected endpoint.
@@ -514,11 +513,11 @@ error_status_t  *status;
  * Eventually, we probably want to get all packets from a single activity
  * to a single server (assuming that we can figure out how take advantage
  * of selecting different potential servers in the face of stale entries).
- * 
+ *
  */
 INTERNAL void fwd_map
-    (object, interface, data_rep, 
-    rpc_protocol, rpc_protocol_vers_major, rpc_protocol_vers_minor, addr, 
+    (object, interface, data_rep,
+    rpc_protocol, rpc_protocol_vers_major, rpc_protocol_vers_minor, addr,
     actuuid, fwd_addr, fwd_action, status)
 uuid_p_t                object;
 rpc_if_id_p_t           interface;
@@ -537,15 +536,15 @@ error_status_t          *status;
 
     /*
      * Forwarding algorithm:
-     * Consult ep database (and possibly the llb database) to see if 
-     * anybody has registered the matching interface/object uuids.  
+     * Consult ep database (and possibly the llb database) to see if
+     * anybody has registered the matching interface/object uuids.
      */
 
     num_ents = 0;
 
     h = epdb_inq_handle();
-    epdb_fwd(h, object, interface, data_rep, 
-             rpc_protocol, rpc_protocol_vers_major, rpc_protocol_vers_minor, 
+    epdb_fwd(h, object, interface, data_rep,
+             rpc_protocol, rpc_protocol_vers_major, rpc_protocol_vers_minor,
              addr, NULL, 1L, &num_ents, fwd_addr, status);
 
 #ifdef RPC_LLB
@@ -553,7 +552,7 @@ error_status_t          *status;
         ((*status == rpc_s_ok) && (num_ents == 0)) )
     {
         h = lbdb_inq_handle();
-        lbdb_fwd(h, object, &interface->uuid, addr, 
+        lbdb_fwd(h, object, &interface->uuid, addr,
                         NULL, 1L, &num_ents, fwd_addr, status);
     }
 #endif
@@ -573,7 +572,7 @@ error_status_t          *status;
     *fwd_action = num_ents == 0 ? rpc_e_fwd_drop : rpc_e_fwd_forward;
     return;
 }
-
+
 int main(int argc, char *argv[])
 {
     error_status_t  status;
@@ -596,7 +595,7 @@ int main(int argc, char *argv[])
      * Must be root (pid=0) to be able to start llbd
      */
     uid = getuid();
-    if (uid != 0) {  
+    if (uid != 0) {
         fprintf(stderr, "(rpcd) Must be root to start rpcd, your uid = %d \n", uid);
         exit(2);
     }
@@ -607,7 +606,7 @@ int main(int argc, char *argv[])
      * If not debugging, fork off a process to be the rpcd.  The parent exits.
      */
 
-    if (!dflag && !foreground) 
+    if (!dflag && !foreground)
     {
 #if defined(UNIX) || defined(unix)
         int pid, fd;
@@ -630,7 +629,7 @@ int main(int argc, char *argv[])
             exit(0);
 
 #if defined(__linux__)
-	setpgrp();
+        setpgrp();
 #else
         setpgrp(0, getpid());
 #endif
@@ -638,22 +637,22 @@ int main(int argc, char *argv[])
             char *fname;
             char *p;
 
-            if ((fname = sys_malloc(strlen(rpcd_c_database_name_prefix1) + 
-                           strlen(rpcd_c_database_name_prefix2) + 
+            if ((fname = sys_malloc(strlen(rpcd_c_database_name_prefix1) +
+                           strlen(rpcd_c_database_name_prefix2) +
                            strlen(rpcd_c_logfile_name) + 1)) != NULL)
             {
                 sprintf((char *) fname, "%s%s%s", rpcd_c_database_name_prefix1,
                         rpcd_c_database_name_prefix2, rpcd_c_logfile_name);
                 if ((fd = open(fname, O_WRONLY|O_CREAT|O_TRUNC
 #ifdef HAVE_OS_WIN32
-						|O_BINARY
+                        |O_BINARY
 #endif
-						,
-                               S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH)) != -1)
+                        ,
+                         S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH)) != -1)
                 {
-                    (void)dup2(fd,2);
+                    (void) dup2(fd,2);
                 }
-                (void)close(fd);
+                (void) close(fd);
                 /*
                  * We don't care if open() or dup2() failed.
                  */
@@ -661,7 +660,7 @@ int main(int argc, char *argv[])
                 if ((p = strrchr(fname, (int)'/')) != NULL)
                 {
                     *p = '\0';
-                    (void)chdir(fname);
+                    (void) chdir(fname);
                     /*
                      * Again, we don't care if chdir() failed.
                      */
@@ -700,9 +699,9 @@ int main(int argc, char *argv[])
     if (check_st_bad("Unable to rpc_server_register_fwd_map", &status))
         exit(1);
 
-    rpc_server_listen(5, &status);
+    rpc_server_listen(40, &status);
     if (check_st_bad("Unable to rpc_server_listen", &status))
         exit(1);
-    
+
     exit(0);
 }
