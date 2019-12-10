@@ -5,10 +5,10 @@
 # It is necessary for linking the library.
 
 # The name that we can dlopen(3).
-dlname='libnaf_uxd.so.0'
+dlname='libnaf_uxd.so.1'
 
 # Names of this library.
-library_names='libnaf_uxd.so.0.0.0 libnaf_uxd.so.0 libnaf_uxd.so'
+library_names='libnaf_uxd.so.1.0.1 libnaf_uxd.so.1 libnaf_uxd.so'
 
 # The name of the static archive.
 old_library='libnaf_uxd.a'
@@ -17,9 +17,9 @@ old_library='libnaf_uxd.a'
 dependency_libs=' -L/opt/dce/lib /opt/dce/lib/libdcethreads.la -ldl -lpthread'
 
 # Version information for libnaf_uxd.
-current=0
+current=1
 age=0
-revision=0
+revision=1
 
 # Is this an already installed library?
 installed=yes

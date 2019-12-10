@@ -5,10 +5,10 @@
 # It is necessary for linking the library.
 
 # The name that we can dlopen(3).
-dlname='libuuid.so.0'
+dlname='libuuid.so.1'
 
 # Names of this library.
-library_names='libuuid.so.0.0.0 libuuid.so.0 libuuid.so'
+library_names='libuuid.so.1.0.1 libuuid.so.1 libuuid.so'
 
 # The name of the static archive.
 old_library='libuuid.a'
@@ -17,9 +17,9 @@ old_library='libuuid.a'
 dependency_libs=' -L/opt/dce/lib /opt/dce/lib/libdcethreads.la -ldl -lpthread'
 
 # Version information for libuuid.
-current=0
+current=1
 age=0
-revision=0
+revision=1
 
 # Is this an already installed library?
 installed=yes
