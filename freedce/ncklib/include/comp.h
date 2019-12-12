@@ -40,7 +40,7 @@
 **
 */
 
-
+
 /***********************************************************************/
 
 #ifndef _DCE_PROTOTYPE_
@@ -64,7 +64,7 @@
 #define RPC_PROTSEQ_INQ_PROTSEQ(id)         rpc_g_protseq_id[id].rpc_protseq
 #define RPC_PROTSEQ_INQ_NET_IF_ID(id)       rpc_g_protseq_id[id].network_if_id
 
-
+
 /***********************************************************************/
 /*
  * R P C _ P R O T O C O L _ I D _ E L T _ T
@@ -116,7 +116,7 @@ typedef struct
 #define RPC_PROTOCOL_INQ_BINDING_EPV(id)    rpc_g_protocol_id[id].binding_epv
 #define RPC_PROTOCOL_INQ_NETWORK_EPV(id)    rpc_g_protocol_id[id].network_epv
 #define RPC_PROTOCOL_INQ_SOCKET_EPV(id)     rpc_g_protocol_id[id].socket_epv
-
+
 /***********************************************************************/
 /*
  * R P C _ G _ P R O T O C O L _ I D
@@ -162,7 +162,7 @@ EXTERNAL rpc_tower_prot_ids_t rpc_g_tower_prot_ids[RPC_C_PROTSEQ_ID_MAX*2];
 EXTERNAL unsigned32 rpc_g_tower_prot_id_number;	/* number of elts in rpc_g_tower_prot_ids */
 
 
-
+
 /***********************************************************************/
 /*
  * R P C _ N A F _ I D _ E L T _ T
@@ -196,7 +196,7 @@ typedef struct
  */
 #define RPC_NAF_INQ_SUPPORTED(id)       (rpc_g_naf_id[id].naf_init != NULL)
 #define RPC_NAF_INQ_EPV(id)             rpc_g_naf_id[id].epv
-
+
 /***********************************************************************/
 /*
  * R P C _ G _ N A F _ I D
@@ -213,7 +213,7 @@ typedef struct
  * to individual table elements.
  */
 EXTERNAL rpc_naf_id_elt_t   rpc_g_naf_id[RPC_C_NAF_ID_MAX];
-
+
 /***********************************************************************/
 /*
  * R P C _ A U T H N _ P R O T O C O L _ I D _ E L T _ T
@@ -255,7 +255,7 @@ typedef struct
                             rpc_prot_epv_tbl;
 } rpc_authn_protocol_id_elt_t, *rpc_authn_protocol_id_elt_p_t;
 
-
+
 /***********************************************************************/
 /*
  * R P C _ G _ A U T H N _ P R O T O C O L _ I D
@@ -287,9 +287,9 @@ EXTERNAL rpc_authn_protocol_id_elt_t  rpc_g_authn_protocol_id[RPC_C_AUTHN_PROTOC
 
 static inline int RPC_AUTHN_IN_RANGE(unsigned32 id)
 {
-	return (id > 0) ? (id < RPC_C_AUTHN_PROTOCOL_ID_MAX) : 0;
+    return (id > 0) ? (id < RPC_C_AUTHN_PROTOCOL_ID_MAX) : 0;
 }
-	
+
 #define RPC_AUTHN_CHECK_SUPPORTED(id, st) \
 { \
     if ((id) == (typeof(id))(rpc_c_authn_default)) \
@@ -314,7 +314,7 @@ static inline int RPC_AUTHN_IN_RANGE(unsigned32 id)
 }
 
 
-
+
 /***********************************************************************/
 /*
  * R P C _ G _ S E R V E R _ P T H R E A D _ A T T R
@@ -324,7 +324,7 @@ static inline int RPC_AUTHN_IN_RANGE(unsigned32 id)
  */
 EXTERNAL pthread_attr_t     rpc_g_server_pthread_attr;
 
-
+
 /***********************************************************************/
 /*
  * Macros for checking the validity of bindings.  Note that these live
@@ -377,7 +377,7 @@ EXTERNAL pthread_attr_t     rpc_g_server_pthread_attr;
     if (*(st) == rpc_s_ok && RPC_BINDING_IS_SERVER(binding_rep)) \
         *(st) = rpc_s_wrong_kind_of_binding; \
 }
-
+
 /***********************************************************************/
 /*
  * Prototypes for Common Communications Services routines that are used
@@ -401,5 +401,5 @@ PRIVATE void rpc__if_inq_endpoint _DCE_PROTOTYPE_ ((
 }
 #endif
 
-
+
 #endif /* _COMP_H */

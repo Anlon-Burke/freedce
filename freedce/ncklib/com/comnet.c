@@ -49,7 +49,7 @@
 #include <comcthd.h>    /* Externals for Call Thread sub-component  */
 #include <comnetp.h>    /* Internals for Network sub-component      */
 #include <comfwd.h>     /* Externals for Common Services Fwd comp   */
-
+
 /*
 *****************************************************************************
 *
@@ -92,7 +92,7 @@ INTERNAL rpc_cond_t                 shutdown_cond;
 
 
 
-
+
 /*
  * forward declarations of internal (static) functions
  */
@@ -102,7 +102,7 @@ INTERNAL void bv_alloc _DCE_PROTOTYPE_ ((
         rpc_binding_vector_p_t      * /*new_vec*/,
         unsigned32                  * /*status*/
     ));
-
+
 /*
 **++
 **
@@ -294,7 +294,7 @@ unsigned32              *status;
         *binding_vec = NULL;
     }
 }
-
+
 /*
 **++
 **
@@ -461,7 +461,7 @@ unsigned32              *status;
     }
     ENDTRY
 }
-
+
 /*
 **++
 **
@@ -520,7 +520,7 @@ unsigned32              *status;
 
     *status = rpc_s_ok;
 }
-
+
 /*
 **++
 **
@@ -558,7 +558,7 @@ PRIVATE boolean32 rpc__server_is_listening (void)
      */
     return (in_server_listen);
 }
-
+
 /*
 **++
 **
@@ -624,7 +624,7 @@ unsigned32                  *status;
 
     if (*status != rpc_s_ok)
     {
-		 RPC_DBG_PRINTF(rpc_es_dbg_general, 1, (("inq_protseqs failed\n")));
+        RPC_DBG_PRINTF(rpc_es_dbg_general, 1, (("inq_protseqs failed\n")));
         return;
     }
 
@@ -653,7 +653,7 @@ unsigned32                  *status;
      */
     rpc_protseq_vector_free (&psvp, &my_status);
 }
-
+
 /*
 **++
 **
@@ -713,7 +713,7 @@ unsigned32              *status;
 
     rpc_server_use_protseq_ep (rpc_protseq, max_calls, NULL, status);
 }
-
+
 /*
 **++
 **
@@ -789,7 +789,7 @@ unsigned32              *status;
     rpc_string_free (&endpoint, &temp_status);
 }
 
-
+
 /*
 **++
 **
@@ -907,13 +907,13 @@ unsigned32              *status;
      * were any errors, we should de-register the ones registered,
      * free the vector and return an error.
      */
-     
+
     /*
      * Now free the protocol sequence vector.
      */
     rpc_protseq_vector_free (&psvp, &my_status);
 }
-
+
 /*
 **++
 **
@@ -971,7 +971,7 @@ unsigned32          *status;
 }
 
 
-
+
 /*
 **++
 **
@@ -1052,7 +1052,7 @@ unsigned32              *status;
     /* b_c_o_p_y ((char *) psv, (char *) pvp, psv_size); */
     memmove((char *)pvp, (char *)psv, psv_size) ;
     ps = (unsigned_char_p_t) (((char *)pvp) + psv_size);
- 
+
     /*
      * Loop through the local protocol sequence id table:
      *   - copy each protseq string to the return vector string space
@@ -1068,7 +1068,7 @@ unsigned32              *status;
     *status = rpc_s_ok;
     return;
 }
-
+
 /*
 **++
 **
@@ -1132,7 +1132,7 @@ unsigned32              *status;
         return false;
     }
 }
-
+
 /*
 **++
 **
@@ -1189,7 +1189,7 @@ unsigned32              *status;
     *status = rpc_s_ok;
     return;
 }
-
+
 /*
 **++
 **
@@ -1272,7 +1272,7 @@ unsigned32              *status;
     (*net_epv->network_mon)
         (binding_rep, client_handle, rundown_fn, status);
 }
-
+
 /*
 **++
 **
@@ -1343,7 +1343,7 @@ unsigned32                  *status;
     (*net_epv->network_stop_mon)
         (binding_rep, client_h, status);
 }
-
+
 /*
 **++
 **
@@ -1409,7 +1409,7 @@ unsigned32              *status;
      */
     (*net_epv->network_maint) (binding_rep, status);
 }
-
+
 /*
 **++
 **
@@ -1482,7 +1482,7 @@ unsigned32              *status;
     (*net_epv->network_stop_maint)
         (binding_rep, status);
 }
-
+
 /*
 **++
 **
@@ -1623,7 +1623,7 @@ unsigned32              *status;
 
     RPC_MUTEX_UNLOCK (listener_state.mutex);
 }
-
+
 /*
 **++
 **
@@ -1713,7 +1713,7 @@ unsigned32              *status;
         RPC_MUTEX_UNLOCK (listener_state.mutex);
         return;
     }
-     
+
     /*
      * If we just removed the last server socket, and there's a
      * thread sitting in rpc_server_listen(), wake it up. 
@@ -1738,7 +1738,7 @@ unsigned32              *status;
     rpc__nlsn_deactivate_desc (&listener_state, found_nd, status);
     RPC_MUTEX_UNLOCK (listener_state.mutex);
 }
-
+
 /*
 **++
 **
@@ -1803,7 +1803,7 @@ unsigned32              *status;
      * Allocate a local protseq vector structure.
      */
     RPC_MEM_ALLOC(psv, rpc_protseq_vector_p_t, PSV_SIZE,
-        RPC_C_MEM_PROTSEQ_VECTOR, RPC_C_MEM_WAITOK);
+    RPC_C_MEM_PROTSEQ_VECTOR, RPC_C_MEM_WAITOK);
 
     psv->count = 0;                     /* zero out the count */
     psv_size = 0;                       /* zero out the vector malloc size */
@@ -1835,7 +1835,7 @@ unsigned32              *status;
 
     *status = rpc_s_ok;
 }
-
+
 /*
 **++
 **
@@ -1909,7 +1909,7 @@ unsigned32              *status;
     }
     *status = rpc_s_desc_not_registered;
 }
-
+
 /*
 **++
 **
@@ -1986,7 +1986,7 @@ unsigned32              *status;
 }
 
 
-
+
 /*
 **++
 **
@@ -2065,7 +2065,7 @@ unsigned32              *status;
         (prot_id, version_major, version_minor, status);
     
 }
-
+
 /*
 **++
 **
@@ -2190,13 +2190,13 @@ unsigned32              *status;
 
     /*
      * If we got this far the protocol sequence given is not valid.
-    *status = rpc_s_invalid_rpc_protseq;
+     *status = rpc_s_invalid_rpc_protseq;
      */
-	 /* not supported or invalid; it's doesn't really matter, does it? */
-	 *status = rpc_s_protseq_not_supported;
+     /* not supported or invalid; it's doesn't really matter, does it? */
+    *status = rpc_s_protseq_not_supported;
     return (RPC_C_INVALID_PROTSEQ_ID);
 }
-
+
 /*
 **++
 **
@@ -2261,7 +2261,7 @@ unsigned32          *status;
     *status = rpc_s_ok;
     return;
 }
-
+
 /*
 **++
 **
@@ -2327,11 +2327,11 @@ unsigned32          *status;
 
     if (pseq_id == RPC_C_PROTSEQ_ID_NCACN_NP)
     {
-	/* XXX: not an appropriate message to say that NamedPipes
-	 * don't have a concept of "local address".  oh well.
-	 */
+    /* XXX: not an appropriate message to say that NamedPipes
+     * don't have a concept of "local address".  oh well.
+     */
         *status = rpc_s_cant_create_sock;
-	return;
+        return;
     }
     /*
      * Create a network descriptor for this RPC Protocol Sequence.
@@ -2434,7 +2434,7 @@ CLEANUP:
     return;
 }
 
-
+
 /*
 **++
 **
@@ -2496,12 +2496,12 @@ unsigned32              *status;
     rpc_addr_p_t            rpc_addr;
     unsigned_char_p_t       endpoint_copy;
     unsigned32              count;
-	
+
     CODING_ERROR (status);
     RPC_VERIFY_INIT ();
 
-	RPC_DBG_PRINTF(rpc_es_dbg_general, 1, ("use_protseq %s[%s]\n", rpc_protseq, endpoint));
-	 
+    RPC_DBG_PRINTF(rpc_es_dbg_general, 1, ("use_protseq %s[%s]\n", rpc_protseq, endpoint));
+
     /*
      * Until both protocol services fully implement this argument, we'll
      * ignore the value provided and use the default instead.
@@ -2611,7 +2611,7 @@ unsigned32              *status;
         rpc_string_free (&endpoint_copy, &temp_status);
     }
 }
-
+
 /*
 **++
 **

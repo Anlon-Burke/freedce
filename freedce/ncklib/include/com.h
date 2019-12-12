@@ -21,7 +21,7 @@
 /*
  */
 #ifndef _COM_H
-#define _COM_H	1
+#define _COM_H  1
 /*
 **
 **  NAME
@@ -405,7 +405,7 @@ EXTERNAL rpc_protseq_id_elt_t   rpc_g_protseq_id[RPC_C_PROTSEQ_ID_MAX];
 #define RPC_PROTSEQ_TEST_PORT_RESTRICTION(id) \
     (rpc_g_protseq_id[id].port_restriction_list != NULL)
 
-
+
 /***********************************************************************/
 /*
  * R P C _ E N D P O I N T _ T
@@ -491,9 +491,9 @@ typedef struct
 
 
 
-  
 
-
+
+
 /*
  * R P C _ T O W E R _ F L O O R _ T
  *
@@ -632,7 +632,7 @@ typedef struct
 
 #define RPC_ADDRESS_START(floor)     \
     (RPC_ADDRESS_COUNT(floor) + RPC_C_TOWER_FLR_RHS_COUNT_SIZE)
-
+
 /***********************************************************************/
 /*
  * R P C _ A D D R _ V E C T O R _ P _ T

@@ -21,7 +21,7 @@
 /*
  */
 #ifndef _COMSOC_H
-#define _COMSOC_H	1
+#define _COMSOC_H  1
 /*
 **
 **  NAME:
@@ -260,28 +260,28 @@ typedef boolean (*rpc__socket_is_equal_fn_t) _DCE_PROTOTYPE_ ((
 
 typedef struct rpc_socket_epv
 {   
-	rpc__socket_open_fn_t                       sock_open;
-	rpc__socket_open_cli_fn_t                   sock_open_cli;
-	rpc__socket_open_srv_fn_t                   sock_open_srv;
-	rpc__socket_open_basic_fn_t                 sock_open_basic;
-	rpc__socket_close_fn_t                      sock_close;
-	rpc__socket_bind_fn_t                       sock_bind;
-	rpc__socket_connect_fn_t                    sock_connect;
-	rpc__socket_accept_fn_t                     sock_accept;
-	rpc__socket_listen_fn_t                     sock_listen;
-	rpc__socket_sendmsg_fn_t                    sock_sendmsg;
-	rpc__socket_recvfrom_fn_t                   sock_recvfrom;
-	rpc__socket_recvmsg_fn_t                    sock_recvmsg;
-	rpc__socket_inq_endpoint_fn_t               sock_inq_endpoint;
-	rpc__socket_set_broadcast_fn_t              sock_set_broadcast;
-	rpc__socket_set_bufs_fn_t                   sock_set_bufs;
-	rpc__socket_set_nbio_fn_t                   sock_set_nbio;
-	rpc__socket_set_close_on_exec_fn_t          sock_set_close_on_exec;
-	rpc__socket_getpeername_fn_t                sock_getpeername;
-	rpc__socket_get_if_id_fn_t                  sock_get_if_id;
-	rpc__socket_set_keepalive_fn_t              sock_set_keepalive;
-	rpc__socket_nowriteblock_wait_fn_t          sock_nowriteblock_wait;
-	rpc__socket_nodelay_fn_t                    sock_nodelay;
+    rpc__socket_open_fn_t                       sock_open;
+    rpc__socket_open_cli_fn_t                   sock_open_cli;
+    rpc__socket_open_srv_fn_t                   sock_open_srv;
+    rpc__socket_open_basic_fn_t                 sock_open_basic;
+    rpc__socket_close_fn_t                      sock_close;
+    rpc__socket_bind_fn_t                       sock_bind;
+    rpc__socket_connect_fn_t                    sock_connect;
+    rpc__socket_accept_fn_t                     sock_accept;
+    rpc__socket_listen_fn_t                     sock_listen;
+    rpc__socket_sendmsg_fn_t                    sock_sendmsg;
+    rpc__socket_recvfrom_fn_t                   sock_recvfrom;
+    rpc__socket_recvmsg_fn_t                    sock_recvmsg;
+    rpc__socket_inq_endpoint_fn_t               sock_inq_endpoint;
+    rpc__socket_set_broadcast_fn_t              sock_set_broadcast;
+    rpc__socket_set_bufs_fn_t                   sock_set_bufs;
+    rpc__socket_set_nbio_fn_t                   sock_set_nbio;
+    rpc__socket_set_close_on_exec_fn_t          sock_set_close_on_exec;
+    rpc__socket_getpeername_fn_t                sock_getpeername;
+    rpc__socket_get_if_id_fn_t                  sock_get_if_id;
+    rpc__socket_set_keepalive_fn_t              sock_set_keepalive;
+    rpc__socket_nowriteblock_wait_fn_t          sock_nowriteblock_wait;
+    rpc__socket_nodelay_fn_t                    sock_nodelay;
 
 } rpc_socket_epv_t;
 
@@ -622,7 +622,7 @@ PRIVATE rpc_socket_error_t rpc__socket_nowriteblock_wait _DCE_PROTOTYPE_((
     ));
 
 PRIVATE rpc_socket_error_t rpc__socket_nodelay _DCE_PROTOTYPE_((
-		        rpc_socket_t  /* sock */
+                rpc_socket_t  /* sock */
     ));
 
 #ifdef __cplusplus
