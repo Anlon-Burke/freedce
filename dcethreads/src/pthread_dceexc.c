@@ -16,15 +16,16 @@
  * Contributors to this package include:
  *
  *	Jim Doyle                 <jrd@bu.edu>
- *      John Rousseau             (rousseau@world.std.com>
- * 	Andrew Sandoval		  <sandoval@perigee.net>
- *	Michael T. Peterson	  <mtp@big.aa.net>
+ *      John Rousseau			<rousseau@world.std.com>
+ * 	Andrew Sandoval			<sandoval@perigee.net>
+ *	Michael T. Peterson		<mtp@big.aa.net>
+ *      Miroslaw Dobrzanski-Neumann	<mirek-dn@freenet.de>
  *
  ***************************************************************************/
 
 /*
  * Many changes to support linux threads 0.8 / glibc2.1
- * by Miroslaw Dobrzanski-Neumann <mirek-dn@t-online.de> 
+ * by Miroslaw Dobrzanski-Neumann <mirek-dn@t-online.de>, <mirek-dn@freenet.de> 
  */
 
 /*
@@ -74,6 +75,7 @@
 
 
 #include "dce/dcethreads_conf.h"
+#include <signal.h>
 
 #ifndef lint
 static const char rcsid[] __attribute__((__unused__)) = "$Id: pthread_dceexc.c,v 1.5 2009/02/27 19:14:07 lkcl Exp $";

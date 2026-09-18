@@ -7,6 +7,8 @@
  * the library itself
  */
 @TOP@
+#undef _POSIX_SOURCE
+#undef _POSIX_C_SOURCE
 #undef YIELD_AFTER_PTHREAD_CREATE
 #undef USE_CANCELATION_WRAPPER
 @BOTTOM@

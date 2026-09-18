@@ -15,16 +15,17 @@
  *
  * Contributors to this package include:
  *
- *	Jim Doyle                 <jrd@bu.edu>
- *      John Rousseau             (rousseau@world.std.com>
- * 	Andrew Sandoval		  <sandoval@perigee.net>
- *	Michael T. Peterson	  <mtp@big.aa.net>
+ *	Jim Doyle			<jrd@bu.edu>
+ *      John Rousseau			<rousseau@world.std.com>
+ * 	Andrew Sandoval			<sandoval@perigee.net>
+ *	Michael T. Peterson		<mtp@big.aa.net>
+ *	Miroslaw Dobrzanski-Neumann	<mirek-dn@freenet.de>
  *
  ***************************************************************************/
 
 /*
  * Many changes to support linux threads 0.8 / glibc2.1
- * by Miroslaw Dobrzanski-Neumann <mirek-dn@t-online.de> 
+ * by Miroslaw Dobrzanski-Neumann <mirek-dn@t-online.de>, <mirek-dn@freenet.de> 
  */
 
 /*
@@ -105,14 +106,12 @@
 
 #define _DCE_PTHREADS_COMPAT_MACROS_
 
+#include "dce/dcethreads_conf.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <signal.h>
-
-#include "dce/dcethreads_conf.h"
-
-static char rcsid [] __attribute__((__unused__)) = "$Id: exc_handling.c,v 1.4 2009/02/27 19:14:06 lkcl Exp $";
 
 #include "dce/exc_handling.h"
 
@@ -205,11 +204,15 @@ static pthread_once_t init_once_block = pthread_once_init;
 
 
 /* Prototypes */
-static void sync_signal_handler(int signal
-#ifndef HAVE_OS_WIN32
-		                , int code
+static void 
+sync_signal_handler(int signal
+#if HAVE_SIGHANDLER == 2
+		, int code __attribute__((__unused__))
+#elif HAVE_SIGHANDLER == 1
+#else
+#error unknown SIGHANDLER semantics
 #endif
-				);
+		);
 
 
 static void setup_sync_signal_handlers(void);
@@ -330,8 +333,11 @@ _set_dceexc_syncsignals_default()
 
 static void 
 sync_signal_handler(int signal
-#ifndef HAVE_OS_WIN32
+#if HAVE_SIGHANDLER == 2
 		, int code __attribute__((__unused__))
+#elif HAVE_SIGHANDLER == 1
+#else
+#error unknown SIGHANDLER semantics
 #endif
 		)
 {
@@ -827,8 +833,7 @@ exc_library_fatal_error(int failure_reason,
  * 
  * Print some information on a particular exception object. 
  */
-void exc_report(exc)
-EXCEPTION *exc;
+void exc_report(EXCEPTION *exc)
 {
 	fflush(stdout);
 

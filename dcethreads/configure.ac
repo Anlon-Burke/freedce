@@ -1,12 +1,16 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(dcethreads, 2.0.2)
+AC_INIT([dcethreads],[2.0.2])
 AC_CONFIG_SRCDIR(src/exc_handling.c)
-AC_CANONICAL_SYSTEM
-AC_CONFIG_HEADER(include/dce/dcethreads_conf.h)
-AM_INIT_AUTOMAKE(dcethreads, 2.0.2)
+AC_CANONICAL_TARGET
+AC_CONFIG_HEADERS([include/dce/dcethreads_conf.h])
+AM_INIT_AUTOMAKE
 AC_PREFIX_DEFAULT(/opt/dce)
 AC_SUBST([LT_VERSION],[2:2:0])
 
+AC_USE_SYSTEM_EXTENSIONS
+
+AC_DEFINE([_POSIX_SOURCE], [1], [internally posix is needed])
+AC_DEFINE([_POSIX_C_SOURCE], [200809L], [internally posix is needed])
 
 # determine target system
 if test "x$target" = "x"; then
@@ -44,7 +48,7 @@ if test "x$have_win32" = "x1"; then
         dnl AC_SUBST(PTW32_STATIC_LIB)
 fi
 dnl Checks for programs.
-AM_PROG_LIBTOOL
+LT_INIT
 AC_PROG_AWK
 AC_PROG_CC
 AC_PROG_CPP
@@ -63,7 +67,15 @@ fi
 
 
 dnl Checks for header files.
-AC_HEADER_STDC
+dnl m4_warn([obsolete],
+dnl [The preprocessor macro 'STDC_HEADERS' is obsolete.
+dnl   Except in unusual embedded environments, you can safely include all
+dnl   C89 headers unconditionally.])dnl
+# Autoupdate added the next two lines to ensure that your configure
+# script's behavior did not change.  They are probably safe to remove.
+AC_CHECK_INCLUDES_DEFAULT
+AC_PROG_EGREP
+
 AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS(fcntl.h malloc.h sys/time.h unistd.h features.h sys/cdefs.h)
 
@@ -73,17 +85,67 @@ AC_C_INLINE
 AC_TYPE_MODE_T
 AC_TYPE_OFF_T
 AC_TYPE_SIZE_T
-AC_HEADER_TIME
+dnl m4_warn([obsolete],
+dnl [Update your code to rely only on HAVE_SYS_TIME_H,
+dnl then remove this warning and the obsolete code below it.
+dnl All current systems provide time.h; it need not be checked for.
+dnl Not all systems provide sys/time.h, but those that do, all allow
+dnl you to include it and time.h simultaneously.])dnl
+AC_CHECK_HEADERS_ONCE([sys/time.h])
+# Obsolete code to be removed.
+# if test $ac_cv_header_sys_time_h = yes; then
+#   AC_DEFINE([TIME_WITH_SYS_TIME],[1],[Define to 1 if you can safely include both <sys/time.h>
+# 	     and <time.h>.  This macro is obsolete.])
+# fi
+# End of obsolete code.
+
 AC_CHECK_TYPES(ssize_t)
 
 dnl Checks for library functions.
-AC_PROG_GCC_TRADITIONAL
+dnl m4_warn([obsolete],
+dnl [AC_PROG_GCC_TRADITIONAL is obsolete; use AC_PROG_CC
+dnl ])dnl
+dnl AC_REQUIRE(AC_PROG_CC)
 AC_FUNC_MEMCMP
 AC_CHECK_FUNCS(gettimeofday)
 
 AC_DEFINE(YIELD_AFTER_PTHREAD_CREATE, 1)
 
 AC_DEFINE(USE_CANCELATION_WRAPPER, 1)
+
+AC_MSG_CHECKING([sighandler signature]); 
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+#include <signal.h>
+
+extern void mne_sig_act(int, int);
+
+void mne_setup()
+{
+
+struct sigaction sa = {0};
+sa.sa_handler = &mne_sig_act;
+}
+
+]])],
+[AC_MSG_RESULT([SIG 2]) AC_DEFINE(HAVE_SIGHANDLER, 2, [void(*)(int, int)])],
+[
+	AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+#include <signal.h>
+
+extern void mne_sig_act(int);
+
+void mne_setup()
+{
+
+struct sigaction sa = {0};
+sa.sa_handler = &mne_sig_act;
+}
+
+]])])
+
+	AC_MSG_RESULT([SIG 1]) AC_DEFINE(HAVE_SIGHANDLER, 1, [void(*)(int)], AC_MSG_ERROR([no signal handler]))
+]	
+)
 
 dnl check if glibc functions are true cancellation points
 dnl
@@ -135,4 +197,5 @@ dnl  	[AC_MSG_RESULT([no]) AC_DEFINE(USE_CANCELATION_WRAPPER, 1)]
 dnl  )
 dnl  fi # have_win32
 
-AC_OUTPUT(Makefile include/Makefile include/dce/Makefile src/Makefile tests/Makefile)
+AC_CONFIG_FILES([Makefile include/Makefile include/dce/Makefile src/Makefile tests/Makefile])
+AC_OUTPUT
