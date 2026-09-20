@@ -1,7 +1,8 @@
+// vim: ts=4 sw=4 expandtab:
 /**************************************************************************
  *
  * DCE Threads Compatibility Library for Linux
- * 
+ *
  * A DCE Threads emulation layer ontop of LinuxThreads.
  *
  * This software derives from source from several other implementations
@@ -11,25 +12,25 @@
  *    Michael T. Peterson's PCthreads package and DCE RPC port
  *    Andrew Sandoval's port of DCE RPC to Linux
  *
- * This package is provided under the GNU General Public License. 
+ * This package is provided under the GNU General Public License.
  *
  * Contributors to this package include:
  *
- *	Jim Doyle			<jrd@bu.edu>
- *      John Rousseau			<rousseau@world.std.com>
- * 	Andrew Sandoval			<sandoval@perigee.net>
- *	Michael T. Peterson		<mtp@big.aa.net>
- *	Miroslaw Dobrzanski-Neumann	<mirek-dn@freenet.de>
+ *  Jim Doyle                   <jrd@bu.edu>
+ *  John Rousseau               <rousseau@world.std.com>
+ *  Andrew Sandoval             <sandoval@perigee.net>
+ *  Michael T. Peterson         <mtp@big.aa.net>
+ *  Miroslaw Dobrzanski-Neumann <mirek-dn@freenet.de>
  *
  ***************************************************************************/
 
 /*
  * Many changes to support linux threads 0.8 / glibc2.1
- * by Miroslaw Dobrzanski-Neumann <mirek-dn@t-online.de>, <mirek-dn@freenet.de> 
+ * by Miroslaw Dobrzanski-Neumann <mirek-dn@t-online.de>, <mirek-dn@freenet.de>
  */
 
 /*
- * 
+ *
  * (c) Copyright 1991 OPEN SOFTWARE FOUNDATION, INC.
  * (c) Copyright 1991 HEWLETT-PACKARD COMPANY
  * (c) Copyright 1991 DIGITAL EQUIPMENT CORPORATION
@@ -46,7 +47,7 @@
  * Packard Company, nor Digital Equipment Corporation makes any
  * representations about the suitability of this software for any
  * purpose.
- * 
+ *
  */
 
 /*
@@ -62,10 +63,10 @@
 **  ABSTRACT:
 **
 **  Pthread based exception package support routines.
-** 
+**
 **  These support routines help to implement the TRY/CATCH exception
 **  library for C used by DCE.
-** 
+**
 **  We maintain a per-thread stack of exception context blocks.
 **  For each context block (bracketed by TRY/ENDTRY), we catch and
 **  dispatch exceptions to handlers by using setjmp()/longjmp().
@@ -74,22 +75,22 @@
 **  thread cancel notification (delivered by the Pthreads library)
 **  or synchronous signals, are dispatched to user-code as a RAISEd
 **  exception.
-** 
+**
 **  The exception currently being processed is recorded in per thread
 **  data which is set by the excpetion handler package.
-** 
+**
 **  Exception handlers execute with async cancellability disabled.
-** 
+**
 **  Arbitrary application pthread_cancel's that are not part of a TRY/CATCH
 **  scoped macro will unwind to the most recent TRY/CATCH exception handler.
-** 
+**
 **  thread cancels may be absorbed by catching pthread_cancel_e. This is
 **  different from most implementation of pthreads, where thread cancels
 **  cannot be diverted, suspended or forgetten.
 **
 **  Exceptions that are thrown and not caught by ANY handlers, results
 **  in an application exit.
-** 
+**
 */
 
 /*
@@ -97,7 +98,7 @@
  * #include <pthread_dce_common.h>
  * #include <pthread_dce_exc.h>
  * #include <pthread_dce_proto.h>
- * 
+ *
  * #include <signal.h>
  * #include <stdio.h>
  * #include <malloc.h>
@@ -151,29 +152,29 @@ EXCEPTION exc_unhandled_exc;
 
 EXCEPTION pthread_cancel_e;
 EXCEPTION pthread_badparam_e;
-EXCEPTION pthread_existence_e;           
-EXCEPTION pthread_in_use_e;              
-EXCEPTION pthread_use_error_e;           
-EXCEPTION pthread_nostackmem_e;          
-EXCEPTION pthread_exit_thread_e;         
+EXCEPTION pthread_existence_e;
+EXCEPTION pthread_in_use_e;
+EXCEPTION pthread_use_error_e;
+EXCEPTION pthread_nostackmem_e;
+EXCEPTION pthread_exit_thread_e;
 EXCEPTION pthread_unimp_e;
 
 /**
- ** Internal Error processing tables and values 
+ ** Internal Error processing tables and values
  **
  ** This should be replaced by DCE Serviceability Messages at
  ** some point in the future.
  **
  **/
 
-#define EXC_INT_FAIL_KEYCREATE		000000001
-#define EXC_INT_FAIL_GETKEY		000000002
-#define EXC_INT_FAIL_SETKEY		000000003
-#define EXC_INT_FAIL_UNHANDLEDEXC	000000004
-#define EXC_INT_FAIL_NULLEXC		000000005
-#define EXC_INT_FAIL_NOTRY		000000006
+#define EXC_INT_FAIL_KEYCREATE      000'000'001
+#define EXC_INT_FAIL_GETKEY         000'000'002
+#define EXC_INT_FAIL_SETKEY         000'000'003
+#define EXC_INT_FAIL_UNHANDLEDEXC   000'000'004
+#define EXC_INT_FAIL_NULLEXC        000'000'005
+#define EXC_INT_FAIL_NOTRY          000'000'006
 
-static char  *exc_lib_errmsgs[] = 
+static char  *exc_lib_errmsgs[] =
 {
  "Internal error: Invalid Exception Library error message.",
  "Unable to create initial thread key with pthread_keycreate().",
@@ -186,7 +187,7 @@ static char  *exc_lib_errmsgs[] =
 };
 
 #define EXC_SYS_FAIL_MSGS_SIZE sizeof(exc_lib_errmsgs)
-      
+
 /* -------------------------------------------------------------------- */
 
 /*
@@ -196,7 +197,7 @@ static char  *exc_lib_errmsgs[] =
 #define NULL 0
 #endif
 
-pthread_key_t _exc_key;    
+pthread_key_t _exc_key;
 
 static pthread_once_t init_once_block = pthread_once_init;
 
@@ -204,16 +205,14 @@ static pthread_once_t init_once_block = pthread_once_init;
 
 
 /* Prototypes */
-static void 
-sync_signal_handler(int signal
-#if HAVE_SIGHANDLER == 2
-		, int code __attribute__((__unused__))
+
+#if   HAVE_SIGHANDLER == 2
+static void sync_signal_handler(int signal, int code);
 #elif HAVE_SIGHANDLER == 1
+static void sync_signal_handler(int signal);
 #else
 #error unknown SIGHANDLER semantics
 #endif
-		);
-
 
 static void setup_sync_signal_handlers(void);
 
@@ -223,7 +222,7 @@ static void init_once(void);
 
 static void exc_library_fatal_error(int failure_reason,
                                     const char *name,
-				    _exc_buf * exc_buffer) __attribute__((__noreturn__));
+                    _exc_buf * exc_buffer) __attribute__((__noreturn__));
 
 
 /* -------------------------------------------------------------------- */
@@ -237,7 +236,7 @@ static void exc_library_fatal_error(int failure_reason,
  ** signals to raised DCE Exceptions.
  **
  ** Certain Synchronous Signals are delivered to the thread (or Linux
- ** clone() process) that caused the event. Some of these signals 
+ ** clone() process) that caused the event. Some of these signals
  ** need to be 'caught' and then delivered to the thread as a RAISE-ed
  ** DCE Exception.
  **
@@ -270,37 +269,37 @@ _set_dceexc_syncsignals_default()
    */
 
 #if defined(SIGIOT)
-  _dce_exclib_syncsig_catch[SIGIOT] = 1;   /* hardware fault */
+    _dce_exclib_syncsig_catch[SIGIOT] = 1;   /* hardware fault */
 #endif
 #if defined(SIGEMT)
-  _dce_exclib_syncsig_catch[SIGEMT] = 1;   /* hardware fault */
+    _dce_exclib_syncsig_catch[SIGEMT] = 1;   /* hardware fault */
 #endif
 #if defined(SIGFPE)
-  _dce_exclib_syncsig_catch[SIGFPE] = 1;   /* arithmetic exception */
+    _dce_exclib_syncsig_catch[SIGFPE] = 1;   /* arithmetic exception */
 #endif
 #if defined(SIGPIPE)
-  _dce_exclib_syncsig_catch[SIGPIPE] = 1;  /* write to pipe w no reader */
+    _dce_exclib_syncsig_catch[SIGPIPE] = 1;  /* write to pipe w no reader */
 #endif
 #if defined(SIGTRAP)
-  _dce_exclib_syncsig_catch[SIGTRAP] = 1;  /* hardware fault */
+    _dce_exclib_syncsig_catch[SIGTRAP] = 1;  /* hardware fault */
 #endif
-#if defined(SIGSYS)       
-  _dce_exclib_syncsig_catch[SIGSYS] = 1;   /* invalid syscall() */
+#if defined(SIGSYS)
+    _dce_exclib_syncsig_catch[SIGSYS] = 1;   /* invalid syscall() */
 #endif
 
-  /*
-   * The following signals are not caught, and will result in
-   * thread termination with core dump
-   */
+    /*
+     * The following signals are not caught, and will result in
+     * thread termination with core dump
+     */
 
-#if defined(SIGSEGV)       
-  _dce_exclib_syncsig_catch[SIGSEGV] = 0;   /* SEG FAULT */
+#if defined(SIGSEGV)
+    _dce_exclib_syncsig_catch[SIGSEGV] = 0;   /* SEG FAULT */
 #endif
-#if defined(SIGBUS)       
-  _dce_exclib_syncsig_catch[SIGBUS] = 0;   /* SEG FAULT */
+#if defined(SIGBUS)
+    _dce_exclib_syncsig_catch[SIGBUS] = 0;   /* SEG FAULT */
 #endif
-#if defined(SIGILL)       
-  _dce_exclib_syncsig_catch[SIGILL] = 0;   /* ILLEGAL INSTRUCTION */
+#if defined(SIGILL)
+    _dce_exclib_syncsig_catch[SIGILL] = 0;   /* ILLEGAL INSTRUCTION */
 #endif
 
 }
@@ -311,14 +310,14 @@ _set_dceexc_syncsignals_default()
  *
  * This signal handler is installed for each thread invoked through
  * the DCE Pthreads Exceptions-mapping API. This signal handler
- * catches per-thread synchronous signals and maps them to DCE 
+ * catches per-thread synchronous signals and maps them to DCE
  * exceptions. It does this by RAISING an exception that results
  * in a siglongjmp() out of the signal handler and into the
  * exception dispatch code path.
- * 
+ *
  * Opon receipt of a synchronous signal, we simply raise an exception
  * to the current exception context block.
- * 
+ *
  * NOTE:
  *
  * It is assumed that it is okay to do a RAISE from a SYNCHRONOUS signal
@@ -328,53 +327,52 @@ _set_dceexc_syncsignals_default()
  * (i.e. we were in user code, not the pthread library when the fault
  * occurred) should mean that there are no pthread re-entrency problems.
  *
- * 
+ *
  */
 
-static void 
-sync_signal_handler(int signal
-#if HAVE_SIGHANDLER == 2
-		, int code __attribute__((__unused__))
+#if   HAVE_SIGHANDLER == 2
+static void sync_signal_handler(int signal, int code __attribute__((__unused__))
 #elif HAVE_SIGHANDLER == 1
+static void sync_signal_handler(int signal)
 #else
 #error unknown SIGHANDLER semantics
 #endif
-		)
 {
     EXCEPTION *exc;
 #ifndef HAVE_OS_WIN32
     struct sigaction action;
 #endif
 
-    switch (signal) {
+    switch (signal)
+    {
 #if defined(SIGILL)
-        case SIGILL:    exc = &exc_illinstr_e;      break;
+    case SIGILL:    exc = &exc_illinstr_e;      break;
 #endif
 #if defined(SIGTRAP)
-        case SIGTRAP:   exc = &exc_SIGTRAP_e;       break;
+    case SIGTRAP:   exc = &exc_SIGTRAP_e;       break;
 #endif
 #if defined(SIGIOT)
-        case SIGIOT:    exc = &exc_SIGIOT_e;        break;
-#endif        
-#if defined(SIGEMT)       
-        case SIGEMT:    exc = &exc_SIGEMT_e;        break;
-#endif        
+    case SIGIOT:    exc = &exc_SIGIOT_e;        break;
+#endif
+#if defined(SIGEMT)
+    case SIGEMT:    exc = &exc_SIGEMT_e;        break;
+#endif
 #if defined(SIGFPE)
-        case SIGFPE:    exc = &exc_aritherr_e;      break;
+    case SIGFPE:    exc = &exc_aritherr_e;      break;
 #endif
 #if defined(SIGBUS)
-        case SIGBUS:    exc = &exc_illaddr_e;       break;
-#endif        
-#if defined(SIGSEGV)
-        case SIGSEGV:   exc = &exc_illaddr_e;       break;
-#endif        
-#if defined(SIGSYS)       
-        case SIGSYS:    exc = &exc_SIGSYS_e;        break;
-#endif        
-#if defined(SIGPIPE)
-        case SIGPIPE:   exc = &exc_SIGPIPE_e;       break;
+    case SIGBUS:    exc = &exc_illaddr_e;       break;
 #endif
-        default:        exc = &exc_unksyncsig_e;    break;
+#if defined(SIGSEGV)
+    case SIGSEGV:   exc = &exc_illaddr_e;       break;
+#endif
+#if defined(SIGSYS)
+    case SIGSYS:    exc = &exc_SIGSYS_e;        break;
+#endif
+#if defined(SIGPIPE)
+    case SIGPIPE:   exc = &exc_SIGPIPE_e;       break;
+#endif
+    default:        exc = &exc_unksyncsig_e;    break;
     }
 
     /*
@@ -385,18 +383,20 @@ sync_signal_handler(int signal
 
 #ifndef HAVE_OS_WIN32 /* oops */
     if (_dce_exclib_syncsig_catch[signal] != 0)
-      {
-	sigaction(signal, (struct sigaction *)0, &action);
-	if (action.sa_handler == SIG_DFL)
-	  action.sa_handler = (__sighandler_t) sync_signal_handler;
-	sigaction(signal, &action, (struct sigaction *)0);
-      }
+    {
+        sigaction(signal, (struct sigaction *)0, &action);
+        if (action.sa_handler == SIG_DFL)
+        {
+            action.sa_handler = (__sighandler_t) sync_signal_handler;
+        }
+        sigaction(signal, &action, (struct sigaction *)0);
+    }
 #endif
     _exc_raise(exc, NULL, 0);
 }
 
 
-/* 
+/*
  * S E T U P _ S Y N C _ S I G N A L _ H A N D L E R S
  *
  * Setup a signal handler to catch all synchronous signals and convert
@@ -407,7 +407,7 @@ sync_signal_handler(int signal
  * In many cases, we dont want the Exception Library to catch
  * particularly nasty signals (i.e. SIGSEGV, SIGILL, SIGBUS).
  * We want the default Unix action to occur (core dump) so that we
- * can use a debugger to figure out WHAT went wrong. 
+ * can use a debugger to figure out WHAT went wrong.
  *
  *
  */
@@ -427,51 +427,50 @@ setup_sync_signal_handlers()
 #define SIGACTION(_sig) \
 { \
     struct sigaction action; \
-    (void)sigaction((_sig), (struct sigaction *)0, &action); \
+    (void)sigaction((_sig), NULL, &action); \
     if (action.sa_handler == SIG_DFL) \
         action.sa_handler = (__sighandler_t) sync_signal_handler; \
-    (void)sigaction((_sig), &action, (struct sigaction *)0); \
+    (void)sigaction((_sig), &action, NULL); \
 };
 #endif
 
 /*
  *  initialize the PER-PROCESS sync signal policy table,
- *  if it hasnt already been done. 
+ *  if it hasnt already been done.
  */
 
-    pthread_once(&_dce_exclib_syncsig_setdefault, 
-		     _set_dceexc_syncsignals_default);
-	
-#if defined(SIGIOT)    
+    pthread_once(&_dce_exclib_syncsig_setdefault, _set_dceexc_syncsignals_default);
+
+#if defined(SIGIOT)
     if (_dce_exclib_syncsig_catch[SIGIOT]) SIGACTION(SIGIOT);
-#endif    
-#if defined(SIGEMT)    
+#endif
+#if defined(SIGEMT)
     if (_dce_exclib_syncsig_catch[SIGEMT]) SIGACTION(SIGEMT);
-#endif    
+#endif
 
 
-#if defined(SIGILL)    
+#if defined(SIGILL)
     if (_dce_exclib_syncsig_catch[SIGILL]) SIGACTION(SIGILL);
-#endif    
-#if defined(SIGTRAP)    
+#endif
+#if defined(SIGTRAP)
     if (_dce_exclib_syncsig_catch[SIGTRAP]) SIGACTION(SIGTRAP);
-#endif    
-#if defined(SIGFPE)    
+#endif
+#if defined(SIGFPE)
     if (_dce_exclib_syncsig_catch[SIGFPE]) SIGACTION(SIGFPE);
-#endif    
-#if defined(SIGBUS)    
+#endif
+#if defined(SIGBUS)
     if (_dce_exclib_syncsig_catch[SIGBUS]) SIGACTION(SIGBUS);
-#endif    
-#if defined(SIGSEGV)    
+#endif
+#if defined(SIGSEGV)
     if (_dce_exclib_syncsig_catch[SIGSEGV]) SIGACTION(SIGSEGV);
-#endif    
+#endif
 
 #if defined(SIGSYS)
     if (_dce_exclib_syncsig_catch[SIGSYS]) SIGACTION(SIGSYS);
-#endif    
-#if defined(SIGPIPE)    
+#endif
+#if defined(SIGPIPE)
     if (_dce_exclib_syncsig_catch[SIGPIPE]) SIGACTION(SIGPIPE);
-#endif    
+#endif
 
 #undef SIGACTION
 }
@@ -479,10 +478,10 @@ setup_sync_signal_handlers()
 
 /*
  * D E S T R O Y _ E X C
- * 
+ *
  * Destroy the thread specific exception state storage.
  */
-void 
+void
 destroy_exc(void *_exc_cur)
 {
     free(_exc_cur);
@@ -491,7 +490,7 @@ destroy_exc(void *_exc_cur)
 
 /*
  * _ E X C _ A L L O C _ B U F
- * 
+ *
  * Allocate and initialize a new _exc_buf.
  */
 void
@@ -503,8 +502,8 @@ _exc_alloc_buf(_exc_buf **buf)
 
 
 /*
- * I N I T _ O N C E 
- * 
+ * I N I T _ O N C E
+ *
  * Initialize the exception package. This function is run through pthread_once().
  * Create the key for the thread specific exception state.
  */
@@ -532,42 +531,43 @@ init_once()
     EXCEPTION_INIT(exc_exfilsiz_e);
     EXCEPTION_INIT(exc_SIGTRAP_e);
     EXCEPTION_INIT(exc_SIGIOT_e);
-#if defined(SIGEMT) 
+#if defined(SIGEMT)
     EXCEPTION_INIT(exc_SIGEMT_e);
 #endif
-#if defined(SIGSYS) 
+#if defined(SIGSYS)
     EXCEPTION_INIT(exc_SIGSYS_e);
-#endif    
+#endif
     EXCEPTION_INIT(exc_SIGPIPE_e);
     EXCEPTION_INIT(exc_unksyncsig_e);
 
     EXCEPTION_INIT(pthread_cancel_e);
     EXCEPTION_INIT(pthread_badparam_e);
-    EXCEPTION_INIT(pthread_existence_e);           
-    EXCEPTION_INIT(pthread_in_use_e);              
-    EXCEPTION_INIT(pthread_use_error_e);           
-    EXCEPTION_INIT(pthread_nostackmem_e);          
-    EXCEPTION_INIT(pthread_exit_thread_e);         
+    EXCEPTION_INIT(pthread_existence_e);
+    EXCEPTION_INIT(pthread_in_use_e);
+    EXCEPTION_INIT(pthread_use_error_e);
+    EXCEPTION_INIT(pthread_nostackmem_e);
+    EXCEPTION_INIT(pthread_exit_thread_e);
     EXCEPTION_INIT(pthread_unimp_e);
 
     EXCEPTION_INIT(exc_unhandled_exc);
 
-    if (pthd4_key_create(&_exc_key, destroy_exc) != 0) {
-	exc_library_fatal_error(EXC_INT_FAIL_KEYCREATE, "init_once", 0);
+    if (pthd4_key_create(&_exc_key, destroy_exc) != 0)
+    {
+        exc_library_fatal_error(EXC_INT_FAIL_KEYCREATE, "init_once", 0);
     }
 }
 
 
 /*
  * _ E X C _ T H R E A D _ I N I T
- * 
+ *
  * Initialize the exception package for per-thread stuff.
  */
 void
 _exc_thread_init(void)
 {
     _exc_buf *eb;
-    
+
     /*
      * One time initialization for all threads.
      */
@@ -575,12 +575,13 @@ _exc_thread_init(void)
 
     /*
      * If we already have the thread-specific storage to hold this thread's
-     * current exception buffer (actually the pointer to the head (most recent) 
+     * current exception buffer (actually the pointer to the head (most recent)
      * of the exc_buf list), we're done.
      */
     eb = pthd4_getspecific(_exc_key);
-    if (eb != NULL) {
-	    return;
+    if (eb != NULL)
+    {
+        return;
     }
 
     /*
@@ -592,13 +593,14 @@ _exc_thread_init(void)
      */
     _exc_alloc_buf(&eb);
 
-    /* XXX     eb->current_exc = &exc_unhandled_exc;        
+    /* XXX     eb->current_exc = &exc_unhandled_exc;
      * jrd 06-10-1998
      */
 
 
     eb->current_exc = &pthread_cancel_e;
-    if (pthd4_setspecific(_exc_key, (void *)eb) == -1) {
+    if (pthd4_setspecific(_exc_key, (void *)eb) == -1)
+    {
         exc_library_fatal_error(EXC_INT_FAIL_SETKEY, "_exc_thread_init",eb);
     }
 
@@ -609,19 +611,20 @@ _exc_thread_init(void)
 }
 
 
-/* 
+/*
  * _ E X C _ S E T _ C U R R E N T
  *
  * Set the thread's current exception to the specified exception.
  */
 static void _exc_set_current(EXCEPTION *exc) __attribute__((__noreturn__));
-static void 
+static void
 _exc_set_current(EXCEPTION *exc)
 {
     _exc_buf *eb;
 
     eb = pthd4_getspecific(_exc_key);
-    if (eb == NULL) {
+    if (eb == NULL)
+    {
         exc_library_fatal_error(EXC_INT_FAIL_GETKEY, "_exc_set_current", eb);
     }
 
@@ -630,67 +633,67 @@ _exc_set_current(EXCEPTION *exc)
      * since the dce threads are implemented on the top of the LinuxThreads
      * one can call throw any exception without any handler installed
      */
-    if (!eb) {
-	    _exc_buf excb;
-	    memset(&excb, 0, sizeof(excb));
-	    excb.current_exc = exc;
-	    eb = &excb;
-	    exc_library_fatal_error(EXC_INT_FAIL_NOTRY, "_exc_set_current", eb);
+    if (!eb)
+    {
+        _exc_buf excb;
+        memset(&excb, 0, sizeof(excb));
+        excb.current_exc = exc;
+        eb = &excb;
+        exc_library_fatal_error(EXC_INT_FAIL_NOTRY, "_exc_set_current", eb);
     }
-    /* 
+    /*
      * check to see if we've encounted the tail end of a cancel unwind.
      * at this point, we simply request cancellation of the current thd
      */
 
     if (eb->next == NULL && exc_matches(exc, &pthread_cancel_e))
-	{
-	  /*
-	  pthd4_setcancel(CANCEL_ON);
-	  pthread_cancel(pthread_self());
-	  pthread_testcancel();
-	  */
-	  pthread_exit (PTHREAD_CANCELED);
-	}
+    {
+        /*
+         * pthd4_setcancel(CANCEL_ON);
+         * pthread_cancel(pthread_self());
+         * pthread_testcancel();
+         */
+        pthread_exit (PTHREAD_CANCELED);
+    }
     /*
      * Set the current exception in the most recent context block
      */
 
     eb->current_exc = exc;
 
-    /* 
+    /*
      * Dispatch the current exception
      * If eb->next == NULL, then we have unwound as far as we can
      * and we have an unhandled exception. Request termination of the
      * program.
      */
 
-    if (eb->next == NULL ) 
-      {
-        exc_library_fatal_error(EXC_INT_FAIL_UNHANDLEDEXC, 
-				"_exc_set_current", 
-				eb);
-      }
+    if (eb->next == NULL )
+    {
+        exc_library_fatal_error(EXC_INT_FAIL_UNHANDLEDEXC, "_exc_set_current", eb);
+    }
     else
-      {
+    {
 #ifdef HAVE_OS_WIN32
         longjmp(eb->jb, 1);
 #else
         siglongjmp(eb->jb, 1);
 #endif
-      }
+    }
 }
 
 
-/* 
- * _ E X C _ R A I S E 
- * 
+/*
+ * _ E X C _ R A I S E
+ *
  * RAISE operation.
  */
 
-void 
+void
 _exc_raise(EXCEPTION *exc, char * file, int line)
 {
-    if (exc == NULL) {
+    if (exc == NULL)
+    {
         exc_library_fatal_error(EXC_INT_FAIL_NULLEXC, "_exc_raise", 0);
     }
 
@@ -702,52 +705,50 @@ _exc_raise(EXCEPTION *exc, char * file, int line)
 
 
     if (file != NULL)
-      {
-	exc->thrown_at_lineno = line;
-	strncpy(exc->thrown_at_srcfile, file, 
-		sizeof(exc->thrown_at_srcfile)-1);
-      }
-    
+    {
+        exc->thrown_at_lineno = line;
+        strncpy(exc->thrown_at_srcfile, file, sizeof(exc->thrown_at_srcfile)-1);
+    }
+
     _exc_set_current(exc); /* do longjmp */
 }
 
-/* 
- * _ E X C _ R E R A I S E 
- * 
+/*
+ * _ E X C _ R E R A I S E
+ *
  * RERAISE operation.
  */
 
-void 
-_exc_reraise(EXCEPTION * exc)
+void
+_exc_reraise(EXCEPTION *exc)
 {
-    if (exc == NULL) {
+    if (exc == NULL)
+    {
         exc_library_fatal_error(EXC_INT_FAIL_NULLEXC, "_exc_raise", 0);
     }
-    
+
     _exc_set_current(exc); /* do longjmp */
 }
 
 
 /*
  * E X C _ M A T C H E S
- * 
+ *
  * Return true iff two exceptions match.
  */
-int 
-exc_matches(EXCEPTION *cur_exc,
-            EXCEPTION *exc)
+int
+exc_matches(EXCEPTION *cur_exc, EXCEPTION *exc)
 {
-
-    if (cur_exc->kind == exc->kind && 
-	cur_exc->match.address == exc->match.address) {
-         return 1;
+    if (cur_exc->kind == exc->kind && cur_exc->match.address == exc->match.address)
+    {
+        return 1;
     }
 
     return 0;
 }
 
 /*
- * E X C _ R A I S E _ S T A T U S 
+ * E X C _ R A I S E _ S T A T U S
  *
  * Creates a new exception on heap, sets an integer status value to
  * it, and raises. NOTE:  These may memory leak if used, since there
@@ -757,14 +758,13 @@ exc_matches(EXCEPTION *cur_exc,
 void
 exc_raise_status(int s)
 {
-  EXCEPTION * new_exception;
+    EXCEPTION *new_exception;
 
-  new_exception = (EXCEPTION *)malloc(sizeof(EXCEPTION));
-  /* XXX What if new_exception == NULL ??   Add error processing */
-  EXCEPTION_INIT(*new_exception);
-  exc_set_status(new_exception, s);
-  _exc_reraise(new_exception);
-  
+    new_exception = (EXCEPTION *)malloc(sizeof(EXCEPTION));
+    /* XXX What if new_exception == NULL ??   Add error processing */
+    EXCEPTION_INIT(*new_exception);
+    exc_set_status(new_exception, s);
+    _exc_reraise(new_exception);
 }
 
 #if 0
@@ -773,105 +773,100 @@ extern void pthread_kill_other_threads(void);
 
 /*
  * E X C _ L I B R A R Y _ F A T A L _ E R R O R
- * 
- * Print out a diagnostic message and terminate the program. 
+ *
+ * Print out a diagnostic message and terminate the program.
  *
  */
-static void 
-exc_library_fatal_error(int failure_reason, 
-                         const char *name, _exc_buf * exc_buffer)
+static void
+exc_library_fatal_error(int failure_reason, char const *name, _exc_buf *exc_buffer)
 {
-    if ((failure_reason < 0) || ((unsigned) failure_reason >= EXC_SYS_FAIL_MSGS_SIZE)) {
+    if ((failure_reason < 0) || ((unsigned) failure_reason >= EXC_SYS_FAIL_MSGS_SIZE))
+    {
         failure_reason = 0;
     }
-    
+
     fprintf(stderr, "****************  "
-	             "LinuxDCE Exception Library FATAL ERROR  "
-	            "****************  \n");
+                    "LinuxDCE Exception Library FATAL ERROR  "
+                    "****************  \n");
 
-    fprintf(stderr,
-            "\tat exception library routine %s()\n\treason: %s\n", 
-	    name, exc_lib_errmsgs[failure_reason]);
+    fprintf(stderr, "\tat exception library routine %s()\n\treason: %s\n",
+                    name, exc_lib_errmsgs[failure_reason]);
 
-    if (exc_buffer != NULL )
-      {
-	fprintf(stderr, "\tpointers: next = <%p>, "
-		"current_exc=<%p>\n",
-		exc_buffer->next,
-		exc_buffer->current_exc);
+    if (exc_buffer != NULL)
+    {
+        fprintf(stderr, "\tpointers: next = <%p>, current_exc=<%p>\n",
+                        exc_buffer->next, exc_buffer->current_exc);
 
-	if (exc_buffer->current_exc != NULL)
-	  {
-	    exc_report(exc_buffer->current_exc);
-	  }	
-      }	
+        if (exc_buffer->current_exc != NULL)
+        {
+            exc_report(exc_buffer->current_exc);
+        }
+    }
 
-    fprintf(stderr, 
-	    "*************************************************************"
-	    "*************\n");
-    
-     fflush(stderr);
+    fprintf(stderr, "*************************************************************"
+                    "*************\n");
 
-     /*
-      * Death. No saving throw.
-      *
-      * Terminate all threads in the process, then exit with 255 
-      */
+    fflush(stderr);
+
+    /*
+     * Death. No saving throw.
+     *
+     * Terminate all threads in the process, then exit with 255
+     */
 
 #if 0
 #ifndef HAVE_OS_WIN32
-     pthread_kill_other_threads();
+    pthread_kill_other_threads();
 #endif
 #endif
 
-     /* raise(SIGABRT); */
-     exit(255);
+    /* raise(SIGABRT); */
+    exit(255);
 }
 
 /*
  * E X C _ R E P O R T
- * 
- * Print some information on a particular exception object. 
+ *
+ * Print some information on a particular exception object.
  */
 void exc_report(EXCEPTION *exc)
 {
-	fflush(stdout);
+    fflush(stdout);
 
-	if (!exc) {
-		fprintf(stderr, "\n\tLinux DCE Exception: \n"
-				"\t ====== NO EXCEPTION ======\n");
-		return;
-	}
-	fprintf(stderr, "\n\tLinux DCE Exception: \n"
-			"\texception <%s>",
-			exc->printable_name);
-	switch (exc->kind) {
-	case _exc_c_kind_address:
-		fprintf(stderr, ", address <%p>\n",
-				exc->match.address);
-		break;
-	case _exc_c_kind_status:
-		fprintf(stderr, ", status value <%ld>\n",
-				exc->match.value);
-		break;
-	default:
-		fprintf(stderr, ", unknown kind <%d> = <0x%x>\n",
-				exc->kind, exc->kind);
-	}
-	fprintf(stderr, "\tthrown in src file '%s' , line %d\n",
-			exc->thrown_at_srcfile, exc->thrown_at_lineno);
-/*
-	if (exc && exc->kind == _exc_c_kind_address) 
-	{
+    if (!exc)
+    {
+        fprintf(stderr, "\n\tLinux DCE Exception: \n"
+                        "\t ====== NO EXCEPTION ======\n");
+        return;
+    }
+    fprintf(stderr, "\n\tLinux DCE Exception: \n\texception <%s>", exc->printable_name);
+    switch (exc->kind)
+    {
+    case _exc_c_kind_address:
+        fprintf(stderr, ", address <%p>\n", exc->match.address);
+        break;
+    case _exc_c_kind_status:
+        fprintf(stderr, ", status value <%ld>\n", exc->match.value);
+        break;
+    default:
+        fprintf(stderr, ", unknown kind <%d> = <0x%x>\n", exc->kind, exc->kind);
+        break;
+    }
 
-		fprintf(stderr, "\n\tLinux DCE Exception: \n"
-				"\texception <%s>, address <%p>\n"
-				"\tthrown in src file '%s' , line %d\n",
-				exc->printable_name,
-				exc->match.address,
-				exc->thrown_at_srcfile, exc->thrown_at_lineno);
-	}
-	*/
+    fprintf(stderr, "\tthrown in src file '%s' , line %d\n",
+            exc->thrown_at_srcfile, exc->thrown_at_lineno);
+    /*
+     *  if (exc && exc->kind == _exc_c_kind_address)
+     *  {
+
+     *      fprintf(stderr, "\n\tLinux DCE Exception: \n"
+     *              "\texception <%s>, address <%p>\n"
+     *              "\tthrown in src file '%s' , line %d\n",
+     *              exc->printable_name,
+     *              exc->match.address,
+     *              exc->thrown_at_srcfile, exc->thrown_at_lineno);
+     *  }
+     */
 }
 
 
@@ -879,13 +874,13 @@ void exc_report(EXCEPTION *exc)
  * E X C _ C A N C E L _ C A T C H E R
  *
  *  This is a routine invoked by the LinuxThreads runtime as a
- *  thread cancellation handler. It takes a cancel notification, 
+ *  thread cancellation handler. It takes a cancel notification,
  *  and converts it into an exception.
  */
 void
-_exc_cancel_catcher(void * arg __attribute__((__unused__)))
+_exc_cancel_catcher(void *arg __attribute__((__unused__)))
 {
-  _exc_set_current(&pthread_cancel_e); /* do longjmp */
+    _exc_set_current(&pthread_cancel_e); /* do longjmp */
 }
 
 

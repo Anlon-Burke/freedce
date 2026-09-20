@@ -1,7 +1,8 @@
+// vim: ts=4 sw=4 expandtab:
 /**************************************************************************
  *
  * DCE Threads Compatibility Library for Linux
- * 
+ *
  * A DCE Threads emulation layer ontop of LinuxThreads.
  *
  * This software derives from source from several other implementations
@@ -11,42 +12,43 @@
  *    Michael T. Peterson's PCthreads package and DCE RPC port
  *    Andrew Sandoval's port of DCE RPC to Linux
  *
- * This package is provided under the GNU General Public License. 
+ * This package is provided under the GNU General Public License.
  *
  * Contributors to this package include:
  *
- *	Jim Doyle                 <jrd@bu.edu>
- *      John Rousseau             (rousseau@world.std.com>
- * 	Andrew Sandoval		  <sandoval@perigee.net>
- *	Michael T. Peterson	  <mtp@big.aa.net>
+ *  Jim Doyle                   <jrd@bu.edu>
+ *  John Rousseau               <rousseau@world.std.com>
+ *  Andrew Sandoval             <sandoval@perigee.net>
+ *  Michael T. Peterson         <mtp@big.aa.net>
+ *  Miroslaw Dobrzanski-Neumann <mirek-dn@freenet.de>
  *
  ***************************************************************************/
 
 /*
  * Many changes to support linux threads 0.8 / glibc2.1
- * by Miroslaw Dobrzanski-Neumann <mirek-dn@t-online.de> 
+ * by Miroslaw Dobrzanski-Neumann <mirek-dn@freenet.de>
  */
 
 /*
- *    
+ *
  *  COPYRIGHT NOTICE
- *    
+ *
  *  Copyright (C) 1998 James R. Doyle, Andrew Sandoval, et. al.
  *  Copyright (C) 1995, 1996 Michael T. Peterson
  *  This file is part of the PCthreads (tm) multithreading library
  *  package.
- *    
+ *
  *  The source files and libraries constituting the PCthreads (tm) package
  *  are free software; you can redistribute them and/or modify them under
- *  the terms of the GNU Library General Public License as published by the 
+ *  the terms of the GNU Library General Public License as published by the
  *  Free Software Foundation; either version 2 of the License, or (at your
  *  option) any later version.
- *    
+ *
  *  The PCthreads (tm) package is distributed in the hope that it will
  *  be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Library General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Library General Public
  *  License along with this library (see the file COPYING.LIB); if not,
  *  write to the Free Software Foundation, Inc., 675 Mass Ave, Cambridge,
@@ -55,29 +57,29 @@
 
 
 /**************************************************************************
- * Port to Linux IA32 / Alpha with gcc 3.x 
+ * Port to Linux IA32 / Alpha with gcc 3.x
  **************************************************************************
  *
- * Contact Information: Loic Domaigne <loicWorks@gmx.net> 
+ * Contact Information: Loic Domaigne <loicWorks@gmx.net>
  * -------------------
  *
  * Change Log
  * ----------
  *
- * Loic- 05.05.03: 
+ * Loic- 05.05.03:
  *
  *   included <stdlib.h> to get prototype for abort(3)
  *
  **************************************************************************/
- 
+
 
 #include <dce/dcethreads_conf.h>
 
 #if STDC_HEADERS
 #include <stdlib.h>
-#else 
+#else
 extern void abort(void);
-#endif 
+#endif
 
 #ifndef lint
 static const char rcsid[] __attribute__((__unused__)) = "$Id: pthread_dce.c,v 1.4 2005/09/28 22:31:10 lkcl Exp $";
@@ -130,16 +132,16 @@ static const char rcsid[] __attribute__((__unused__)) = "$Id: pthread_dce.c,v 1.
 do __result = (long int) (expression); \
 while (__result == EINTR); \
 __result; }))
-	
+
 /*
  * Built-in versioning information for the binary
  */
 
-char dce_pthreads_adapter_version[] = 
+char dce_pthreads_adapter_version[] =
         "dce_pthreads_adapter_version: 1.6";
-char dce_pthreads_adapter_linuxthreads_version[] = 
+char dce_pthreads_adapter_linuxthreads_version[] =
         "dce_pthreads_adapter_linuxthreads_version: 0.8";
-char dce_pthreads_adapter_linuxkernel_version[] = 
+char dce_pthreads_adapter_linuxkernel_version[] =
         "dce_pthreads_adapter_linuxkernel_version: 2.2.10";
 
 pthread_attr_t               pthread4_attr_default;
@@ -151,16 +153,16 @@ int linuxdce_threadslib_multithreaded = 1;
 pthread_once_t defaults_initialized = pthread_once_init;
 
 
-/* 
- * Support for pthread_signal_to_cancel_np 
+/*
+ * Support for pthread_signal_to_cancel_np
  */
 
 int             pthd4__g_handle_active = FALSE;
 pthread_t       pthd4__g_handle_thread, pthd4__g_handle_target;
-sigset_t        pthd4__g_handle_sigset;        
+sigset_t        pthd4__g_handle_sigset;
 
-/* 
- * DCE Library global lock, if needed 
+/*
+ * DCE Library global lock, if needed
  */
 
 pthread_mutex_t              pthd4__g_global_lock;
@@ -169,14 +171,15 @@ pthread_mutex_t              pthd4__g_global_lock;
  * Library one-time initialization routine
  */
 
-static void 
+static void
 pthd4_lib_init(void)
 {
-  linuxdce_threadslib_multithreaded = 1;
-  pthread_attr_init( &pthread4_attr_default );
-  pthread_mutexattr_init (&pthread4_mutexattr_default);
-  pthread_condattr_init (&pthread4_condattr_default);
-  pthread_mutex_init(&pthd4__g_global_lock, &pthread_mutexattr_default);
+    linuxdce_threadslib_multithreaded = 1;
+
+    pthread_attr_init      (&pthread4_attr_default);
+    pthread_mutexattr_init (&pthread4_mutexattr_default);
+    pthread_condattr_init  (&pthread4_condattr_default);
+    pthread_mutex_init     (&pthd4__g_global_lock, &pthread_mutexattr_default);
 }
 
 /******************************************************************************
@@ -193,25 +196,28 @@ int
 pthd4_attr_create(pthread_attr_t *attr)
 {
     int istat;
-    
-    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS) {
+
+    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
     }
-    
+
     /* pthread_attr_init can't fail */
     istat = pthread_attr_init(attr);
-    if (istat != SUCCESS) {
+    if (istat != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
     }
-                           
+
     /*
      * Draft 4/DCE threads are created as joinable threads.  POSIX threads
      * are not.
      */
     istat = pthread_attr_setdetachstate(attr, PTHREAD_CREATE_JOINABLE);
-    if (istat != SUCCESS) {
+    if (istat != SUCCESS)
+    {
         errno = EINVAL;
         return (FAILURE);
     }
@@ -224,16 +230,18 @@ pthd4_attr_create(pthread_attr_t *attr)
  *   return:  0 - successfull
  *           -1/EINVAL Invalid value for attr
  */
-int 
+int
 pthd4_attr_delete(pthread_attr_t *attr)
 {
-    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS) {
+    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
     }
 
     /* XXX - This is currently a NOP in LinuxThreads 0.71 */
-    if (pthread_attr_destroy(attr) != SUCCESS) {
+    if (pthread_attr_destroy(attr) != SUCCESS)
+    {
         errno = EINVAL;
         return (FAILURE);
     }
@@ -249,7 +257,7 @@ pthd4_attr_delete(pthread_attr_t *attr)
  * kernel thread stacks are grown on demand. Pretend that we can
  * set any stacksize.
  * Always return the initial stack size allocated to a kernel thread,
- * 
+ *
  ****************************************************************************/
 
 /*
@@ -257,9 +265,8 @@ pthd4_attr_delete(pthread_attr_t *attr)
  *   return:  0 - successful
  *           -1/EINVAL - invalid attribute
  */
-int 
-pthd4_attr_setstacksize(pthread_attr_t *attr __attribute__((unused)),
-			long stacksize __attribute__((unused)))
+int
+pthd4_attr_setstacksize(pthread_attr_t *attr __attribute__((unused)), long stacksize __attribute__((unused)))
 {
     return (SUCCESS);
 }
@@ -283,34 +290,36 @@ pthd4_attr_getstacksize(pthread_attr_t attr __attribute__((unused)))
  */
 int
 pthd4_create(pthread_t *th_h,
-              pthread_attr_t *attr,
-              pthread_startroutine_t proc,
-              pthread_addr_t arg)
+             pthread_attr_t *attr,
+             pthread_startroutine_t proc,
+             pthread_addr_t arg)
 {
     int istat = 0;
-    
-    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS) {
+
+    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
     }
 
-    istat = pthread_create(th_h,
-                           attr,
-                           (pthread_startroutine_t) proc,
-                           arg);
+    istat = pthread_create(th_h, attr, (pthread_startroutine_t) proc, arg);
 
+    // FIXME draft 4 defines it thre is no choice
 #if defined(YIELD_AFTER_PTHREAD_CREATE)
     sched_yield();
 #endif
 
-    switch (istat) {
+    switch (istat)
+    {
     case SUCCESS:
         return (SUCCESS);
         break;
+
     case EAGAIN:
         errno = EAGAIN;
         return (FAILURE);
         break;
+
     default:
         /*
          * It is currently unclear what the set of error codes LinuxThreads
@@ -320,7 +329,8 @@ pthd4_create(pthread_t *th_h,
          */
         errno = ENOMEM;
         return (FAILURE);
-    }    
+        break;
+    }
 }
 
 /*
@@ -329,32 +339,38 @@ pthd4_create(pthread_t *th_h,
  *           -1/EINVAL - value for thread is invalid
  *           -1/ESRCH  - thread does not match any existing thread
  */
-int 
+int
 pthd4_detach(pthread_t thread)
 {
     int istat = 0;
-    
-    if (pthread_once(&defaults_initialized, pthd4_lib_init ) != SUCCESS) {
+
+    if (pthread_once(&defaults_initialized, pthd4_lib_init ) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
     }
 
     istat = pthread_detach(thread);
-    switch (istat) {
+    switch (istat)
+    {
     case SUCCESS:
         return (SUCCESS);
         break;
+
     case ESRCH:
         errno = ESRCH;
         return (FAILURE);
         break;
+
     case EINVAL:
         errno = EINVAL;
         return (FAILURE);
         break;
+
     default:
         errno = EINVAL;
         return (FAILURE);
+        break;
     }
 }
 
@@ -376,36 +392,43 @@ pthd4_exit(pthread_addr_t status)
  *           -1/ESRCH  - thread does not match any existing thread
  *           -1/EDEADLK - a deadlock detected
  */
-int 
+int
 pthd4_join(pthread_t thread, pthread_addr_t *status)
 {
     int istat = 0;
-    
-    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS) {
+
+    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
-    }        
-    
+    }
+
     istat = pthread_join(thread, (void **)status);
-    switch (istat) {
+    switch (istat)
+    {
     case SUCCESS:
         return (SUCCESS);
         break;
+
     case ESRCH:
         errno = ESRCH;
         return (FAILURE);
         break;
+
     case EINVAL:
         errno = EINVAL;
         return (FAILURE);
         break;
+
     case EDEADLK:
         errno = EDEADLK;
         return (FAILURE);
         break;
+
     default:
         errno = EINVAL;
         return (FAILURE);
+        break;
     }
 }
 
@@ -419,13 +442,14 @@ int
 pthd4_mutexattr_create(pthread_mutexattr_t *attr)
 {
     int istat;
-    
+
     /* pthread_mutexattr_init can't fail */
     istat = pthread_mutexattr_init(attr);
-    if (istat != SUCCESS) {
+    if (istat != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
-    }    
+    }
 
     return (SUCCESS);
 }
@@ -435,16 +459,18 @@ pthd4_mutexattr_create(pthread_mutexattr_t *attr)
  *   return:  0 - successful
  *           -1/EINVAL - invalid value for attribute
  */
-int 
+int
 pthd4_mutexattr_delete(pthread_mutexattr_t *attr)
 {
-    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS) {
+    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
-    }        
-    
+    }
+
     /* XXX - This is currently a NOP in LinuxThreads 0.71 */
-    if (pthread_mutexattr_destroy(attr) != SUCCESS) {
+    if (pthread_mutexattr_destroy(attr) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
     }
@@ -458,23 +484,25 @@ pthd4_mutexattr_delete(pthread_mutexattr_t *attr)
  *           -1/EAGAIN - the system lacks the necsssary resources
  *           -1/ENOMEM - insufficient memory to initialize
  */
-int 
+int
 pthd4_mutex_init(pthread_mutex_t *mutex, pthread_mutexattr_t *attr)
 {
     int istat = 0;
-    
-    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS) {
+
+    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
-    }        
-    
+    }
+
     /* pthread_mutex_init can't fail */
     istat = pthread_mutex_init(mutex, attr);
-    if (istat != SUCCESS) {
+    if (istat != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
-    }    
-    
+    }
+
     return (SUCCESS);
 }
 
@@ -484,29 +512,33 @@ pthd4_mutex_init(pthread_mutex_t *mutex, pthread_mutexattr_t *attr)
  *           -1/EBUSY - mutex already locked
  *           -1/EINVAL - invalid value for mutex
  */
-int 
+int
 pthd4_mutex_destroy(pthread_mutex_t *mutex)
 {
     int istat = 0;
-    
-    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS) {
+
+    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
-    }        
-    
+    }
+
     /*
-     * XXX - LinuxThreads 0.71 doesn't seem to care if the mutex is invalid 
-     * but draft 4 lists EINVAL as a return code if the mutex is invalid. 
+     * XXX - LinuxThreads 0.71 doesn't seem to care if the mutex is invalid
+     * but draft 4 lists EINVAL as a return code if the mutex is invalid.
      */
     istat = pthread_mutex_destroy(mutex);
-    switch (istat) {
+    switch (istat)
+    {
     case SUCCESS:
         return (SUCCESS);
         break;
+
     case EBUSY:
         errno = EBUSY;
         return (FAILURE);
         break;
+
     default:
         errno = EINVAL;
         return (FAILURE);
@@ -524,27 +556,33 @@ pthd4_mutex_lock(pthread_mutex_t *mutex)
 {
     int istat = 0;
 
-    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS) {
+    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
-    }        
+    }
 
     istat = pthread_mutex_lock(mutex);
-    switch (istat) {
+    switch (istat)
+    {
     case SUCCESS:
         return (SUCCESS);
         break;
+
     case EINVAL:
         errno = EINVAL;
         return (FAILURE);
         break;
+
     case EDEADLK:
         errno = EDEADLK;
         return (FAILURE);
         break;
+
     default:
         errno = EINVAL;
         return (FAILURE);
+        break;
     }
 }
 
@@ -554,31 +592,37 @@ pthd4_mutex_lock(pthread_mutex_t *mutex)
  *            0 - already locked, lock not aquired
  *           -1/EINVAL - invalid value for mutex
  */
-int 
+int
 pthd4_mutex_trylock(pthread_mutex_t *mutex)
 {
     int istat = 0;
-    
-    if (pthread_once(&defaults_initialized, pthd4_lib_init ) != SUCCESS) {
+
+    if (pthread_once(&defaults_initialized, pthd4_lib_init ) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
-    }        
-    
+    }
+
     istat = pthread_mutex_trylock(mutex);
-    switch (istat) {
+    switch (istat)
+    {
     case SUCCESS:
         return (1);             /* The mutex is now locked and owned by */
         break;                  /* the calling thread.                  */
+
     case EBUSY:
         return (0);             /* The mutex was locked */
         break;
+
     case EINVAL:
         errno = EINVAL;
         return (FAILURE);
         break;
+
     default:
         errno = EINVAL;
         return (FAILURE);
+        break;
     }
 }
 
@@ -587,29 +631,34 @@ pthd4_mutex_trylock(pthread_mutex_t *mutex)
  *   return:  0 - succesful
  *           -1/EINVAL - invalid value for mutex
  */
-int 
+int
 pthd4_mutex_unlock(pthread_mutex_t *mutex)
 {
     int istat = 0;
 
-    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS) {
+    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
-    }        
-    
+    }
+
     istat = pthread_mutex_unlock(mutex);
-    switch (istat) {
+    switch (istat)
+    {
     case SUCCESS:
         return (SUCCESS);
         break;
+
     case EINVAL:
     case EPERM:
         errno = EINVAL;
         return (FAILURE);
         break;
+
     default:
         errno = EINVAL;
         return (FAILURE);
+        break;
     }
 }
 
@@ -623,10 +672,11 @@ int
 pthd4_condattr_create(pthread_condattr_t *attr)
 {
     int istat;
-    
+
     /* XXX - This is currently a NOP in LinuxThreads 0.71 */
     istat = pthread_condattr_init(attr);
-    if (istat != SUCCESS) {
+    if (istat != SUCCESS)
+    {
         errno = EINVAL;
         return(FAILURE);
     }
@@ -639,19 +689,21 @@ pthd4_condattr_create(pthread_condattr_t *attr)
  *   return:  0 - successful
  *           -1/EINVAL - invalid attribute
  */
-int 
+int
 pthd4_condattr_delete(pthread_condattr_t *attr)
 {
     int istat;
 
-    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS) {
+    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
-    }        
+    }
 
     /* XXX - This is currently a NOP in LinuxThreads 0.71 */
     istat = pthread_condattr_destroy(attr);
-    if (istat != SUCCESS) {
+    if (istat != SUCCESS)
+    {
         errno = EINVAL;
         return(FAILURE);
     }
@@ -666,22 +718,24 @@ pthd4_condattr_delete(pthread_condattr_t *attr)
  *           -1/EAGAIN - the system lacks theb necessary resources
  *           -1/ENOMEM - insufficient memory to initialize
  */
-int 
+int
 pthd4_cond_init(pthread_cond_t *cond, pthread_condattr_t *attr)
 {
     int istat = 0;
-    
-    if (pthread_once( &defaults_initialized, pthd4_lib_init) != SUCCESS) {
+
+    if (pthread_once( &defaults_initialized, pthd4_lib_init) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
-    }        
+    }
 
     /* pthread_cond_init can't fail */
     istat = pthread_cond_init(cond, attr);
-    if (istat != SUCCESS) {
+    if (istat != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
-    }    
+    }
 
     return (SUCCESS);
 }
@@ -692,28 +746,33 @@ pthd4_cond_init(pthread_cond_t *cond, pthread_condattr_t *attr)
  *           -1/EINVAL - invalid condition
  *           -1/EBUSY  - a thread is currently waiting on condition
  */
-int 
+int
 pthd4_cond_destroy(pthread_cond_t *cond)
 {
     int istat = 0;
 
-    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS) {
+    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
-    }        
+    }
 
     istat = pthread_cond_destroy(cond);
-    switch (istat) {
+    switch (istat)
+    {
     case SUCCESS:
         return (SUCCESS);
         break;
+
     case EBUSY:
         errno = EBUSY;
         return (FAILURE);
         break;
+
     default:
         errno = EINVAL;
         return (FAILURE);
+        break;
     }
 }
 
@@ -722,22 +781,24 @@ pthd4_cond_destroy(pthread_cond_t *cond)
  *   return:  0 - successful
  *           -1/EINVAL - invalid condition
  */
-int 
+int
 pthd4_cond_broadcast(pthread_cond_t *cond)
 {
     int istat = 0;
-    
-    if (pthread_once( &defaults_initialized, pthd4_lib_init ) != SUCCESS) {
+
+    if (pthread_once( &defaults_initialized, pthd4_lib_init ) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
-    }        
-    
+    }
+
     /* pthread_cond_broadcast can't fail */
     istat = pthread_cond_broadcast(cond);
-    if (istat != SUCCESS) {
+    if (istat != SUCCESS)
+    {
         errno = EINVAL;
         return (FAILURE);
-    }    
+    }
 
     return (SUCCESS);
 }
@@ -747,22 +808,24 @@ pthd4_cond_broadcast(pthread_cond_t *cond)
  *   return:  0 - successful
  *           -1/EINVAL - invalid condition
  */
-int 
+int
 pthd4_cond_signal(pthread_cond_t *cond)
 {
     int istat = 0;
 
-    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS) {
+    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
-    }        
-    
+    }
+
     /* pthread_cond_signal can't fail */
     istat = pthread_cond_signal(cond);
-    if (istat != SUCCESS) {
+    if (istat != SUCCESS)
+    {
         errno = EINVAL;
         return (FAILURE);
-    }    
+    }
 
     return (SUCCESS);
 }
@@ -773,22 +836,24 @@ pthd4_cond_signal(pthread_cond_t *cond)
  *           -1/EINVAL - value for parameters are invalid
  *           -1/EDEADLK - dedlock condition detected
  */
-int 
+int
 pthd4_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
 {
     int istat = 0;
 
-    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS) {
+    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
-    }        
+    }
 
     /* pthread_cond_wait can't fail, although it may call pthread_exit() */
     istat = pthread_cond_wait(cond, mutex);
-    if (istat != SUCCESS) {
+    if (istat != SUCCESS)
+    {
         errno = EINVAL;
         return (FAILURE);
-    }    
+    }
 
     return (SUCCESS);
 }
@@ -800,30 +865,35 @@ pthd4_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
  *           -1/EAGAIN - time expired
  *           -1/EDEADLK - dedlock condition detected
  */
-int 
+int
 pthd4_cond_timedwait(pthread_cond_t *cond,
                      pthread_mutex_t *mutex,
                      struct timespec *abstime)
 {
     int istat = 0;
-    
-    if (pthread_once( &defaults_initialized, pthd4_lib_init ) != SUCCESS) {
+
+    if (pthread_once( &defaults_initialized, pthd4_lib_init ) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
     }
 
     istat = PTHREAD_TEMP_FAILURE_RETRY(pthread_cond_timedwait(cond, mutex, abstime));
-    switch (istat) {
+    switch (istat)
+    {
     case SUCCESS:
         return (SUCCESS);
         break;
+
     case ETIMEDOUT:
         errno = EAGAIN;
         return (FAILURE);
         break;
-    default: 
+
+    default:
         errno = EINVAL;
         return (FAILURE);
+        break;
     }
 }
 
@@ -835,22 +905,24 @@ pthd4_cond_timedwait(pthread_cond_t *cond,
  *   The prototype in documentation is:
  *  int pthread_once(pthread_once_t*, pthread_initroutine_t); FIXME
  */
-int 
+int
 pthd4_once(pthread_once_t *once_block, void (*init_routine)(void))
 {
     int istat = 0;
 
-    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS) {
+    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
     }
-    
+
     /* pthread_once can't fail */
     istat = pthread_once(once_block, init_routine);
-    if (istat != SUCCESS) {
+    if (istat != SUCCESS)
+    {
         errno = EINVAL;
         return (FAILURE);
-    }    
+    }
 
     return (SUCCESS);
 }
@@ -862,28 +934,33 @@ pthd4_once(pthread_once_t *once_block, void (*init_routine)(void))
  *           -1/ENOMEM - key namespace exhausted
  *           -1/EAGAIN - insufficient memory exist for create a key
  */
-int 
+int
 pthd4_key_create(pthread_key_t *key, pthread_destructor_t destructor)
 {
     int istat = 0;
 
-    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS) {
+    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
     }
 
     istat = pthread_key_create(key, destructor);
-    switch (istat) {
+    switch (istat)
+    {
     case SUCCESS:
         return (SUCCESS);
         break;
+
     case EAGAIN:
         errno = EAGAIN;
         return (FAILURE);
         break;
-    default: 
+
+    default:
         errno = EINVAL;
         return (FAILURE);
+        break;
     }
 }
 
@@ -892,29 +969,34 @@ pthd4_key_create(pthread_key_t *key, pthread_destructor_t destructor)
  *   return:  0 - successfull
  *           -1/EINVAL - invalid value for key
  */
-int 
+int
 pthd4_setspecific(pthread_key_t key, pthread_addr_t value)
 {
     int istat = 0;
 
-    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS) {
+    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
     }
 
     istat = pthread_setspecific(key, value);
-    switch (istat) {
+    switch (istat)
+    {
     case SUCCESS:
         return (SUCCESS);
         break;
+
     case ENOMEM:
     case EINVAL:
         errno = EINVAL;
         return (FAILURE);
         break;
-    default: 
+
+    default:
         errno = EINVAL;
         return (FAILURE);
+        break;
     }
 }
 
@@ -923,11 +1005,12 @@ pthd4_setspecific(pthread_key_t key, pthread_addr_t value)
  *   return:  0 - successfull
  *           -1/EINVAL - invalid value for key
  */
-pthread_addr_t 
+pthread_addr_t
 pthd4_getspecific(pthread_key_t key)
 {
 
-    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS) {
+    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS)
+    {
         errno = ENOMEM;
         return NULL;
     }
@@ -954,18 +1037,20 @@ pthd4_getspecific(pthread_key_t key)
  *           -1/EINVAL - specified thread is invalid
  *           -1/ERSCH  - specified thread does not refer to a currently existing thread
  */
-int 
+int
 pthd4_cancel(pthread_t thread)
 {
     int istat = 0;
 
-    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS) {
+    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
     }
 
     istat = pthread_cancel(thread);
-    switch (istat) {
+    switch (istat)
+    {
     case SUCCESS:
         return (SUCCESS);
         break;
@@ -973,9 +1058,10 @@ pthd4_cancel(pthread_t thread)
         errno = ESRCH;
         return (FAILURE);
         break;
-    default: 
+    default:
         errno = EINVAL;
         return (FAILURE);
+        break;
     }
 }
 
@@ -992,41 +1078,49 @@ pthd4_cancel(pthread_t thread)
  *           CANCEL_OFF - asynchronous cancelability was off
  *          -1/EINVAL - invalid value
  */
-int 
+int
 pthd4_setasynccancel(int state)
 {
-    int istat = 0;
+    int istat    = 0;
     int old_type = 0;
     int new_type = 0;
 
-    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS) {
+    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
     }
 
-    if (state == CANCEL_OFF) {
+    if (state == CANCEL_OFF)
+    {
         new_type = PTHREAD_CANCEL_DEFERRED;
     }
-    else if (state == CANCEL_ON) {
+    else if (state == CANCEL_ON)
+    {
         new_type = PTHREAD_CANCEL_ASYNCHRONOUS;
     }
-    else {
+    else
+    {
         errno = EINVAL;
         return (FAILURE);
     }
 
     istat = pthread_setcanceltype(new_type, &old_type);
-    switch (istat) {
+    switch (istat)
+    {
     case SUCCESS:
         return (old_type);
         break;
+
     case EINVAL:
         errno = EINVAL;
         return (FAILURE);
         break;
-    default: 
+
+    default:
         errno = EINVAL;
         return (FAILURE);
+        break;
     }
 }
 
@@ -1036,37 +1130,44 @@ pthd4_setasynccancel(int state)
  *           CANCEL_OFF - Cancelability was off
  *          -1/EINVAL - invalid value
  */
-int 
+int
 pthd4_setcancel(int state)
 {
-    int istat = 0;
+    int istat      = 0;
     int prev_state = 0;
-    int new_state = 0;
+    int new_state  = 0;
 
-    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS) {
+    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
     }
 
-    if (state == CANCEL_OFF) {
+    if (state == CANCEL_OFF)
+    {
         new_state = PTHREAD_CANCEL_DISABLE;
     }
-    else {
+    else
+    {
         new_state = PTHREAD_CANCEL_ENABLE;
     }
 
     istat = pthread_setcancelstate(new_state, &prev_state);
-    switch (istat) {
+    switch (istat)
+    {
     case SUCCESS:
         return (prev_state);
         break;
+
     case EINVAL:
         errno = EINVAL;
         return (FAILURE);
         break;
-    default: 
+
+    default:
         errno = EINVAL;
         return (FAILURE);
+        break;
     }
 }
 
@@ -1101,8 +1202,9 @@ pthd4_attr_setprio(pthread_attr_t *attr, int priority)
 {
     struct sched_param my_schedparam;
     int istat;
-    
-    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS) {
+
+    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
     }
@@ -1110,17 +1212,21 @@ pthd4_attr_setprio(pthread_attr_t *attr, int priority)
     my_schedparam.sched_priority = priority;
 
     istat = pthread_attr_setschedparam(attr, &my_schedparam);
-    switch (istat) {
+    switch (istat)
+    {
     case SUCCESS:
         return (SUCCESS);
         break;
+
     case EINVAL:
         errno = ERANGE;
         return (FAILURE);
         break;
-    default: 
+
+    default:
         errno = EINVAL;
         return (FAILURE);
+        break;
     }
 }
 
@@ -1134,18 +1240,20 @@ pthd4_attr_getprio(pthread_attr_t attr)
 {
     struct sched_param my_schedparam;
     int istat;
-    
-    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS) {
+
+    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
     }
 
     /* pthread_sttr_getschedparam can't fail */
     istat = pthread_attr_getschedparam(&attr, &my_schedparam);
-    if (istat != SUCCESS) {
+    if (istat != SUCCESS)
+    {
         errno = EINVAL;
         return (FAILURE);
-    }    
+    }
 
     return (my_schedparam.sched_priority);
 }
@@ -1164,27 +1272,33 @@ pthd4_attr_setsched(pthread_attr_t *attr, int sched)
 {
     int istat;
 
-    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS) {
+    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
     }
 
     istat = pthread_attr_setschedpolicy(attr, sched);
-    switch (istat) {
+    switch (istat)
+    {
     case SUCCESS:
         return (SUCCESS);
         break;
+
     case EINVAL:
         errno = ERANGE;
         return (FAILURE);
         break;
+
     case ENOTSUP:
         errno = EPERM;
         return (FAILURE);
         break;
-    default: 
+
+    default:
         errno = EINVAL;
         return (FAILURE);
+        break;
     }
 }
 
@@ -1198,18 +1312,20 @@ pthd4_attr_getsched(pthread_attr_t attr)
 {
     int sched;
     int istat;
-    
-    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS) {
+
+    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
     }
 
     /* pthread_attr_getschedpolicy can't fail */
     istat = pthread_attr_getschedpolicy(&attr, &sched);
-    if (istat != SUCCESS) {
+    if (istat != SUCCESS)
+    {
         errno = EINVAL;
         return (FAILURE);
-    }    
+    }
 
     return (SUCCESS);
 }
@@ -1225,24 +1341,27 @@ pthd4_attr_setinheritedsched(pthread_attr_t * attr, int sched)
     int old_sched;
     int istat;
 
-    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS) {
+    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
     }
 
     /* pthread_attr_getinheritsched can't fail */
     istat = pthread_attr_getinheritsched(attr, &old_sched);
-    if (istat != SUCCESS) {
+    if (istat != SUCCESS)
+    {
         errno = EINVAL;
         return (FAILURE);
-    }    
-    
+    }
+
     istat = pthread_attr_setinheritsched(attr, sched);
-    if (istat != SUCCESS) {
+    if (istat != SUCCESS)
+    {
         errno = EINVAL;
         return (FAILURE);
-    }    
-    
+    }
+
     return (old_sched);
 }
 
@@ -1256,18 +1375,20 @@ pthd4_attr_getinheritedsched(pthread_attr_t attr)
 {
     int sched;
     int istat;
-    
-    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS) {
+
+    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
     }
 
     /* pthread_attr_getinheritsched can't fail */
     istat = pthread_attr_getinheritsched(&attr, &sched);
-    if (istat != SUCCESS) {
+    if (istat != SUCCESS)
+    {
         errno = EINVAL;
         return (FAILURE);
-    }    
+    }
 
     return (sched);
 }
@@ -1281,12 +1402,11 @@ pthd4_attr_getinheritedsched(pthread_attr_t attr)
  * LinuxThreads are based on kernel-threads. User-space schedulers tend
  * to have options to allow setting the inter-thread stack guard size.
  * For Linux threads, we just behave like nothing happens.
- * 
+ *
  ****************************************************************************/
 
 int
-pthd4_attr_setguardsize_np(pthread_attr_t *attr __attribute__((unused)),
-			   long size __attribute__((unused)))
+pthd4_attr_setguardsize_np(pthread_attr_t *attr __attribute__((unused)), long size __attribute__((unused)))
 {
     return (SUCCESS);
 }
@@ -1307,7 +1427,7 @@ pthd4_attr_getguardsize_np(pthread_attr_t attr __attribute__((unused)))
  * interface. Other threads implemenations are likely not to. In the case
  * of LinuxThreads, we can simply use the provided interface. For other
  * Draft7 Pthreads, I am not quite sure what you'd do here.
- * 
+ *
  ****************************************************************************/
 
 /*
@@ -1332,31 +1452,31 @@ pthd4_mutexattr_setkind_np(pthread_mutexattr_t *mutex_attr, int kind)
  *   The prototype in documentation is:
  *  int pthread_mutexattr_getkind_np(pthread_mutexattr_t*); FIXME
  */
- 
-#ifndef HAVE_OS_WIN32
-int pthread_mutexattr_getkind_np (const pthread_mutexattr_t*, int*);
-#endif
+
 int
 pthd4_mutexattr_getkind_np(pthread_mutexattr_t mutex_attr)
 {
     int kind;
     int istat;
 
-    /* pthread_mutexattr_getkind_np can't fail */
-    istat = pthread_mutexattr_getkind_np(&mutex_attr, &kind);
-    if (istat != SUCCESS) {
-        errno = EINVAL;
-        return (FAILURE);
-    }    
-
-    return (kind);
+    istat = pthread_mutexattr_gettype(&mutex_attr, &kind);
+    if (istat == SUCCESS)
+    {
+        errno = 0;
+        return kind;
+    }
+    else
+    {
+        errno = istat;
+        return FAILURE;
+    }
 }
 
 
 /****************************************************************************
  *
  * pthd4  pthread_cond_signal_int_np():
- * 
+ *
  ****************************************************************************/
 
 int
@@ -1392,27 +1512,31 @@ pthd4_setprio(pthread_t thread, int priority)
      * get the current scheduling parameters of the running thread.
      * Then we tweak the priority, and reset the sched params
      */
-    
+
     struct sched_param my_schedparam;
     int old_priority;
     int my_policy;
     int istat;
-    
-    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS) {
+
+    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
     }
 
     /* pthread_getschedparam can't fail */
     istat = pthread_getschedparam(thread, &my_policy, &my_schedparam);
-    switch (istat) {
+    switch (istat)
+    {
     case SUCCESS:
         break;
+
     case ESRCH:
         errno = ESRCH;
         return (FAILURE);
         break;
-    default: 
+
+    default:
         /*
          * XXX - LinuxThreads can return any errno from pthread_getschedparam().
          * The following isn't consistent with Draft 4, so we may need
@@ -1420,21 +1544,25 @@ pthd4_setprio(pthread_t thread, int priority)
          */
         errno = istat;
         return (FAILURE);
+        break;
     }
-    
+
     old_priority = my_schedparam.sched_priority;
     my_schedparam.sched_priority = priority;
 
     istat = pthread_setschedparam(thread, my_policy, &my_schedparam);
-    switch (istat) {
+    switch (istat)
+    {
     case SUCCESS:
         return (old_priority);
         break;
+
     case ESRCH:
         errno = ESRCH;
         return (FAILURE);
         break;
-    default: 
+
+    default:
         /*
          * XXX - LinuxThreads can return any errno from pthread_setschedparam().
          * The following isn't consistent with Draft 4, so we may need
@@ -1442,6 +1570,7 @@ pthd4_setprio(pthread_t thread, int priority)
          */
         errno = istat;
         return (FAILURE);
+        break;
     }
 }
 
@@ -1457,22 +1586,26 @@ pthd4_getprio(pthread_t thread)
     struct sched_param my_schedparam;
     int my_policy;
     int istat;
-    
-    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS) {
+
+    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
     }
 
     istat = pthread_getschedparam(thread, &my_policy, &my_schedparam);
-    switch (istat) {
+    switch (istat)
+    {
     case SUCCESS:
         return (my_schedparam.sched_priority);
         break;
+
     case ESRCH:
         errno = ESRCH;
         return (FAILURE);
         break;
-    default: 
+
+    default:
         /*
          * XXX - LinuxThreads can return any errno from pthread_getschedparam().
          * The following isn't consistent with Draft 4, so we may need
@@ -1480,6 +1613,7 @@ pthd4_getprio(pthread_t thread)
          */
         errno = istat;
         return (FAILURE);
+        break;
     }
 }
 
@@ -1498,21 +1632,25 @@ pthd4_setscheduler(pthread_t thread, int scheduler, int priority)
     int previous_priority;
     int my_policy;
     int istat;
-    
-    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS) {
+
+    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
     }
 
     istat = pthread_getschedparam(thread, &my_policy, &my_schedparam);
-    switch (istat) {
+    switch (istat)
+    {
     case SUCCESS:
         break;
+
     case ESRCH:
         errno = ESRCH;
         return (FAILURE);
         break;
-    default: 
+
+    default:
         /*
          * XXX - LinuxThreads can return any errno from pthread_getschedparam().
          * The following isn't consistent with Draft 4, so we may need
@@ -1520,22 +1658,26 @@ pthd4_setscheduler(pthread_t thread, int scheduler, int priority)
          */
         errno = istat;
         return (FAILURE);
+        break;
     }
-    
+
     previous_priority = my_schedparam.sched_priority;
     my_schedparam.sched_priority = priority;
     my_policy = scheduler;
-    
+
     istat = pthread_setschedparam(thread, my_policy, &my_schedparam);
-    switch (istat) {
+    switch (istat)
+    {
     case SUCCESS:
         return (previous_priority);
         break;
+
     case ESRCH:
         errno = ESRCH;
         return (FAILURE);
         break;
-    default: 
+
+    default:
         /*
          * XXX - LinuxThreads can return any errno from pthread_setschedparam().
          * The following isn't consistent with Draft 4, so we may need
@@ -1543,6 +1685,7 @@ pthd4_setscheduler(pthread_t thread, int scheduler, int priority)
          */
         errno = istat;
         return (FAILURE);
+        break;
     }
 }
 
@@ -1558,22 +1701,26 @@ pthd4_getscheduler(pthread_t thread)
     struct sched_param my_schedparam;
     int my_policy;
     int istat;
-    
-    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS) {
+
+    if (pthread_once(&defaults_initialized, pthd4_lib_init) != SUCCESS)
+    {
         errno = ENOMEM;
         return (FAILURE);
     }
 
     istat = pthread_getschedparam(thread, &my_policy, &my_schedparam);
-    switch (istat) {
+    switch (istat)
+    {
     case SUCCESS:
         return (my_policy);
         break;
+
     case ESRCH:
         errno = ESRCH;
         return (FAILURE);
         break;
-    default: 
+
+    default:
         /*
          * XXX - LinuxThreads can return any errno from pthread_getschedparam().
          * The following isn't consistent with Draft 4, so we may need
@@ -1581,6 +1728,7 @@ pthd4_getscheduler(pthread_t thread)
          */
         errno = istat;
         return (FAILURE);
+        break;
     }
 }
 
@@ -1605,7 +1753,7 @@ pthd4_equal(pthread_t thd1, pthread_t thd2)
  * pthread_yield:
  *   return: NONE
  */
-void 
+void
 pthd4_yield(void)
 {
     /*
@@ -1628,8 +1776,8 @@ pthd4_self(void)
 /****************************************************************************
  * pthd4 pthread_delay_np()
  *
- * Another lovely DCEism. Linux has nanosleep(), so we can use it. 
- * 
+ * Another lovely DCEism. Linux has nanosleep(), so we can use it.
+ *
  ****************************************************************************/
 
 /*
@@ -1642,29 +1790,32 @@ pthd4_delay_np(struct timespec *delay)
 {
     int res;
     struct timespec remainder, request;
-    
-    request.tv_sec = delay->tv_sec;
+
+    request.tv_sec  = delay->tv_sec;
     request.tv_nsec = delay->tv_nsec;
-    
+
     res = nanosleep(&request, &remainder);
-    
+
     /*
      * if we get interrupted, for some reason, then resume
      * until we deplete the remainder to zero.
      */
-    
-    while ((res == FAILURE) && (errno == EINTR)) {
-        request.tv_sec = remainder.tv_sec;
+
+    while ((res == FAILURE) && (errno == EINTR))
+    {
+        request.tv_sec  = remainder.tv_sec;
         request.tv_nsec = remainder.tv_nsec;
         res = nanosleep(&request, &remainder);
     }
-    
-    if (res == SUCCESS) {
+
+    if (res == SUCCESS)
+    {
         return (SUCCESS);
     }
-    else {
-      errno = EINVAL;
-      return (FAILURE);
+    else
+    {
+        errno = EINVAL;
+        return (FAILURE);
     }
 }
 #endif
@@ -1673,23 +1824,24 @@ pthd4_delay_np(struct timespec *delay)
 #include <windows.h>
 #include <time.h>
 
-static int win32_gettimeofday(struct timeval *tp, void *unused) {
-  SYSTEMTIME syst;
-  time_t tlocal;
-  struct tm tmlocal;
-  unused = 0;
-  GetLocalTime(&syst);
-  tmlocal.tm_sec = syst.wSecond;
-  tmlocal.tm_min = syst.wMinute;
-  tmlocal.tm_hour = syst.wHour;
-  tmlocal.tm_mday = syst.wDay;
-  tmlocal.tm_mon = syst.wMonth - 1;
-  tmlocal.tm_year = syst.wYear - 1900;
-  tmlocal.tm_isdst = -1;
-  tlocal = mktime (&tmlocal); /* convert to UTC */
-  tp->tv_sec = tlocal;
-  tp->tv_usec = syst.wMilliseconds * 1000;
-  return 1;
+static int win32_gettimeofday(struct timeval *tp, void *unused)
+{
+    SYSTEMTIME syst;
+    time_t tlocal;
+    struct tm tmlocal;
+    unused = 0;
+    GetLocalTime(&syst);
+    tmlocal.tm_sec   = syst.wSecond;
+    tmlocal.tm_min   = syst.wMinute;
+    tmlocal.tm_hour  = syst.wHour;
+    tmlocal.tm_mday  = syst.wDay;
+    tmlocal.tm_mon   = syst.wMonth - 1;
+    tmlocal.tm_year  = syst.wYear - 1900;
+    tmlocal.tm_isdst = -1;
+    tlocal = mktime (&tmlocal); /* convert to UTC */
+    tp->tv_sec  = tlocal;
+    tp->tv_usec = syst.wMilliseconds * 1000;
+    return 1;
 }
 #endif
 
@@ -1704,7 +1856,7 @@ static int win32_gettimeofday(struct timeval *tp, void *unused) {
  * 
  ****************************************************************************/
 
-#define NANOSECS_PER_SEC 1000000000
+#define NANOSECS_PER_SEC 1'000'000'000
 
 /*
  * pthd4_get_expiration_np
@@ -1753,7 +1905,7 @@ pthd4_get_expiration_np(struct timespec *delta, struct timespec *abstime)
 int
 pthd4_getunique_np(pthread_t *thread __attribute__((__unused__)))
 {
-	return pthread_self();
+    return pthread_self();
     /* return getpid(); */
 }
 #endif
@@ -1790,22 +1942,23 @@ pthd4_getunique_np(pthread_t *thread __attribute__((__unused__)))
  */
 void
 pthd4_atfork(void *userstate,
-             void (* pre_fork)(void*), 
-             void (* parent_fork)(void*), 
+             void (* pre_fork)(void*),
+             void (* parent_fork)(void*),
              void (* child_fork)(void*))
 {
-	int res;
-	struct atfork_cb_t cb;
-	cb.draft4        = !0;
-	cb.cb.fh4.data   = userstate;
-	cb.cb.fh4.pre    = pre_fork;
-	cb.cb.fh4.parent = parent_fork;
-	cb.cb.fh4.child  = child_fork;
-	res = pthd4_pthread_atfork(&cb);
-	if (SUCCESS != res) {
-		perror("DCE atfork");
-		abort();
-	}
+    int res;
+    struct atfork_cb_t cb;
+    cb.draft4        = !0;
+    cb.cb.fh4.data   = userstate;
+    cb.cb.fh4.pre    = pre_fork;
+    cb.cb.fh4.parent = parent_fork;
+    cb.cb.fh4.child  = child_fork;
+    res = pthd4_pthread_atfork(&cb);
+    if (SUCCESS != res)
+    {
+        perror("DCE atfork");
+        abort();
+    }
 }
 #endif
 
@@ -1816,23 +1969,23 @@ pthd4_atfork(void *userstate,
 void
 pthd4_lock_global_np(void)
 {
-  pthread_mutex_lock(&pthd4__g_global_lock);
+    pthread_mutex_lock(&pthd4__g_global_lock);
 }
 
 /*
  * pthread_unlock_global_np:
  *   return: NONE
  */
-void 
+void
 pthd4_unlock_global_np(void)
 {
-  pthread_mutex_unlock(&pthd4__g_global_lock);
+    pthread_mutex_unlock(&pthd4__g_global_lock);
 }
 
 int
 pthd4_is_multithreaded_np(void)
 {
-  return linuxdce_threadslib_multithreaded;
+    return linuxdce_threadslib_multithreaded;
 }
 
 
@@ -1866,12 +2019,13 @@ pthd4_signal_to_cancel_np(sigset_t *sigset, pthread_t *thread)
     int istat;
 
     /* XXX - First cut, no locking. */
-    
+
     /*
-     * If there already is a running handler thread, cancel it.
-     * We don't bother to wait for it to die.
-     */
-    if (pthd4__g_handle_active) {
+    * If there already is a running handler thread, cancel it.
+    * We don't bother to wait for it to die.
+    */
+    if (pthd4__g_handle_active)
+    {
         pthread_cancel(pthd4__g_handle_thread);
         pthread_detach(pthd4__g_handle_thread);
     }
@@ -1885,19 +2039,23 @@ pthd4_signal_to_cancel_np(sigset_t *sigset, pthread_t *thread)
                            NULL,
                            (void *)&pthd4__cancel_thread,
                            NULL);
-    switch (istat) {
+    switch (istat)
+    {
     case SUCCESS:
         return (SUCCESS);
         break;
+
     case EINVAL:
     case EAGAIN:
     case EPERM:
         errno = EINVAL;
         return (FAILURE);
         break;
-    default: 
+
+    default:
         errno = EINVAL;
         return (FAILURE);
+        break;
     }
 }
 
@@ -1907,25 +2065,26 @@ pthd4__cancel_thread(void)
     int retsig;
     int istat;
 
-    for (;;) {
-        if ((istat = sigwait(&pthd4__g_handle_sigset, &retsig)) != SUCCESS) {
+    for (;;)
+    {
+        if ((istat = sigwait(&pthd4__g_handle_sigset, &retsig)) != SUCCESS)
+        {
             /* Will anyone ever see this? */
             errno = istat;
-	    /* TODO check return */
+            /* TODO check return */
             return NULL;
-
         }
 
         pthread_cancel(pthd4__g_handle_target);
     }
 }
 #endif
-            
+
 int
 linuxdce_set_pthread_is_multithreaded(int new)
 {
-  int old;
-  old = linuxdce_threadslib_multithreaded;
-  linuxdce_threadslib_multithreaded = new;
-  return old;
+    int old;
+    old = linuxdce_threadslib_multithreaded;
+    linuxdce_threadslib_multithreaded = new;
+    return old;
 }

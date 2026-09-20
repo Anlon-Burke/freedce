@@ -1,10 +1,11 @@
+// vim: ts=4 sw=4 expandtab:
 /**************************************************************************
  *
  * DCE Threads Compatibility Library for Linux
  *
  * Maintainer:
- *	Miroslaw Dobrzanski-Neumann <mirek-dn@t-online.de>
- * 
+ *  Miroslaw Dobrzanski-Neumann <mirek-dn@freenet.de>
+ *
  * A DCE Threads emulation layer ontop of LinuxThreads.
  *
  * This software derives from source from several other implementations
@@ -14,31 +15,31 @@
  *    Michael T. Peterson's PCthreads package and DCE RPC port
  *    Andrew Sandoval's port of DCE RPC to Linux
  *
- * This package is provided under the GNU General Public License. 
+ * This package is provided under the GNU General Public License.
  *
  * Contributors to this package include:
  *
- *      Miroslaw Dobrzanski-Neumann <mirek-dn@t-online.de>
+ *      Miroslaw Dobrzanski-Neumann <mirek-dn@freenet.de>
  *
  ***************************************************************************/
 
 /*
- *    
+ *
  *  COPYRIGHT NOTICE
- *    
- *  Copyright (C) 2000 Dobrzanski-Neumann <mirek-dn@t-online.de>
- *    
+ *
+ *  Copyright (C) 2000 Dobrzanski-Neumann <mirek-dn@freenet.de>
+ *
  *  The source files and libraries constituting the PCthreads (tm) package
  *  are free software; you can redistribute them and/or modify them under
- *  the terms of the GNU Library General Public License as published by the 
+ *  the terms of the GNU Library General Public License as published by the
  *  Free Software Foundation; either version 2 of the License, or (at your
  *  option) any later version.
- *    
+ *
  *  The PCthreads (tm) package is distributed in the hope that it will
  *  be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Library General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Library General Public
  *  License along with this library (see the file COPYING.LIB); if not,
  *  write to the Free Software Foundation, Inc., 675 Mass Ave, Cambridge,
@@ -47,26 +48,26 @@
 
 /****************************************************************************
  *
- * Port to newer GNU libc.                                                
+ * Port to newer GNU libc.
  *
  ****************************************************************************
- * Maintainer:                    Loic Domaigne <LoicWorks@gmx.net> 
+ * Maintainer:                    Loic Domaigne <LoicWorks@gmx.net>
  *---------------------------------------------------------------------------
  *
- * We can't call the internal functions __pthread_atfork() in the glibc 
- * since this symbol is now hidden. 
+ * We can't call the internal functions __pthread_atfork() in the glibc
+ * since this symbol is now hidden.
  *
- * We use instead the trick with /dlsym()/ and RTLD_NEXT to access this 
- * hidden symbol. 
+ * We use instead the trick with /dlsym()/ and RTLD_NEXT to access this
+ * hidden symbol.
  *
- **************************************************************************** 
- * Change Log 
+ ****************************************************************************
+ * Change Log
  *---------------------------------------------------------------------------
  *
- * Loic- 2004.12.07 
- *   use dlsym(RTLD_NEXT, "pthread_atfork") to access the glibc 
- *   function pthread_atfork() now hidden to outside.  
- * 
+ * Loic- 2004.12.07
+ *   use dlsym(RTLD_NEXT, "pthread_atfork") to access the glibc
+ *   function pthread_atfork() now hidden to outside.
+ *
  ****************************************************************************/
 
 #include "dce/dcethreads_conf.h"
@@ -87,7 +88,7 @@ static char rcsid [] __attribute__((__unused__)) = "$Id: pthread_dce_atfork.c,v 
 
 static size_t             _atfork_stack_size = -1;
 static struct atfork_cb_t _atfork_stack[ATFORK_STACK_SIZE] =
-	{ {.draft4 = 0, { .fh4 = {NULL, NULL, NULL ,NULL}}} };
+    { {.draft4 = 0, { .fh4 = {NULL, NULL, NULL ,NULL}}} };
 
 static pthread_once_t  _atfork_once = PTHREAD_ONCE_INIT;
 static pthread_mutex_t _atfork_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -95,84 +96,98 @@ static pthread_mutex_t _atfork_lock = PTHREAD_MUTEX_INITIALIZER;
 
 static void _pthd4_atfork_handler_pre(void)
 {
-	struct atfork_cb_t* ptr;
-	for(ptr = _atfork_stack + _atfork_stack_size; ptr-- != _atfork_stack; )
-		if (ptr->draft4) {
-			if (ptr->cb.fh4.pre)
-				(ptr->cb.fh4.pre)(ptr->cb.fh4.data);
-		}
-		else {
-			if (ptr->cb.fh7.pre)
-				(ptr->cb.fh7.pre)();
-		}
+    struct atfork_cb_t* ptr;
+    for(ptr = _atfork_stack + _atfork_stack_size; ptr-- != _atfork_stack; )
+    {
+        if (ptr->draft4)
+        {
+            if (ptr->cb.fh4.pre)
+                (ptr->cb.fh4.pre)(ptr->cb.fh4.data);
+        }
+        else
+        {
+            if (ptr->cb.fh7.pre)
+                (ptr->cb.fh7.pre)();
+        }
+    }
 }
 
 
 static void _pthd4_atfork_handler_parent(void)
 {
-	struct atfork_cb_t* ptr;
-	for (ptr = _atfork_stack; ptr != _atfork_stack + _atfork_stack_size; ptr++)
-		if (ptr->draft4) {
-			if (ptr->cb.fh4.parent)
-				(ptr->cb.fh4.parent)(ptr->cb.fh4.data);
-		}
-		else {
-			if (ptr->cb.fh7.parent)
-				(ptr->cb.fh7.parent)();
-		}
+    struct atfork_cb_t *ptr;
+    for (ptr = _atfork_stack; ptr != _atfork_stack + _atfork_stack_size; ptr++)
+    {
+        if (ptr->draft4)
+        {
+            if (ptr->cb.fh4.parent)
+                (ptr->cb.fh4.parent)(ptr->cb.fh4.data);
+        }
+        else
+        {
+            if (ptr->cb.fh7.parent)
+                (ptr->cb.fh7.parent)();
+        }
+    }
 }
 
 
 static void _pthd4_atfork_handler_child(void)
 {
-	struct atfork_cb_t* ptr;
-	for (ptr = _atfork_stack; ptr != _atfork_stack + _atfork_stack_size; ptr++)
-		if (ptr->draft4) {
-			if (ptr->cb.fh4.child)
-				(ptr->cb.fh4.child)(ptr->cb.fh4.data);
-		}
-		else {
-			if (ptr->cb.fh7.child)
-				(ptr->cb.fh7.child)();
-		}
+    struct atfork_cb_t *ptr;
+    for (ptr = _atfork_stack; ptr != _atfork_stack + _atfork_stack_size; ptr++)
+    {
+        if (ptr->draft4)
+        {
+            if (ptr->cb.fh4.child)
+                (ptr->cb.fh4.child)(ptr->cb.fh4.data);
+        }
+        else
+        {
+            if (ptr->cb.fh7.child)
+                (ptr->cb.fh7.child)();
+        }
+    }
 }
 
 static void _pthd4_install_atfork_handler(void)
 {
-  int (*glibc_pthread_atfork)(void (*prepare)(void), 
-			      void(*parent)(void), 
-			      void(*child)(void)
-			      );
-  int res;
+    int (*glibc_pthread_atfork)(void (*prepare)(void),
+                void(*parent)(void),
+                void(*child)(void)
+                );
+    int res;
 
-  glibc_pthread_atfork = dlsym (RTLD_NEXT, "pthread_atfork");
-  res = glibc_pthread_atfork(_pthd4_atfork_handler_pre,
-			     _pthd4_atfork_handler_parent,
-			     _pthd4_atfork_handler_child
-			     );
-  if (!res) {
-    _atfork_stack_size = 0;
-    errno = res;
-  }
+    glibc_pthread_atfork = dlsym (RTLD_NEXT, "pthread_atfork");
+    res = glibc_pthread_atfork(_pthd4_atfork_handler_pre,
+                _pthd4_atfork_handler_parent,
+                _pthd4_atfork_handler_child
+                );
+    if (!res)
+    {
+        _atfork_stack_size = 0;
+        errno = res;
+    }
 }
 
-int pthd4_pthread_atfork __P((struct atfork_cb_t * cb))
+int pthd4_pthread_atfork __P((struct atfork_cb_t *cb))
 {
-	pthread_once(&_atfork_once, &_pthd4_install_atfork_handler);
+    pthread_once(&_atfork_once, &_pthd4_install_atfork_handler);
 
-	if ((typeof(_atfork_stack_size))-1 == _atfork_stack_size)
-		return errno;
+    if ((typeof(_atfork_stack_size))-1 == _atfork_stack_size)
+        return errno;
 
-	pthread_mutex_lock(&_atfork_lock);
+    pthread_mutex_lock(&_atfork_lock);
 
-	if (ATFORK_STACK_SIZE <= _atfork_stack_size) {
-		errno = ENOMEM;
-		pthread_mutex_unlock(&_atfork_lock);
-		return errno;
-	}
+    if (ATFORK_STACK_SIZE <= _atfork_stack_size)
+    {
+        errno = ENOMEM;
+        pthread_mutex_unlock(&_atfork_lock);
+        return errno;
+    }
 
-	_atfork_stack[_atfork_stack_size++] = *cb;
-	pthread_mutex_unlock(&_atfork_lock);
-	return SUCCESS;
+    _atfork_stack[_atfork_stack_size++] = *cb;
+    pthread_mutex_unlock(&_atfork_lock);
+    return SUCCESS;
 }
 

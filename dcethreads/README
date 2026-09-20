@@ -2,8 +2,8 @@
 DCE Threads Compatibility Library for Linux
 A DCE Threads emulation layer ontop of LinuxThreads.
 ===========================================================================
-Maintainers:	Miroslaw Dobrzanski-Neumann <mirek-dn@t-online.de>	
-					Wez Furlong <wez+dce@thebrainroom.com>
+Maintainers:	Miroslaw Dobrzanski-Neumann <mirek-dn@freenet.de>	
+		Wez Furlong                 <wez+dce@thebrainroom.com>
 
 This packages no longer implements pthreads draft 4.
 Instead, it purely implements dce threading exceptions.
@@ -11,3 +11,4 @@ Instead, it purely implements dce threading exceptions.
 For information about copyrights, see the file `COPYING' included with this
 package.
 
+SEE: https://www0.mi.infn.it/~calcolo/OpenVMS/ssb71/6493/6493p001.htm
