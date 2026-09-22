@@ -1,12 +1,12 @@
 ## Process this file with automake to produce Makefile.in
 
-AM_CPPFLAGS=-I$(top_srcdir)/include
+AM_CPPFLAGS = -I$(top_builddir)/include -I$(top_srcdir)/include
 
-EXTRA_PROGRAMS = test1 test2 test3 test3var test4 test5 
-TESTS=test1 test2 test3 test3var test4 invert-test5 
+EXTRA_PROGRAMS = test1 test2 test3 test3var test4 test5
+TESTS=test1 test2 test3 test3var test4 invert-test5
 EXTRA_DIST=inverttest
 
-DEFS = -DCOMPILING_DCETHREADS -I. -I$(srcdir)
+DEFS = -DCOMPILING_DCETHREADS# -I. -I$(srcdir)
 if TARGET_OS_WIN32
 CFLAGS+= $(INCLUDES)
 CFLAGS+= -DHAVE_OS_WIN32
@@ -16,7 +16,7 @@ endif
 CLEANFILES=$(EXTRA_PROGRAMS) $(TESTS)
 
 if TARGET_OS_WIN32
-THREADLIB=$(top_builddir)/src/libdcethreads.la 
+THREADLIB=$(top_builddir)/src/libdcethreads.la
 else
 THREADLIB=$(top_builddir)/src/libdcethreads.la -ldl
 endif
