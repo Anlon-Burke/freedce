@@ -1,3 +1,4 @@
+// vim: ts=4 sw=4:
 //
 //
 //  Some more tests of thread cancellation
@@ -8,15 +9,19 @@
 //  Join on the thread and see what comes back
 //
 
+#include "dce/dcethreads_conf.h"
+#include <signal.h>
+#include <stdlib.h>
 
 #include <dce/pthread_exc.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 
-void 
-worker_thd_routine(pthread_addr_t arg)
+void *
+worker_thd_routine(void *varg)
 {
+	pthread_addr_t arg = varg;
 	printf("worker thread starting\n");
 	TRY
 	{
@@ -34,20 +39,18 @@ worker_thd_routine(pthread_addr_t arg)
 	ENDTRY;
 	printf("worker thd normal exit. this shouldnt happen!!");
 	arg = NULL;
+	varg = NULL;
+	return NULL;
 }
 
 int main()
 {
-
 	pthread_t worker;
 	pthread_addr_t exit_value;
 
 	TRY
 	{
-		pthd4exc_create(&worker, 
-				&pthread_attr_default, 
-				(pthread_startroutine_t)worker_thd_routine, 
-				(pthread_addr_t)NULL);
+		pthd4exc_create(&worker, &pthread_attr_default, worker_thd_routine, NULL);
 	}
 	CATCH_ALL
 	{
@@ -66,7 +69,7 @@ int main()
 	pthread_cancel(worker);
 	printf("joining canceled thd\n");
 	pthread_join(worker, &exit_value);
-	printf("exit status of worker thd = %ld\n", exit_value);
-	printf("done. exiting\n");  
+	printf("exit status of worker thd = %p\n", exit_value);
+	printf("done. exiting\n");
 	return 0;
 }

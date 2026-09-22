@@ -1,17 +1,20 @@
+// vim: ts=4 sw=4:
 /*
- * 
+ *
  * Exception Test RERAISE.
  *
  * RERAISE in the inner TRY block should dispatch to the
  * outer TRY block.
  *
- * This test insures that TRY block context is properly popped, 
+ * This test insures that TRY block context is properly popped,
  * as well as scope rules work on RERAISE.
  *
  *
  *
  */
 
+#include "dce/dcethreads_conf.h"
+#include <signal.h>
 
 #include <dce/pthread_exc.h>
 #include <stdio.h>
@@ -27,7 +30,6 @@ int main()
 	printf ("test1:  General test of EXC_MATCH and RERAISE.\n");
 	EXCEPTION_INIT(e1);
 	EXCEPTION_INIT(e2);
-
 
 	TRY
 	{

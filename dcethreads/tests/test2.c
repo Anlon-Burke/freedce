@@ -1,3 +1,4 @@
+// vim: ts=4 sw=4:
 /*
  * Test cancelling in a CATCH handler.
  *
@@ -6,11 +7,13 @@
  * with a <pthread_cancel_e> exception, NOT an <E1> exception.
  *
  * Finally, the cancel should be absorbed by the outer catch
- * 
- * What happens when I cancel IN an exception handler ?? 
- * 
+ *
+ * What happens when I cancel IN an exception handler ??
+ *
  */
 
+#include "dce/dcethreads_conf.h"
+#include <signal.h>
 
 #include <dce/pthreads_rename.h>
 #include <dce/pthread_exc.h>
@@ -22,7 +25,7 @@ EXCEPTION e1;
 int main()
 {
 #ifdef PTW32_STATIC_LIB
-	        ptw32_processInitialize();
+	ptw32_processInitialize();
 #endif
 	printf("test2:    cancelling inside of CATCH handler\n\n");
 

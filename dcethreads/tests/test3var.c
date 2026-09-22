@@ -1,16 +1,18 @@
+// vim: ts=4 sw=4:
 /*
- * 
+ *
  * Question:
  *
- * Tests throwing a cancel in a TRY block.  
+ * Tests throwing a cancel in a TRY block.
  *
  * The cancel exception must be caught in the inner TRY block.
  * Further, we catch the cancel in the outer try block to insure
- * that the cancel propagates up the stack. 
+ * that the cancel propagates up the stack.
  *
- * 
  */
 
+#include "dce/dcethreads_conf.h"
+#include <signal.h>
 
 #include <dce/pthread_exc.h>
 #include <stdio.h>

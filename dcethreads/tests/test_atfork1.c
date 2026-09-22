@@ -1,3 +1,4 @@
+// vim: ts=4 sw=4:
 #include <unistd.h>
 #include <stdlib.h>
 #include <pthread.h>
@@ -92,36 +93,47 @@ void fork_and_wait(int order, const char* desc)
 	int status = 0;
 
 	child = fork();
-	if (-1 == child) {
+	if (-1 == child)
+	{
 		perror(desc);
 		exit(EXIT_FAILURE);
 	}
-	if (0 == child) {
+	if (0 == child)
+	{
 		size_t idx;
 		int failed = !!0;
 		printf("child  sequence:");
 		for (idx = 0; idx < order; idx++)
+		{
 			printf(" %d", fork_stack_child[idx]);
+		}
 		printf("\n");
-		for (idx = 0; idx < order; idx++) {
-			if (fork_stack_child[idx] != idx + 1) {
+		for (idx = 0; idx < order; idx++)
+		{
+			if (fork_stack_child[idx] != idx + 1)
+			{
 				printf("child sequence malformed\n");
 				failed = !0;
 			}
 		}
-		if (failed) {
+		if (failed)
+		{
 			printf("%s\n", libtool_error);
 			exit(EXIT_FAILURE);
 		}
 		else
+		{
 			exit(EXIT_SUCCESS);
+		}
 	}
 	retval = waitpid(child, &status, 0);
-	if (-1 == retval) {
+	if (-1 == retval)
+	{
 		perror(desc);
 		exit(EXIT_FAILURE);
 	}
-	if (EXIT_SUCCESS != status) {
+	if (EXIT_SUCCESS != status)
+	{
 		exit(EXIT_FAILURE);
 	}
 }
@@ -132,11 +144,15 @@ void print_sequences(int order)
 	size_t idx;
 	printf("pre    sequence:");
 	for (idx = 0; idx < order; idx++)
+	{
 		printf(" %d", fork_stack_pre[idx]);
+	}
 	printf("\n");
 	printf("parent sequence:");
 	for (idx = 0; idx < order; idx++)
+	{
 		printf(" %d", fork_stack_parent[idx]);
+	}
 	printf("\n");
 }
 
@@ -145,17 +161,21 @@ void check_sequences(int order)
 {
 	size_t idx;
 	int failed = !!0;
-	for (idx = 0; idx < order; idx++) {
-		if (fork_stack_pre[idx] != order - idx) {
+	for (idx = 0; idx < order; idx++)
+	{
+		if (fork_stack_pre[idx] != order - idx)
+		{
 			printf("pre sequence malformed\n");
 			failed = !0;
 		}
-		if (fork_stack_parent[idx] != idx + 1) {
+		if (fork_stack_parent[idx] != idx + 1)
+		{
 			printf("parent sequence malformed\n");
 			failed = !0;
 		}
 	}
-	if (failed) {
+	if (failed)
+	{
 		printf("%s\n", libtool_error);
 		exit(EXIT_FAILURE);
 	}
@@ -181,7 +201,6 @@ int main(int argc, char* argv[])
 {
 	fork_and_wait(0, "no handler");
 
-	
 	INSTALL_DRAFT4_HANDLER_SET(1);
 	run_fork_test(1, "add dce handler1");
 
@@ -205,5 +224,3 @@ int main(int argc, char* argv[])
 
 	return 0;
 }
-
-

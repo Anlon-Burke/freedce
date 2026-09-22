@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-INCLUDES=-I$(top_srcdir)/include
+AM_CPPFLAGS=-I$(top_srcdir)/include
 
 EXTRA_PROGRAMS = test1 test2 test3 test3var test4 test5 
 TESTS=test1 test2 test3 test3var test4 invert-test5 
