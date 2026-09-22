@@ -2,7 +2,7 @@
 
 AM_CFLAGS= -Wall -W -Werror -pipe
 DEFS = -DCOMPILING_DCETHREADS -D_GNU_SOURCE -D_REENTRANT
-INCLUDES=-I../include
+AM_CPPFLAGS = -I$(top_builddir)/include -I$(top_srcdir)/include
 
 #  Build the exception/thread library
 lib_LTLIBRARIES = libdcethreads.la
