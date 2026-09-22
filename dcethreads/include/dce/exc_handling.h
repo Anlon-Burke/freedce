@@ -1,3 +1,4 @@
+// vim: ts=4 sw=4 expandtab:
 /**************************************************************************
  *
  * DCE Threads Compatibility Library for Linux
@@ -34,7 +35,7 @@
  */
 
 /*
- * 
+ *
  * (c) Copyright 1991 OPEN SOFTWARE FOUNDATION, INC.
  * (c) Copyright 1991 HEWLETT-PACKARD COMPANY
  * (c) Copyright 1991 DIGITAL EQUIPMENT CORPORATION
@@ -51,7 +52,7 @@
  * Packard Company, nor Digital Equipment Corporation makes any
  * representations about the suitability of this software for any
  * purpose.
- * 
+ *
  */
 
 #ifndef EXC_HANDLING_H
@@ -74,7 +75,7 @@
 **      Exceptions
 **
 **  ABSTRACT:
-** 
+**
 **  Pthread based exception package support header file.
 **
 **  This header file defines a TRY/CATCH exception mechanism that runs
@@ -82,7 +83,7 @@
 **
 **  It should be possible to adapt this to other P1003.4a/D4 pthreads
 **  implementations.
-** 
+**
 **  This implementation of DCE Exceptions on LinuxThreads relies on some
 **  features of the LinuxThreads library that MAY NOT BE AVAILABLE ON
 **  other implementations. For each TRY block, we install a Thread
@@ -96,7 +97,7 @@
 **  Certain other implementations of Pthreads forbid setjmp()ing out
 **  of a cancellation handler, since it may interfere with the proper
 **  maintainance of the threads context by the Pthreads API library.
-** 
+**
 */
 
 
@@ -112,6 +113,7 @@
 #include "pthread_dce_common.h"
 #include "pthread_dce.h"
 
+#include <string.h>
 #include <setjmp.h>
 
 

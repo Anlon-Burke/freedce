@@ -75,7 +75,7 @@
  * pthread_xxx() to pthd4_xxx(), allowing us to provide DCE Threads
  * Pthreads draft 4 as an emulation layer over Pthreads Draft 7.
  *
- * _W_A_R_N_I_N_G_  _W_A_R_N_I_N_G_  _W_A_R_N_I_N_G_  _W_A_R_N_I_N_G_ 
+ * _W_A_R_N_I_N_G_  _W_A_R_N_I_N_G_  _W_A_R_N_I_N_G_  _W_A_R_N_I_N_G_
  *
  ************************************************************************
  *
@@ -84,12 +84,12 @@
  * obsolete Pthreads API used by DCE. The DCE Pthreads function prototypes
  * are markedly different than the latest Pthreads Draft 7 Spec.
  *
- * This compile time option should _ONLY_ be used when compiling 
+ * This compile time option should _ONLY_ be used when compiling
  * OSF/DCE for a platform _OR_ to compile legacy code that was written
  * using the DCE Pthreads API.
  *
  * If possible, convert your code to use the Draft 7 interfaces
- * (i.e. /usr/include/pthread.h) and NOT the DCE interfaces. 
+ * (i.e. /usr/include/pthread.h) and NOT the DCE interfaces.
  *
  ************************************************************************
  */
