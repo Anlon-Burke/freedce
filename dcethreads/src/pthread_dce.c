@@ -1437,11 +1437,22 @@ pthd4_attr_getguardsize_np(pthread_attr_t attr __attribute__((unused)))
  *           -1/EPERM  - caller has no permission
  *           -1/ERANGE - one or more parameters out of range
  */
-int pthread_mutexattr_setkind_np (pthread_mutexattr_t*, int);
 int
 pthd4_mutexattr_setkind_np(pthread_mutexattr_t *mutex_attr, int kind)
 {
-    return (pthread_mutexattr_setkind_np(mutex_attr, kind));
+    int istat;
+
+    istat = pthread_mutexattr_settype(mutex_attr, kind);
+    if (istat == SUCCESS)
+    {
+        errno = 0;
+        return SUCCESS;
+    }
+    else
+    {
+        errno = istat;
+        return FAILURE;
+    }
 }
 
 /*
