@@ -1,7 +1,9 @@
 #!/bin/sh
+aclocal
 libtoolize --automake
 # avoid problems with libtool 1.4
 touch ltconfig
-aclocal
+autoheader -f
 automake --foreign -a
 autoconf
+
