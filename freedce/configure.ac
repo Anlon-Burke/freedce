@@ -1,9 +1,10 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(freedce, 1.0.1)
+AC_INIT([freedce],[1.0.1])
 AC_CONFIG_SRCDIR(uuid/uuid.c)
-AC_CANONICAL_SYSTEM
+AC_CANONICAL_TARGET
 AC_CONFIG_HEADERS([include/dce/dce_config.h])
-AM_INIT_AUTOMAKE(freedce, 1.0.1)
+AM_INIT_AUTOMAKE
+AC_PROG_CC
 AC_PREFIX_DEFAULT(/opt/dce)
 AC_SUBST([LT_VERSION],[1:1:0])
 
@@ -66,17 +67,28 @@ AC_SUBST(target_os)
 
 
 dnl Checks for programs.
-AC_PROG_CC
+dnl AC_PROG_CC
 AC_PROG_CPP
 AC_PROG_CXX
 AC_PROG_AWK
-AC_LIBTOOL_WIN32_DLL
+dnl AC_REQUIRE(AC_CANONICAL_HOST)_LT_SET_OPTION([LT_INIT],[win32-dll])
+dnl m4_warn([obsolete],[AC_LIBTOOL_WIN32_DLL: Remove this warning and the call to _LT_SET_OPTION when you put the 'win32-dll' option into LT_INITs first parameter.])
+
 AC_LIBTOOL_SETUP
-AM_PROG_LIBTOOL
+LT_INIT
 AC_PROG_INSTALL
 AC_PROG_LN_S
-AM_PROG_LEX
+AC_PROG_LEX([noyywrap])
 AC_PROG_YACC
+
+# Prüfen, ob YACC auf einen leeren/ungültigen Befehl gesetzt wurde
+if test "$YACC" = "yacc" || test "$YACC" = ":"; then
+  AC_CHECK_PROG([YACC_CHECK], [yacc], [yes], [no])
+  if test "$YACC_CHECK" = "no"; then
+    AC_MSG_ERROR([Bison, BYacc or Yacc was not found.])
+  fi
+fi
+
 AC_PATH_PROG(GENCAT, gencat)
 AC_PATH_PROG(SED, sed)
 AC_SUBST(GENCAT)
@@ -108,22 +120,30 @@ THREADS_DIRS="/opt/dce"
 fi
 
 AC_ARG_WITH(dcethreads-dir, [  --with-dcethreads-dir   Specify where you have installed dcethreads],
-[THREADS_DIRS="$withval $THREADS_DIRS"])
+[DCETHREADS_INST_DIR=$withval])
+#THREADS_DIRS="$withval $THREADS_DIRS"
 
+if test "$DCETHREADS_INST_DIR/lib" = "/lib"; then
+DCE_THREADS_INST_LIB_DIR=
+DCE_THREADS_INST_INC_DIR=
+else
+DCE_THREADS_INST_LIB_DIR=$DCETHREADS_INST_DIR/lib
+DCE_THREADS_INST_INC_DIR=$DCETHREADS_INST_DIR/include
+fi
 
 echo "enable_pthreads: " $ENABLE_PTHREADS
 
 if test "x$ENABLE_PTHREADS" != "xyes"; then
-RPC_CHECK_LIBDIR(pthd4exc_create, dcethreads, $THREADS_DIRS,,
-AC_MSG_ERROR([freedce requires libdcethreads!]))
+RPC_CHECK_LIBDIR(pthd4exc_create, dcethreads, $DCE_THREADS_INST_LIB_DIR $THREADS_DIRS,,
+AC_MSG_ERROR([freedce requires A libdcethreads!]))
 else
-RPC_CHECK_LIBDIR(dcethreads_exc_lib_init, dcethreads, $THREADS_DIRS,,
-AC_MSG_ERROR([freedce requires libdcethreads!]))
+RPC_CHECK_LIBDIR(dcethreads_exc_lib_init, dcethreads, $DCE_THREADS_INST_LIB_DIR $THREADS_DIRS,,
+AC_MSG_ERROR([freedce requires B libdcethreads!]))
 fi
 
 dnl Checks for header files.
 AC_CHECK_HEADERS(features.h sys/cdefs.h dlfcn.h)
-RPC_CHECK_INCDIR(dce/pthread_exc.h, dcethreads, $THREADS_DIRS,,
+RPC_CHECK_INCDIR(dce/pthread_exc.h, dcethreads, $DCE_THREADS_INST_INC_DIR,,
 AC_MSG_ERROR([freedce requires dcethreads include files!]))
 DCETHREADINCLUDES="${rpc_incdir_dcethreads+-I$rpc_incdir_dcethreads}"
 AC_SUBST(DCETHREADINCLUDES)
@@ -132,7 +152,8 @@ AC_SUBST(DCETHREADINCLUDES)
 dnl Checks for typedefs, structures, and compiler characteristics.
 
 dnl Checks for library functions.
-AC_PROG_GCC_TRADITIONAL
+dnl AC_REQUIRE(AC_PROG_CC)
+AC_PROG_CC
 AC_FUNC_MEMCMP
 
 dnl _GNU_SOURCE pulls in the definition of _pthread_push_defer
@@ -175,8 +196,36 @@ sinclude(demos/echo_server/config.m4)
 sinclude(dcom/config.m4)
 sinclude(perf/config.m4)
 
-AC_OUTPUT(Makefile config.mk)
-AC_OUTPUT(freedce.spec)
+
+AC_CONFIG_FILES(Makefile)
+AC_CONFIG_FILES(dcelib/Makefile)
+AC_CONFIG_FILES(idl/Makefile)
+AC_CONFIG_FILES(perf/Makefile)
+AC_CONFIG_FILES(uuid/Makefile)
+AC_CONFIG_FILES(include/dce/Makefile)
+AC_CONFIG_FILES(include/Makefile)
+AC_CONFIG_FILES(ncklib/com/Makefile)
+AC_CONFIG_FILES(ncklib/rpc/Makefile)
+AC_CONFIG_FILES(ncklib/transport/dg/Makefile)
+AC_CONFIG_FILES(ncklib/transport/cn/Makefile)
+AC_CONFIG_FILES(ncklib/transport/Makefile)
+AC_CONFIG_FILES(ncklib/codeset/Makefile)
+AC_CONFIG_FILES(ncklib/auth/Makefile)
+AC_CONFIG_FILES(ncklib/naf/Makefile)
+AC_CONFIG_FILES(ncklib/Makefile)
+AC_CONFIG_FILES(demos/lsa/Makefile)
+AC_CONFIG_FILES(demos/ntsec/Makefile)
+AC_CONFIG_FILES(demos/Makefile)
+AC_CONFIG_FILES(demos/samr/Makefile)
+AC_CONFIG_FILES(demos/echo_server/Makefile)
+AC_CONFIG_FILES(dcom/Makefile)
+AC_CONFIG_FILES(idllib/Makefile)
+AC_CONFIG_FILES(rpcd/Makefile)
+AC_CONFIG_FILES(config.mk)
+#AC_CONFIG_FILES([Makefile ild/Makefile config.mk])
+AC_OUTPUT
+AC_CONFIG_FILES([freedce.spec])
+AC_OUTPUT
 
 dnl restore original AC_OUTPUT definition
 popdef([AC_OUTPUT])
@@ -184,5 +233,6 @@ popdef([AC_OUTPUT])
 dnl call AC_OUTPUT with the list of files we accumulated.
 dnl automake will complain about RPC_OUTPUT_FILES.in, so
 dnl we include a dummy file to keep it quiet.
-AC_OUTPUT(RPC_OUTPUT_FILES)
+AC_CONFIG_FILES([RPC_OUTPUT_FILES])
+AC_OUTPUT
 
