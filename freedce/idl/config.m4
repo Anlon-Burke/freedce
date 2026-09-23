@@ -22,7 +22,7 @@ AC_SUBST(IDL_CC)
 
 dnl If using GCC, we need to add -x c-header to force it to treat idl files
 dnl as C headers; otherwise it tries to do something wierd...
-if test "x${ac_cv_prog_gcc}" = "xyes" ; then
+if test "x${GCC}" = "xyes" ; then
 	IDL_CPP="$CPP -x c-header"
 else
 	IDL_CPP=$CPP
