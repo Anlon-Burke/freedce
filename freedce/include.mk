@@ -4,9 +4,9 @@ dce_includes=-I$(top_srcdir)/include $(DCETHREADINCLUDES)
 
 # DRAT.  DO_NOT_CLOBBER (gcc being too smart) no longer works
 #CFLAGS= -g -Wall -W -O -pipe -Werror
-AM_CFLAGS= -g -g -Wall -W -pipe
+AM_CFLAGS=-g -Wall -W -pipe
 
-INCLUDES=$(dce_includes)
+AM_CPPFLAGS=$(dce_includes)
 
 SUFFIXES=.idl
 
