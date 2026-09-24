@@ -1,3 +1,4 @@
+// vim: ts=4 sw=4:
 /*
  *
  * (c) Copyright 1993 OPEN SOFTWARE FOUNDATION, INC.
@@ -268,7 +269,7 @@ void BE_pop_malloc_ctx
 
       /* If we are called with an empty stack, then abort */
       if (malloc_ctx == NULL)
-          error(NIDL_INTERNAL_ERROR,__FILE__,__LINE__);
+          error_zi(NIDL_INTERNAL_ERROR,__FILE__,__LINE__);
 
       /* Loop through the context freeing all memory */
       list = malloc_ctx->list;
