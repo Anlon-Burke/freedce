@@ -1,4 +1,5 @@
-/*
+// vim: ts=4 sw=4:
+ /*
  *
  * (c) Copyright 1991 OPEN SOFTWARE FOUNDATION, INC.
  * (c) Copyright 1991 HEWLETT-PACKARD COMPANY
@@ -1334,7 +1335,7 @@ static AST_type_n_t *AST_propagate_typedef
                           case ASTP_REF:      AST_SET_REF(return_type); break;
                           case ASTP_UNIQUE:AST_SET_UNIQUE(return_type); break;
                           default:  /* shouldn't get here */
-                                error(NIDL_INTERNAL_ERROR, __FILE__, __LINE__);
+                                error_zi(NIDL_INTERNAL_ERROR, __FILE__, __LINE__);
                         }
                     }
                     break;
@@ -1349,7 +1350,7 @@ static AST_type_n_t *AST_propagate_typedef
                     break;
 
                 default:        /* Shouldn't get here */
-                    error(NIDL_INTERNAL_ERROR, __FILE__, __LINE__);
+                    error_zi(NIDL_INTERNAL_ERROR, __FILE__, __LINE__);
                     break;
             }
 
@@ -1508,7 +1509,7 @@ AST_type_n_t *AST_propagate_type
                     case ASTP_REF:      AST_SET_REF(return_type); break;
                     case ASTP_UNIQUE:AST_SET_UNIQUE(return_type); break;
                     default:            /* shouldn't get here */
-                            error(NIDL_INTERNAL_ERROR, __FILE__, __LINE__);
+                            error_zi(NIDL_INTERNAL_ERROR, __FILE__, __LINE__);
                     }
                 }
                 break;
@@ -1524,7 +1525,7 @@ AST_type_n_t *AST_propagate_type
                 break;
 
             default:                /* Shouldn't get here */
-                error(NIDL_INTERNAL_ERROR, __FILE__, __LINE__);
+                error_zi(NIDL_INTERNAL_ERROR, __FILE__, __LINE__);
                 break;
         }
     }
@@ -2803,7 +2804,7 @@ void AST_set_flags
 
                   /* Attribute has not been handled, bug */
                   default:
-                      error(NIDL_INTERNAL_ERROR, __FILE__, __LINE__);
+                      error_zi(NIDL_INTERNAL_ERROR, __FILE__, __LINE__);
                  }
             }
             else

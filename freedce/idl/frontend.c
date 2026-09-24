@@ -1,3 +1,4 @@
+// vim: ts=4 sw=4:
 /*
  *
  * (c) Copyright 1989 OPEN SOFTWARE FOUNDATION, INC.
@@ -172,7 +173,6 @@ idir_list, cpp_output)
 #endif
 
 {
-    extern FILE *popen();
 #ifdef VMS
     boolean     paren_flag;
     char        dir[max_string_len], name[max_string_len], type[max_string_len];
@@ -318,7 +318,7 @@ idir_list, cpp_output)
 
 #ifndef VMS
     if ((*cpp_output = popen(cmd, "r")) == 0)
-        error(NIDL_INVOKECPP);
+        error0(NIDL_INVOKECPP);
 #endif
 }
 #endif
@@ -610,7 +610,7 @@ static boolean parse
         STRTAB_str_to_string(idl_sid, &sf);
         if  (!FILE_lookup(sf, idir_list, &stat_buf, full_path_name))
         {
-            error(NIDL_FILENOTFND, sf);
+            error_z(NIDL_FILENOTFND, sf);
             return false;
         }
     }

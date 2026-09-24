@@ -1,6 +1,7 @@
 %{
+ // vim: ts=4 sw=4:
  /*
- * 
+ *
  * (c) Copyright 1989 OPEN SOFTWARE FOUNDATION, INC.
  * (c) Copyright 1989 HEWLETT-PACKARD COMPANY
  * (c) Copyright 1989 DIGITAL EQUIPMENT CORPORATION
@@ -17,7 +18,7 @@
  * Packard Company, nor Digital Equipment Corporation makes any
  * representations about the suitability of this software for any
  * purpose.
- * 
+ *
  */
 
 /*
@@ -119,10 +120,8 @@ static int yyuuid (
 );
 
 static int yyolduuid (
-#ifdef PROTO
     char *s,
     nidl_uuid_t *uuid
-#endif
 );
 
 
@@ -517,9 +516,7 @@ static void read_c_comment()
 }
 
 
-static int yyolduuid(s, uuid)
-char *s;
-nidl_uuid_t *uuid;
+static int yyolduuid(char *s, nidl_uuid_t *uuid)
 {
     unsigned32 v1_time_high;
     unsigned32 v1_time_low;
@@ -558,9 +555,7 @@ nidl_uuid_t *uuid;
     return (UUID_REP) ;
 }
 
-static int yyuuid(s, uuid)
-char *s;
-nidl_uuid_t *uuid;
+static int yyuuid(char *s, nidl_uuid_t *uuid)
 {
     int i;
     unsigned32 time_low, time_mid, time_hi_and_version,

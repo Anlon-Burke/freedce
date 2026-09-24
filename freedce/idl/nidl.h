@@ -1,3 +1,4 @@
+// vim: ts=4 sw=4:
 /*
  *
  * (c) Copyright 1989 OPEN SOFTWARE FOUNDATION, INC.
@@ -146,7 +147,7 @@ typedef enum {
 	({								\
 		type * __local_pointer = calloc(1, sizeof(type));	\
 		if (NULL == __local_pointer)				\
-			error (NIDL_OUTOFMEM);				\
+			error0 (NIDL_OUTOFMEM);				\
 		__local_pointer;					\
 	}))
 
@@ -170,7 +171,7 @@ typedef enum {
 	({								\
 		type * __local_pointer = calloc((size), sizeof(type));	\
 		if (NULL == __local_pointer)				\
-			error (NIDL_OUTOFMEM);				\
+			error0 (NIDL_OUTOFMEM);				\
 		__local_pointer;					\
 	}))
 
@@ -197,7 +198,7 @@ typedef enum {
 			realloc((pointer),					\
 				size * sizeof(__typeof__ (* (pointer))));	\
 		if (NULL == __local_pointer)					\
-			error (NIDL_OUTOFMEM);					\
+			error0 (NIDL_OUTOFMEM);					\
 		__local_pointer;						\
 	}))
 
@@ -216,7 +217,7 @@ typedef enum {
 	({							\
 		void * __local_pointer = calloc(1, (size));	\
 		if (NULL == __local_pointer)			\
-			error (NIDL_OUTOFMEM);			\
+			error0 (NIDL_OUTOFMEM);			\
 		__local_pointer;				\
 	}))
 

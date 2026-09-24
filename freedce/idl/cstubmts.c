@@ -1,3 +1,4 @@
+// vim: ts=4 sw=4:
 /*
  * 
  * (c) Copyright 1993 OPEN SOFTWARE FOUNDATION, INC.
@@ -35,6 +36,7 @@
 
 #include <nidl.h>
 #include <ast.h>
+static AST_interface_n_t *the_interface = NULL;
 #include <command.h>
 #include <cspell.h>
 #include <cspeldcl.h>
@@ -49,9 +51,8 @@
 #include <icharsup.h>
 #include <hdgen.h>
 
-BE_handle_info_t BE_handle_info;
 
-static AST_interface_n_t * the_interface = NULL;
+BE_handle_info_t BE_handle_info;
 
 /******************************************************************************/
 /*                                                                            */

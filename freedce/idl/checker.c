@@ -1,3 +1,4 @@
+// vim: ts=4 sw=4:
 /*
  *
  * (c) Copyright 1993 OPEN SOFTWARE FOUNDATION, INC.
@@ -46,10 +47,10 @@
 #include <errors.h>     /* Error reporting functions */
 #include <message.h>    /* reporting functions */
 
+#include <stdint.h>
+
 extern char *acf_keyword_lookup(
-#ifdef PROTO
     int token_value     /* Numeric value of keyword token */
-#endif
 );
 
 extern int  error_count;        /* Count of semantic errors */
@@ -62,11 +63,9 @@ static void    **cmd_val;  /* Array of command option values */
 /* Necessary forward function declarations. */
 
 static void type_check(
-#ifdef PROTO
     AST_type_n_t        *type_p,        /* [in] Ptr to AST type node */
     ASTP_node_t         *node_p,        /* [in] Parent node of type node */
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
-#endif
 );
 
 /*
@@ -82,15 +81,9 @@ static void type_check(
 */
 
 boolean CHK_struct_is_all_byte_fields
-#ifdef PROTO
 (
     AST_structure_n_t   *struct_p       /* [in] Ptr to AST structure node */
 )
-#else
-(struct_p)
-    AST_structure_n_t   *struct_p;      /* [in] Ptr to AST structure node */
-#endif
-
 {
     AST_field_n_t       *field_p;       /* A field in the structure */
 
@@ -117,15 +110,9 @@ boolean CHK_struct_is_all_byte_fields
 */
 
 static boolean type_is_string
-#ifdef PROTO
 (
     AST_type_n_t        *type_p         /* [in] Ptr to AST type node */
 )
-#else
-(type_p)
-    AST_type_n_t        *type_p;        /* [in] Ptr to AST type node */
-#endif
-
 {
     unsigned short      index_count;    /* Number of array dimensions */
     AST_type_n_t        *base_type_p;   /* Base type of array */
@@ -169,15 +156,9 @@ static boolean type_is_string
 */
 
 static boolean type_is_v1_string
-#ifdef PROTO
 (
     AST_type_n_t        *type_p         /* [in] Ptr to AST type node */
 )
-#else
-(type_p)
-    AST_type_n_t        *type_p;        /* [in] Ptr to AST type node */
-#endif
-
 {
     AST_array_n_t       *array_p;       /* Ptr to array node */
     AST_array_index_n_t *index_p;       /* Array index node for minor dim */
@@ -212,15 +193,9 @@ static boolean type_is_v1_string
 */
 
 static AST_type_n_t * type_xmit_type
-#ifdef PROTO
 (
     AST_type_n_t        *type_p         /* [in] Ptr to AST type node */
 )
-#else
-(type_p)
-    AST_type_n_t        *type_p;        /* [in] Ptr to AST type node */
-#endif
-
 {
     while (type_p->xmit_as_type != NULL)
         type_p = type_p->xmit_as_type;
@@ -242,15 +217,9 @@ static AST_type_n_t * type_xmit_type
 */
 
 static boolean array_is_conformant_upper
-#ifdef PROTO
 (
     AST_array_n_t       *array_p        /* [in] Ptr to AST array node */
 )
-#else
-(array_p)
-    AST_array_n_t       *array_p;       /* [in] Ptr to AST array node */
-#endif
-
 {
     AST_array_index_n_t *index_p;       /* Ptr to array index node */
     int                 i;              /* Integer array dimension 0..N-1 */
@@ -277,15 +246,9 @@ static boolean array_is_conformant_upper
 */
 
 static boolean array_is_large
-#ifdef PROTO
 (
     AST_array_n_t       *array_p        /* [in] Ptr to AST array node */
 )
-#else
-(array_p)
-    AST_array_n_t       *array_p;       /* [in] Ptr to AST array node */
-#endif
-
 {
     AST_array_index_n_t *index_p;       /* Ptr to array index node */
     int                 i;              /* Integer array dimension 0..N-1 */
@@ -337,15 +300,9 @@ static boolean array_is_large
 */
 
 static boolean array_has_open_lb
-#ifdef PROTO
 (
     AST_array_n_t       *array_p        /* [in] Ptr to AST array node */
 )
-#else
-(array_p)
-    AST_array_n_t       *array_p;       /* [in] Ptr to AST array node */
-#endif
-
 {
     AST_array_index_n_t *index_p;       /* Ptr to array index node */
     int                 i;              /* Integer array dimension 0..N-1 */
@@ -384,17 +341,10 @@ static boolean array_has_open_lb
 */
 
 AST_type_n_t * param_follow_ref_ptr     /* Returns ptr to type node */
-#ifdef PROTO
 (
     AST_parameter_n_t   *param_p,       /* [in] Ptr to AST parameter node */
     CHK_follow_t        mode            /* [in] Follow mode */
 )
-#else
-(param_p, mode)
-    AST_parameter_n_t   *param_p;       /* [in] Ptr to AST parameter node */
-    CHK_follow_t        mode;           /* [in] Follow mode */
-#endif
-
 {
     AST_type_n_t        *type_p;        /* Ptr to AST type node */
     AST_type_n_t        *ptee_type_p;   /* Pointee type */
@@ -450,17 +400,10 @@ AST_type_n_t * param_follow_ref_ptr     /* Returns ptr to type node */
 static int def_auto_handle = 0;
 
 static void default_to_auto_handle
-#ifdef PROTO
 (
     AST_operation_n_t   *op_p,          /* [in] Ptr to AST operation node */
     int                 message_id      /* [in] message it display */
 )
-#else
-(op_p, message_id)
-    AST_operation_n_t   *op_p;          /* [in] Ptr to AST operation node */
-    int                 message_id;     /* [in] message it display */
-#endif
-
 {
     char const *id_name;   /* Operation name */
 
@@ -485,17 +428,10 @@ static void default_to_auto_handle
 */
 
 static boolean instance_is_varying_upper
-#ifdef PROTO
 (
     AST_array_n_t       *array_p,       /* [in] Ptr to AST array node */
     AST_field_attr_n_t  *fattr_p        /* [in] Ptr to AST field attr. node */
 )
-#else
-(array_p, fattr_p)
-    AST_array_n_t       *array_p;       /* [in] Ptr to AST array node */
-    AST_field_attr_n_t  *fattr_p;       /* [in] Ptr to AST field attr. node */
-#endif
-
 {
     AST_field_ref_n_t   *first_p;       /* first_is ref for a dimension */
     AST_field_ref_n_t   *last_p;        /* last_is ref for a dimension */
@@ -545,19 +481,11 @@ static boolean instance_is_varying_upper
 */
 
 static void fattr_switch_is
-#ifdef PROTO
 (
     AST_field_attr_n_t  *fattr_p,       /* [in] Ptr to AST field attr. node */
     ASTP_node_t         *node_p,        /* [in] Ptr to field or param node */
     AST_type_n_t        *type_p         /* [in] Ptr to field/param data type */
 )
-#else
-(fattr_p, node_p, type_p)
-    AST_field_attr_n_t  *fattr_p;       /* [in] Ptr to AST field attr. node */
-    ASTP_node_t         *node_p;        /* [in] Ptr to field or param node */
-    AST_type_n_t        *type_p;        /* [in] Ptr to field/param data type */
-#endif
-
 {
     AST_type_n_t        *ref_type_p;    /* Ptr to size info field/param type */
     AST_type_n_t        *deref_type_p;  /* Dereferenced field/param type */
@@ -573,7 +501,7 @@ static void fattr_switch_is
     type_p = ASTP_chase_ptr_to_kind(type_p, AST_disc_union_k);
     if (type_p == NULL)
         /* Parser supposed to catch this. */
-        error(NIDL_INTERNAL_ERROR, __FILE__, __LINE__);
+        error_zi(NIDL_INTERNAL_ERROR, __FILE__, __LINE__);
 
     sw_type_p = type_p->type_structure.disc_union->discrim_type;
     if (sw_type_p == NULL) return;
@@ -607,7 +535,7 @@ static void fattr_switch_is
     {
         char const *id_name;       /* [switch_is] variable name */
         NAMETABLE_id_to_string(ref_name, &id_name);
-        CHECKER_error(fattr_p, NIDL_NEUSWPTR, id_name);
+        CHECKER_error_1(TO_ASTP_NODE(fattr_p), NIDL_NEUSWPTR, id_name);
     }
 
     /* Data type of [switch_is] variable does not agree with [switch_type] */
@@ -621,18 +549,18 @@ static void fattr_switch_is
         NAMETABLE_id_to_string(sw_type_p->name, &sw_type_name);
         if (sw_type_name == NULL) sw_type_name = "";
 
-        CHECKER_error(fattr_p, NIDL_SWDATATYPE, id_name, sw_type_name);
+        CHECKER_error_2(TO_ASTP_NODE(fattr_p), NIDL_SWDATATYPE, id_name, sw_type_name);
     }
 
     /* A [switch_is] variable must not have a represent_as type */
 
     if (deref_type_p->rep_as_type != NULL)
-        CHECKER_error(fattr_p, NIDL_DISCRIMREPAS);
+        CHECKER_error_0(TO_ASTP_NODE(fattr_p), NIDL_DISCRIMREPAS);
 
     /* A [switch_is] variable must not have a transmit_as type */
 
     if (deref_type_p->xmit_as_type != NULL)
-        CHECKER_error(fattr_p, NIDL_DISCRIMXMITAS);
+        CHECKER_error_0(TO_ASTP_NODE(fattr_p), NIDL_DISCRIMXMITAS);
 }
 /*
 **  f a t t r _ c h e c k _ s i z e
@@ -641,7 +569,6 @@ static void fattr_switch_is
 */
 
 static void fattr_check_size
-#ifdef PROTO
 (
     AST_field_attr_n_t  *fattr_p,       /* [in] Ptr to AST field attr. node */
     ASTP_node_t         *node_p,        /* [in] Ptr to field or param node */
@@ -649,15 +576,6 @@ static void fattr_check_size
     AST_interface_n_t   *int_p,         /* [in] Ptr to interface node */
     unsigned short      dim             /* [in] Array dimension to check */
 )
-#else
-(fattr_p, node_p, type_p, int_p, dim)
-    AST_field_attr_n_t  *fattr_p;       /* [in] Ptr to AST field attr. node */
-    ASTP_node_t         *node_p;        /* [in] Ptr to field or param node */
-    AST_type_n_t        *type_p;        /* [in] Ptr to field data type node */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-    unsigned short      dim;            /* [in] Array dimension to check */
-#endif
-
 {
     AST_array_n_t       *array_p;       /* Ptr to array node */
     AST_array_index_n_t *index_p = NULL;       /* Ptr to array index node */
@@ -693,7 +611,7 @@ static void fattr_check_size
         &&  fattr_p->max_is_vec[dim].valid
         &&  fattr_p->size_is_vec != NULL
         &&  fattr_p->size_is_vec[dim].valid)
-        CHECKER_error(fattr_p, NIDL_MAXSIZECONF);
+        CHECKER_error_0(TO_ASTP_NODE(fattr_p), NIDL_MAXSIZECONF);
 
     /* Can't have both [last_is] and [length_is] attributes */
 
@@ -701,7 +619,7 @@ static void fattr_check_size
         &&  fattr_p->last_is_vec[dim].valid
         &&  fattr_p->length_is_vec != NULL
         &&  fattr_p->length_is_vec[dim].valid)
-        CHECKER_error(fattr_p, NIDL_LASTLENCONF);
+        CHECKER_error_0(TO_ASTP_NODE(fattr_p), NIDL_LASTLENCONF);
 
     /*
      * Forgo the remaining checks if the field or parameter type is a pointer
@@ -727,7 +645,7 @@ static void fattr_check_size
             ||  !fattr_p->max_is_vec[dim].valid)
         &&  (fattr_p->size_is_vec == NULL
             ||  !fattr_p->size_is_vec[dim].valid))
-        CHECKER_error(fattr_p, NIDL_MAXSIZEATTR);
+        CHECKER_error_0(TO_ASTP_NODE(fattr_p), NIDL_MAXSIZEATTR);
 
     if (array_p == NULL     /* Non-[string] array in pointer syntax */
         &&  !str_attr_set
@@ -737,7 +655,7 @@ static void fattr_check_size
             ||  fattr_p->min_is_vec != NULL)
         &&  fattr_p->max_is_vec == NULL
         &&  fattr_p->size_is_vec == NULL)
-        CHECKER_error(fattr_p, NIDL_MAXSIZEATTR);
+        CHECKER_error_0(TO_ASTP_NODE(fattr_p), NIDL_MAXSIZEATTR);
 
     /* [min_is] attribute required */
 
@@ -747,7 +665,7 @@ static void fattr_check_size
         &&  !AST_FIXED_LOWER_SET(index_p)
         &&  (fattr_p->min_is_vec == NULL
             ||  !fattr_p->min_is_vec[dim].valid))
-        CHECKER_error(fattr_p, NIDL_MINATTREQ);
+        CHECKER_error_0(TO_ASTP_NODE(fattr_p), NIDL_MINATTREQ);
 }
 
 
@@ -758,19 +676,11 @@ static void fattr_check_size
 */
 
 static void fattr_first_is
-#ifdef PROTO
 (
     AST_field_attr_n_t  *fattr_p,       /* [in] Ptr to AST field attr. node */
     ASTP_node_t         *node_p,        /* [in] Ptr to field or param node */
     unsigned short      dim             /* [in] Array dimension to check */
 )
-#else
-(fattr_p, node_p, dim)
-    AST_field_attr_n_t  *fattr_p;       /* [in] Ptr to AST field attr. node */
-    ASTP_node_t         *node_p;        /* [in] Ptr to field or param node */
-    unsigned short      dim;            /* [in] Array dimension to check */
-#endif
-
 {
     AST_type_n_t        *ref_type_p;    /* Ptr to size info field/param type */
     AST_type_n_t        *deref_type_p = NULL;  /* Dereferenced field/param type */
@@ -810,21 +720,21 @@ static void fattr_first_is
         &&  (!type_is_index(deref_type_p)
             ||  deref_type_p->fe_info->pointer_count
                 != fattr_p->first_is_vec[dim].fe_info->pointer_count))
-        CHECKER_error(fattr_p, NIDL_FIRSTYPEINT);
+        CHECKER_error_0(TO_ASTP_NODE(fattr_p), NIDL_FIRSTYPEINT);
 
     /* A size attribute variable must not have a represent_as type */
 
     if (fattr_p->first_is_vec != NULL
         &&  fattr_p->first_is_vec[dim].valid
         &&  deref_type_p->rep_as_type != NULL)
-        CHECKER_error(fattr_p, NIDL_SIZEVARREPAS);
+        CHECKER_error_0(TO_ASTP_NODE(fattr_p), NIDL_SIZEVARREPAS);
 
     /* A size attribute variable must not have a transmit_as type */
 
     if (fattr_p->first_is_vec != NULL
         &&  fattr_p->first_is_vec[dim].valid
         &&  deref_type_p->xmit_as_type != NULL)
-        CHECKER_error(fattr_p, NIDL_SIZEVARXMITAS);
+        CHECKER_error_0(TO_ASTP_NODE(fattr_p), NIDL_SIZEVARXMITAS);
 
     /* The array size attr var 'name' can not have [ptr] or [unique] attr */
 
@@ -837,7 +747,7 @@ static void fattr_first_is
 
         NAMETABLE_id_to_string(ref_name, &id_name);
 
-        CHECKER_error(fattr_p, NIDL_SIZEPRMPTR, id_name);
+        CHECKER_error_1(TO_ASTP_NODE(fattr_p), NIDL_SIZEPRMPTR, id_name);
     }
 }
 
@@ -849,19 +759,11 @@ static void fattr_first_is
 */
 
 static void fattr_last_is
-#ifdef PROTO
 (
     AST_field_attr_n_t  *fattr_p,       /* [in] Ptr to AST field attr. node */
     ASTP_node_t         *node_p,        /* [in] Ptr to field or param node */
     unsigned short      dim             /* [in] Array dimension to check */
 )
-#else
-(fattr_p, node_p, dim)
-    AST_field_attr_n_t  *fattr_p;       /* [in] Ptr to AST field attr. node */
-    ASTP_node_t         *node_p;        /* [in] Ptr to field or param node */
-    unsigned short      dim;            /* [in] Array dimension to check */
-#endif
-
 {
     AST_type_n_t        *ref_type_p;    /* Ptr to size info field/param type */
     AST_type_n_t        *deref_type_p = NULL;  /* Dereferenced field/param type */
@@ -901,21 +803,21 @@ static void fattr_last_is
         &&  (!type_is_index(deref_type_p)
             ||  deref_type_p->fe_info->pointer_count
                 != fattr_p->last_is_vec[dim].fe_info->pointer_count))
-        CHECKER_error(fattr_p, NIDL_LASTYPEINT);
+        CHECKER_error_0(TO_ASTP_NODE(fattr_p), NIDL_LASTYPEINT);
 
     /* A size attribute variable must not have a represent_as type */
 
     if (fattr_p->last_is_vec != NULL
         &&  fattr_p->last_is_vec[dim].valid
         &&  deref_type_p->rep_as_type != NULL)
-        CHECKER_error(fattr_p, NIDL_SIZEVARREPAS);
+        CHECKER_error_0(TO_ASTP_NODE(fattr_p), NIDL_SIZEVARREPAS);
 
     /* A size attribute variable must not have a transmit_as type */
 
     if (fattr_p->last_is_vec != NULL
         &&  fattr_p->last_is_vec[dim].valid
         &&  deref_type_p->xmit_as_type != NULL)
-        CHECKER_error(fattr_p, NIDL_SIZEVARXMITAS);
+        CHECKER_error_0(TO_ASTP_NODE(fattr_p), NIDL_SIZEVARXMITAS);
 
     /* The array size attr var 'name' can not have [ptr] or [unique] attr */
 
@@ -928,7 +830,7 @@ static void fattr_last_is
 
         NAMETABLE_id_to_string(ref_name, &id_name);
 
-        CHECKER_error(fattr_p, NIDL_SIZEPRMPTR, id_name);
+        CHECKER_error_1(TO_ASTP_NODE(fattr_p), NIDL_SIZEPRMPTR, id_name);
     }
 }
 
@@ -940,19 +842,11 @@ static void fattr_last_is
 */
 
 static void fattr_length_is
-#ifdef PROTO
 (
     AST_field_attr_n_t  *fattr_p,       /* [in] Ptr to AST field attr. node */
     ASTP_node_t         *node_p,        /* [in] Ptr to field or param node */
     unsigned short      dim             /* [in] Array dimension to check */
 )
-#else
-(fattr_p, node_p, dim)
-    AST_field_attr_n_t  *fattr_p;       /* [in] Ptr to AST field attr. node */
-    ASTP_node_t         *node_p;        /* [in] Ptr to field or param node */
-    unsigned short      dim;            /* [in] Array dimension to check */
-#endif
-
 {
     AST_type_n_t        *ref_type_p;    /* Ptr to size info field/param type */
     AST_type_n_t        *deref_type_p = NULL;  /* Dereferenced field/param type */
@@ -992,21 +886,21 @@ static void fattr_length_is
         &&  (!type_is_index(deref_type_p)
             ||  deref_type_p->fe_info->pointer_count
                 != fattr_p->length_is_vec[dim].fe_info->pointer_count))
-        CHECKER_error(fattr_p, NIDL_LENTYPEINT);
+        CHECKER_error_0(TO_ASTP_NODE(fattr_p), NIDL_LENTYPEINT);
 
     /* A size attribute variable must not have a represent_as type */
 
     if (fattr_p->length_is_vec != NULL
         &&  fattr_p->length_is_vec[dim].valid
         &&  deref_type_p->rep_as_type != NULL)
-        CHECKER_error(fattr_p, NIDL_SIZEVARREPAS);
+        CHECKER_error_0(TO_ASTP_NODE(fattr_p), NIDL_SIZEVARREPAS);
 
     /* A size attribute variable must not have a transmit_as type */
 
     if (fattr_p->length_is_vec != NULL
         &&  fattr_p->length_is_vec[dim].valid
         &&  deref_type_p->xmit_as_type != NULL)
-        CHECKER_error(fattr_p, NIDL_SIZEVARXMITAS);
+        CHECKER_error_0(TO_ASTP_NODE(fattr_p), NIDL_SIZEVARXMITAS);
 
     /* The array size attr var 'name' can not have [ptr] or [unique] attr */
 
@@ -1019,7 +913,7 @@ static void fattr_length_is
 
         NAMETABLE_id_to_string(ref_name, &id_name);
 
-        CHECKER_error(fattr_p, NIDL_SIZEPRMPTR, id_name);
+        CHECKER_error_1(TO_ASTP_NODE(fattr_p), NIDL_SIZEPRMPTR, id_name);
     }
 }
 
@@ -1031,21 +925,12 @@ static void fattr_length_is
 */
 
 static void fattr_min_is
-#ifdef PROTO
 (
     AST_field_attr_n_t  *fattr_p,       /* [in] Ptr to AST field attr. node */
     ASTP_node_t         *node_p,        /* [in] Ptr to field or param node */
     AST_type_n_t        *type_p,        /* [in] Ptr to field/param data type */
     unsigned short      dim             /* [in] Array dimension to check */
 )
-#else
-(fattr_p, node_p, type_p, dim)
-    AST_field_attr_n_t  *fattr_p;       /* [in] Ptr to AST field attr. node */
-    ASTP_node_t         *node_p;        /* [in] Ptr to field or param node */
-    AST_type_n_t        *type_p;        /* [in] Ptr to field/param data type */
-    unsigned short      dim;            /* [in] Array dimension to check */
-#endif
-
 {
     AST_array_n_t       *array_p;       /* Ptr to array node */
     AST_array_index_n_t *index_p = NULL;       /* Ptr to array index node */
@@ -1103,7 +988,7 @@ static void fattr_min_is
     if (type_p->kind == AST_pointer_k
         &&  fattr_p->min_is_vec != NULL
         &&  (*(int *)cmd_val[opt_standard] <= opt_standard_dce_1_0))
-        CHECKER_warning(fattr_p, NIDL_NOPORTNZLB, OPT_STD_EXTENDED);
+        CHECKER_warning_1(TO_ASTP_NODE(fattr_p), NIDL_NOPORTNZLB, OPT_STD_EXTENDED);
 
     /* [min_is] variable <var> invalid: lower bound fixed in dimension <n> */
 
@@ -1113,7 +998,7 @@ static void fattr_min_is
             ||  (type_is_array(type_p)
                 &&  fattr_p->min_is_vec[dim].valid
                 &&  AST_FIXED_LOWER_SET(index_p))))
-        CHECKER_error(fattr_p, NIDL_MINCFMTYPE, dim+1);
+        CHECKER_error_1(TO_ASTP_NODE(fattr_p), NIDL_MINCFMTYPE, TO_CHARZ_PTR(dim+1));
 
     /* [min_is] variable must be of type integer */
 
@@ -1122,21 +1007,21 @@ static void fattr_min_is
         &&  (!type_is_index(deref_type_p)
             ||  deref_type_p->fe_info->pointer_count
                 != fattr_p->min_is_vec[dim].fe_info->pointer_count))
-        CHECKER_error(fattr_p, NIDL_MINTYPEINT);
+        CHECKER_error_0(TO_ASTP_NODE(fattr_p), NIDL_MINTYPEINT);
 
     /* A size attribute variable must not have a represent_as type */
 
     if (fattr_p->min_is_vec != NULL
         &&  fattr_p->min_is_vec[dim].valid
         &&  deref_type_p->rep_as_type != NULL)
-        CHECKER_error(fattr_p, NIDL_SIZEVARREPAS);
+        CHECKER_error_0(TO_ASTP_NODE(fattr_p), NIDL_SIZEVARREPAS);
 
     /* A size attribute variable must not have a transmit_as type */
 
     if (fattr_p->min_is_vec != NULL
         &&  fattr_p->min_is_vec[dim].valid
         &&  deref_type_p->xmit_as_type != NULL)
-        CHECKER_error(fattr_p, NIDL_SIZEVARXMITAS);
+        CHECKER_error_0(TO_ASTP_NODE(fattr_p), NIDL_SIZEVARXMITAS);
 
     /* The array size attr var 'name' can not have [ptr] or [unique] attr */
 
@@ -1149,7 +1034,7 @@ static void fattr_min_is
 
         NAMETABLE_id_to_string(ref_name, &id_name);
 
-        CHECKER_error(fattr_p, NIDL_SIZEPRMPTR, id_name);
+        CHECKER_error_1(TO_ASTP_NODE(fattr_p), NIDL_SIZEPRMPTR, id_name);
     }
 }
 
@@ -1161,21 +1046,12 @@ static void fattr_min_is
 */
 
 static void fattr_max_is
-#ifdef PROTO
 (
     AST_field_attr_n_t  *fattr_p,       /* [in] Ptr to AST field attr. node */
     ASTP_node_t         *node_p,        /* [in] Ptr to field or param node */
     AST_type_n_t        *type_p,        /* [in] Ptr to field/param data type */
     unsigned short      dim             /* [in] Array dimension to check */
 )
-#else
-(fattr_p, node_p, type_p, dim)
-    AST_field_attr_n_t  *fattr_p;       /* [in] Ptr to AST field attr. node */
-    ASTP_node_t         *node_p;        /* [in] Ptr to field or param node */
-    AST_type_n_t        *type_p;        /* [in] Ptr to field/param data type */
-    unsigned short      dim;            /* [in] Array dimension to check */
-#endif
-
 {
     AST_array_n_t       *array_p;       /* Ptr to array node */
     AST_array_index_n_t *index_p = NULL;       /* Ptr to array index node */
@@ -1231,7 +1107,7 @@ static void fattr_max_is
             ||  (type_is_array(type_p)
                 &&  fattr_p->max_is_vec[dim].valid
                 &&  AST_FIXED_UPPER_SET(index_p))))
-        CHECKER_error(fattr_p, NIDL_MAXCFMTYPE, dim+1);
+        CHECKER_error_1(TO_ASTP_NODE(fattr_p), NIDL_MAXCFMTYPE, TO_CHARZ_PTR(dim+1));
 
     /* [max_is] variable must be of type integer */
 
@@ -1240,21 +1116,21 @@ static void fattr_max_is
         &&  (!type_is_index(deref_type_p)
             ||  deref_type_p->fe_info->pointer_count
                 != fattr_p->max_is_vec[dim].fe_info->pointer_count))
-        CHECKER_error(fattr_p, NIDL_MAXTYPEINT);
+        CHECKER_error_0(TO_ASTP_NODE(fattr_p), NIDL_MAXTYPEINT);
 
     /* A size attribute variable must not have a represent_as type */
 
     if (fattr_p->max_is_vec != NULL
         &&  fattr_p->max_is_vec[dim].valid
         &&  deref_type_p->rep_as_type != NULL)
-        CHECKER_error(fattr_p, NIDL_SIZEVARREPAS);
+        CHECKER_error_0(TO_ASTP_NODE(fattr_p), NIDL_SIZEVARREPAS);
 
     /* A size attribute variable must not have a transmit_as type */
 
     if (fattr_p->max_is_vec != NULL
         &&  fattr_p->max_is_vec[dim].valid
         &&  deref_type_p->xmit_as_type != NULL)
-        CHECKER_error(fattr_p, NIDL_SIZEVARXMITAS);
+        CHECKER_error_0(TO_ASTP_NODE(fattr_p), NIDL_SIZEVARXMITAS);
 
     /* The array size attr var 'name' can not have [ptr] or [unique] attr */
 
@@ -1267,7 +1143,7 @@ static void fattr_max_is
 
         NAMETABLE_id_to_string(ref_name, &id_name);
 
-        CHECKER_error(fattr_p, NIDL_SIZEPRMPTR, id_name);
+        CHECKER_error_1(TO_ASTP_NODE(fattr_p), NIDL_SIZEPRMPTR, id_name);
     }
 }
 
@@ -1279,21 +1155,12 @@ static void fattr_max_is
 */
 
 static void fattr_size_is
-#ifdef PROTO
 (
     AST_field_attr_n_t  *fattr_p,       /* [in] Ptr to AST field attr. node */
     ASTP_node_t         *node_p,        /* [in] Ptr to field or param node */
     AST_type_n_t        *type_p,        /* [in] Ptr to field/param data type */
     unsigned short      dim             /* [in] Array dimension to check */
 )
-#else
-(fattr_p, node_p, type_p, dim)
-    AST_field_attr_n_t  *fattr_p;       /* [in] Ptr to AST field attr. node */
-    ASTP_node_t         *node_p;        /* [in] Ptr to field or param node */
-    AST_type_n_t        *type_p;        /* [in] Ptr to field/param data type */
-    unsigned short      dim;            /* [in] Array dimension to check */
-#endif
-
 {
     AST_array_n_t       *array_p;       /* Ptr to array node */
     AST_array_index_n_t *index_p = NULL;       /* Ptr to array index node */
@@ -1349,7 +1216,7 @@ static void fattr_size_is
             ||  (type_is_array(type_p)
                 &&  fattr_p->size_is_vec[dim].valid
                 &&  AST_FIXED_UPPER_SET(index_p))))
-        CHECKER_error(fattr_p, NIDL_SIZECFMTYPE, dim+1);
+        CHECKER_error_1(TO_ASTP_NODE(fattr_p), NIDL_SIZECFMTYPE, TO_CHARZ_PTR(dim+1));
 
     /* [size_is] variable must be of type integer */
 
@@ -1358,21 +1225,21 @@ static void fattr_size_is
         &&  (!type_is_index(deref_type_p)
             ||  deref_type_p->fe_info->pointer_count
                 != fattr_p->size_is_vec[dim].fe_info->pointer_count))
-        CHECKER_error(fattr_p, NIDL_SIZETYPEINT);
+        CHECKER_error_0(TO_ASTP_NODE(fattr_p), NIDL_SIZETYPEINT);
 
     /* A size attribute variable must not have a represent_as type */
 
     if (fattr_p->size_is_vec != NULL
         &&  fattr_p->size_is_vec[dim].valid
         &&  deref_type_p->rep_as_type != NULL)
-        CHECKER_error(fattr_p, NIDL_SIZEVARREPAS);
+        CHECKER_error_0(TO_ASTP_NODE(fattr_p), NIDL_SIZEVARREPAS);
 
     /* A size attribute variable must not have a transmit_as type */
 
     if (fattr_p->size_is_vec != NULL
         &&  fattr_p->size_is_vec[dim].valid
         &&  deref_type_p->xmit_as_type != NULL)
-        CHECKER_error(fattr_p, NIDL_SIZEVARXMITAS);
+        CHECKER_error_0(TO_ASTP_NODE(fattr_p), NIDL_SIZEVARXMITAS);
 
     /* The array size attr var 'name' can not have [ptr] or [unique] attr */
 
@@ -1385,7 +1252,7 @@ static void fattr_size_is
 
         NAMETABLE_id_to_string(ref_name, &id_name);
 
-        CHECKER_error(fattr_p, NIDL_SIZEPRMPTR, id_name);
+        CHECKER_error_1(TO_ASTP_NODE(fattr_p), NIDL_SIZEPRMPTR, id_name);
     }
 }
 
@@ -1399,21 +1266,12 @@ static void fattr_size_is
 */
 
 static void fattr_param_conformant
-#ifdef PROTO
 (
     AST_field_attr_n_t  *fattr_p,       /* [in] Ptr to AST field attr. node */
     AST_parameter_n_t   *param_p,       /* [in] Ptr to associated param node */
     AST_interface_n_t   *int_p,         /* [in] Ptr to interface node */
     unsigned short      dim             /* [in] Array dimension */
 )
-#else
-(fattr_p, param_p, int_p, dim)
-    AST_field_attr_n_t  *fattr_p;       /* [in] Ptr to AST field attr. node */
-    AST_parameter_n_t   *param_p;       /* [in] Ptr to associated param node */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-    unsigned short      dim;            /* [in] Array dimension */
-#endif
-
 {
     /* [min_is] parameter must have [in] attribute */
 
@@ -1422,7 +1280,7 @@ static void fattr_param_conformant
         &&  fattr_p->min_is_vec != NULL
         &&  fattr_p->min_is_vec[dim].valid
         &&  !AST_IN_SET(fattr_p->min_is_vec[dim].ref.p_ref))
-        CHECKER_error(fattr_p, NIDL_MININATTR);
+        CHECKER_error_0(TO_ASTP_NODE(fattr_p), NIDL_MININATTR);
 
     /* [max_is] parameter must have [in] attribute */
 
@@ -1431,7 +1289,7 @@ static void fattr_param_conformant
         &&  fattr_p->max_is_vec != NULL
         &&  fattr_p->max_is_vec[dim].valid
         &&  !AST_IN_SET(fattr_p->max_is_vec[dim].ref.p_ref))
-        CHECKER_error(fattr_p, NIDL_MAXINATTR);
+        CHECKER_error_0(TO_ASTP_NODE(fattr_p), NIDL_MAXINATTR);
 
     /* [size_is] parameter must have [in] attribute */
 
@@ -1440,7 +1298,7 @@ static void fattr_param_conformant
         &&  fattr_p->size_is_vec != NULL
         &&  fattr_p->size_is_vec[dim].valid
         &&  !AST_IN_SET(fattr_p->size_is_vec[dim].ref.p_ref))
-        CHECKER_error(fattr_p, NIDL_SIZEINATTR);
+        CHECKER_error_0(TO_ASTP_NODE(fattr_p), NIDL_SIZEINATTR);
 }
 
 
@@ -1453,21 +1311,12 @@ static void fattr_param_conformant
 */
 
 static void fattr_param_varying
-#ifdef PROTO
 (
     AST_field_attr_n_t  *fattr_p,       /* [in] Ptr to AST field attr. node */
     AST_parameter_n_t   *param_p,       /* [in] Ptr to associated param node */
     AST_interface_n_t   *int_p,         /* [in] Ptr to interface node */
     unsigned short      dim             /* [in] Array dimension */
 )
-#else
-(fattr_p, param_p, int_p, dim)
-    AST_field_attr_n_t  *fattr_p;       /* [in] Ptr to AST field attr. node */
-    AST_parameter_n_t   *param_p;       /* [in] Ptr to associated param node */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-    unsigned short      dim;            /* [in] Array dimension */
-#endif
-
 {
     /* [first_is] parameter must have [in] attribute */
 
@@ -1477,7 +1326,7 @@ static void fattr_param_varying
         &&  fattr_p->first_is_vec[dim].valid
         &&  AST_IN_SET(param_p)
         &&  !AST_IN_SET(fattr_p->first_is_vec[dim].ref.p_ref))
-        CHECKER_error(fattr_p, NIDL_FIRSTINATTR);
+        CHECKER_error_0(TO_ASTP_NODE(fattr_p), NIDL_FIRSTINATTR);
 
     /* [last_is] parameter must have [in] attribute */
 
@@ -1487,7 +1336,7 @@ static void fattr_param_varying
         &&  fattr_p->last_is_vec[dim].valid
         &&  AST_IN_SET(param_p)
         &&  !AST_IN_SET(fattr_p->last_is_vec[dim].ref.p_ref))
-        CHECKER_error(fattr_p, NIDL_LASTINATTR);
+        CHECKER_error_0(TO_ASTP_NODE(fattr_p), NIDL_LASTINATTR);
 
     /* [length_is] parameter must have [in] attribute */
 
@@ -1497,7 +1346,7 @@ static void fattr_param_varying
         &&  fattr_p->length_is_vec[dim].valid
         &&  AST_IN_SET(param_p)
         &&  !AST_IN_SET(fattr_p->length_is_vec[dim].ref.p_ref))
-        CHECKER_error(fattr_p, NIDL_LENINATTR);
+        CHECKER_error_0(TO_ASTP_NODE(fattr_p), NIDL_LENINATTR);
 }
 
 
@@ -1510,19 +1359,11 @@ static void fattr_param_varying
 */
 
 static void fattr_param_check
-#ifdef PROTO
 (
     AST_field_attr_n_t  *fattr_p,       /* [in] Ptr to AST field attr. node */
     AST_parameter_n_t   *param_p,       /* [in] Ptr to associated param node */
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(fattr_p, param_p, int_p)
-    AST_field_attr_n_t  *fattr_p;       /* [in] Ptr to AST field attr. node */
-    AST_parameter_n_t   *param_p;       /* [in] Ptr to associated param node */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     unsigned short      dim;            /* Array dimension */
     unsigned short      max_dim;        /* Maximum dimension */
@@ -1557,21 +1398,12 @@ static void fattr_param_check
 */
 
 static void fattr_check
-#ifdef PROTO
 (
     AST_field_attr_n_t  *fattr_p,       /* [in] Ptr to AST field attr. node */
     ASTP_node_t         *node_p,        /* [in] Ptr to field or param node */
     AST_type_n_t        *type_p,        /* [in] Ptr to field/param data type */
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(fattr_p, node_p, type_p, int_p)
-    AST_field_attr_n_t  *fattr_p;       /* [in] Ptr to AST field attr. node */
-    ASTP_node_t         *node_p;        /* [in] Ptr to field or param node */
-    AST_type_n_t        *type_p;        /* [in] Ptr to field/param data type */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     unsigned short      dim;            /* Array dimension */
     unsigned short      max_dim;        /* Maximum dimension */
@@ -1590,7 +1422,7 @@ static void fattr_check
 
     if (    ((fattr_p->max_is_vec != NULL) && (fattr_p->length_is_vec != NULL))
         ||  ((fattr_p->size_is_vec != NULL) && (fattr_p->last_is_vec != NULL)))
-        CHECKER_warning(fattr_p, NIDL_MIXEDARRATTR);
+        CHECKER_warning_0(TO_ASTP_NODE(fattr_p), NIDL_MIXEDARRATTR);
 
     fattr_switch_is(fattr_p, node_p, type_p);
     /* Check field attributes in each dimension of the array. */
@@ -1614,15 +1446,9 @@ static void fattr_check
 */
 
 static void index_const_type
-#ifdef PROTO
 (
     AST_array_index_n_t *index_p        /* [in] Ptr to AST array index node */
 )
-#else
-(index_p)
-    AST_array_index_n_t *index_p;       /* [in] Ptr to AST array index node */
-#endif
-
 {
     /* Invalid array index type */
 
@@ -1631,7 +1457,7 @@ static void index_const_type
         ||
         (AST_FIXED_UPPER_SET(index_p)
             && !const_is_integer(index_p->upper_bound)))
-        CHECKER_error(index_p, NIDL_INVARRIND);
+        CHECKER_error_0(TO_ASTP_NODE(index_p), NIDL_INVARRIND);
 }
 
 
@@ -1642,15 +1468,9 @@ static void index_const_type
 */
 
 static void index_bounds
-#ifdef PROTO
 (
     AST_array_index_n_t *index_p        /* [in] Ptr to AST array index node */
 )
-#else
-(index_p)
-    AST_array_index_n_t *index_p;       /* [in] Ptr to AST array index node */
-#endif
-
 {
     /* Lower bound must not be greater than upper bound */
 
@@ -1658,14 +1478,14 @@ static void index_bounds
         &&  AST_FIXED_UPPER_SET(index_p)
         &&  index_p->lower_bound->value.int_val
             > index_p->upper_bound->value.int_val)
-        CHECKER_error(index_p, NIDL_LBLESSUB);
+        CHECKER_error_0(TO_ASTP_NODE(index_p), NIDL_LBLESSUB);
 
     /* Arrays with a nonzero lower bound require -standard extended */
 
     if (   (!AST_FIXED_LOWER_SET(index_p)
             || index_p->lower_bound->value.int_val != 0)
         && (*(int *)cmd_val[opt_standard] <= opt_standard_dce_1_0) )
-        CHECKER_warning(index_p, NIDL_NOPORTNZLB, OPT_STD_EXTENDED);
+        CHECKER_warning_1(TO_ASTP_NODE(index_p), NIDL_NOPORTNZLB, OPT_STD_EXTENDED);
 }
 
 
@@ -1676,15 +1496,9 @@ static void index_bounds
 */
 
 static void index_check
-#ifdef PROTO
 (
     AST_array_index_n_t *index_p        /* [in] Ptr to AST array index node */
 )
-#else
-(index_p)
-    AST_array_index_n_t *index_p;       /* [in] Ptr to AST array index node */
-#endif
-
 {
     index_const_type(index_p);
     index_bounds(index_p);
@@ -1697,7 +1511,6 @@ static void index_check
 */
 
 static void array_element_type
-#ifdef PROTO
 (
     ASTP_node_t         *node_p,        /* [in] Ptr to array or pointer node */
     AST_type_n_t        *type_p,        /* [in] Ptr to array elem type node */
@@ -1705,15 +1518,6 @@ static void array_element_type
     AST_interface_n_t   *int_p,          /* [in] Ptr to interface node */
     boolean             arrayified      /* [in] true if arrayified pointer */
 )
-#else
-(node_p, type_p, arr_type_p, int_p, arrayified)
-    ASTP_node_t         *node_p;        /* [in] Ptr to array or pointer node */
-    AST_type_n_t        *type_p;        /* [in] Ptr to array elem type node */
-    AST_type_n_t        *arr_type_p;    /* [in] Ptr to array | ptr type node */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-    boolean             arrayified;     /* [in] true if arrayified pointer */
-#endif
-
 {
 	AST_type_n_t        *etype_p;       /* Array element presented type */
 
@@ -1733,24 +1537,24 @@ static void array_element_type
 	if (AST_CONFORMANT_SET(type_p)
 			&& !(etype_p != type_p && AST_STRING_SET(type_p))
 			&& !(etype_p != type_p && type_p->kind == AST_structure_k) )
-		CHECKER_error(node_p, NIDL_ARRELEMCFMT);
+		CHECKER_error_0(node_p, NIDL_ARRELEMCFMT);
 
 	/* Array elements cannot be pipes */
 
 	if (type_p->kind == AST_pipe_k)
-		CHECKER_error(node_p, NIDL_ARRELEMPIPE);
+		CHECKER_error_0(node_p, NIDL_ARRELEMPIPE);
 
 	/* Array elements cannot be context handles */
 
 	if (AST_CONTEXT_RD_SET(type_p))
-		CHECKER_error(node_p, NIDL_ARRELEMCTX);
+		CHECKER_error_0(node_p, NIDL_ARRELEMCTX);
 
 	/* Function pointers are not valid as elements of conformant arrays */
 
 	if (!AST_LOCAL_SET(int_p)
 			&&  type_is_function(type_p)
 			&&  (AST_CONFORMANT_SET(arr_type_p) || arrayified))
-		CHECKER_error(node_p, NIDL_FPCFMTARR);
+		CHECKER_error_0(node_p, NIDL_FPCFMTARR);
 
 	/* Array elements cannot be of type handle_t */
 
@@ -1759,12 +1563,12 @@ static void array_element_type
 #if 0   /** Obsolete **/
 		&&  type_p->xmit_as_type == NULL)
 #endif
-			CHECKER_error(node_p, NIDL_HANARRELEM);
+			CHECKER_error_0(node_p, NIDL_HANARRELEM);
 
 	/* void is valid only in an operation or pointer declaration */
 
 	if (type_p->kind == AST_void_k)
-		CHECKER_error(node_p, NIDL_VOIDOPPTR);
+		CHECKER_error_0(node_p, NIDL_VOIDOPPTR);
 
 	/* void * must be used in conjunction with the [context_handle] attribute */
 
@@ -1777,13 +1581,13 @@ static void array_element_type
 			&&  !AST_CONTEXT_RD_SET(type_p)
 			)
 	{
-		CHECKER_error(node_p, NIDL_PTRVOIDCTX);
+		CHECKER_error_0(node_p, NIDL_PTRVOIDCTX);
 	}
 
 	/* The [ignore] attribute is not allowed on array elements */
 
 	if (AST_IGNORE_SET(type_p))
-		CHECKER_error(node_p, NIDL_IGNARRELEM);
+		CHECKER_error_0(node_p, NIDL_IGNARRELEM);
 }
 
 
@@ -1795,7 +1599,6 @@ static void array_element_type
 */
 
 static void array_check
-#ifdef PROTO
 (
     ASTP_node_t         *node_p,        /* [in] Ptr to array or pointer node */
     AST_type_n_t        *arr_type_p,    /* [in] Array or ptr type node */
@@ -1804,16 +1607,6 @@ static void array_check
     AST_interface_n_t   *int_p,         /* [in] Ptr to interface node */
     boolean             arrayified      /* [in] true if arrayified pointer */
 )
-#else
-(node_p, arr_type_p, parent_p, type_p, int_p, arrayified)
-    ASTP_node_t         *node_p;        /* [in] Ptr to array or pointer node */
-    AST_type_n_t        *arr_type_p;    /* [in] Array or ptr type node */
-    ASTP_node_t         *parent_p;      /* [in] Parent of array or ptr type */
-    AST_type_n_t        *type_p;        /* [in] Ptr to array elem type node */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-    boolean             arrayified;     /* [in] true if arrayified pointer */
-#endif
-
 {
     unsigned short      dim;            /* Array dimension */
 
@@ -1825,7 +1618,7 @@ static void array_check
                 &&  ((AST_parameter_n_t *)parent_p)->field_attrs != NULL)
             ||  (parent_p->fe_info->node_kind == fe_field_n_k
                 &&  ((AST_field_n_t *)parent_p)->field_attrs != NULL)))
-        CHECKER_error(parent_p, NIDL_ARRXMITOPEN);
+        CHECKER_error_0(parent_p, NIDL_ARRXMITOPEN);
 
     array_element_type(node_p, type_p, arr_type_p, int_p, arrayified);
 
@@ -1833,13 +1626,13 @@ static void array_check
 
     if (type_p->kind == AST_disc_union_k
         &&  type_p->type_structure.disc_union->discrim_name == NAMETABLE_NIL_ID)
-        CHECKER_error(arr_type_p, NIDL_NEUARRAY);
+        CHECKER_error_0(TO_ASTP_NODE(arr_type_p), NIDL_NEUARRAY);
 
 	/* Don't allow arrays of interfaces */
 	 if (type_p->kind == AST_interface_k)	{
 		 char const * id_name;
 		 NAMETABLE_id_to_string(type_p->name, &id_name);
-		 CHECKER_error(arr_type_p, NIDL_INTREFNOTALO, id_name);
+		 CHECKER_error_1(TO_ASTP_NODE(arr_type_p), NIDL_INTREFNOTALO, id_name);
 	 }
 	 
     /*
@@ -1866,21 +1659,12 @@ static void array_check
 */
 
 static void param_type
-#ifdef PROTO
 (
     AST_parameter_n_t   *param_p,       /* [in] Ptr to AST parameter node */
     AST_type_n_t        *top_type_p,    /* [in] Top-level parameter type */
     AST_type_n_t        *type_p,        /* [in] Parameter type */
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(param_p, top_type_p, type_p, int_p)
-    AST_parameter_n_t   *param_p;       /* [in] Ptr to AST parameter node */
-    AST_type_n_t        *top_type_p;    /* [in] Top-level parameter type */
-    AST_type_n_t        *type_p;        /* [in] Parameter type */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     AST_type_n_t        *btype_p;       /* Base type */
 
@@ -1896,7 +1680,7 @@ static void param_type
         &&  btype_p->kind == AST_disc_union_k
         &&  btype_p->type_structure.disc_union->discrim_name == NAMETABLE_NIL_ID
         &&  btype_p->fe_info->pointer_count > 1)
-        CHECKER_error(top_type_p, NIDL_PTRNEUNION);
+        CHECKER_error_0(TO_ASTP_NODE(top_type_p), NIDL_PTRNEUNION);
 
     /*
      * If the parameter type is anonymous, it must undergo type checks.
@@ -1913,7 +1697,7 @@ static void param_type
 
     if (type_p->kind == AST_void_k
         &&  param_p != param_p->uplink->result) /* Not the result param */
-        CHECKER_error(param_p, NIDL_VOIDOPPTR);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_VOIDOPPTR);
 
 	 
     /* void * must be used in conjunction with the [context_handle] attr */
@@ -1926,7 +1710,7 @@ static void param_type
         &&  !AST_CONTEXT_SET(param_p)
 		&& !AST_LOCAL_SET(param_p->uplink)
 		  )
-        CHECKER_error(param_p, NIDL_PTRVOIDCTX);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_PTRVOIDCTX);
 
     /* A type with [transmit_as] may not have other type attributes */
 
@@ -1938,7 +1722,7 @@ static void param_type
          || AST_SMALL_SET(param_p)
          || AST_CONTEXT_SET(param_p)
          ))
-        CHECKER_error(param_p, NIDL_XMITTYPEATTRS);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_XMITTYPEATTRS);
 
     /*
      * V1 attributes are incompatible with this type
@@ -1948,13 +1732,13 @@ static void param_type
         &&  FE_TEST(param_p->fe_info->flags, FE_HAS_V2_ATTR)
         &&  ! ( FE_TEST(type_p->fe_info->flags, FE_HAS_V1_ATTR)
                 &&  FE_TEST(type_p->fe_info->flags, FE_HAS_V2_ATTR) ))
-        CHECKER_warning(param_p, NIDL_INCOMPATV1);
+        CHECKER_warning_0(TO_ASTP_NODE(param_p), NIDL_INCOMPATV1);
 
     /* Array function results are not allowed */
 
     if (type_p->kind == AST_array_k
         && param_p == param_p->uplink->result)
-        CHECKER_error(param_p, NIDL_ARRFUNRES);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_ARRFUNRES);
 }
 
 
@@ -1965,21 +1749,12 @@ static void param_type
 */
 
 static void param_size
-#ifdef PROTO
 (
     AST_parameter_n_t   *param_p,       /* [in] Ptr to AST parameter node */
     AST_type_n_t        *top_type_p,    /* [in] Top-level parameter type */
     AST_type_n_t        *type_p,        /* [in] Parameter type */
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(param_p, top_type_p, type_p, int_p)
-    AST_parameter_n_t   *param_p;       /* [in] Ptr to AST parameter node */
-    AST_type_n_t        *top_type_p;    /* [in] Top-level parameter type */
-    AST_type_n_t        *type_p;        /* [in] Parameter type */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     AST_field_attr_n_t  *fattr_p;       /* Field attributes */
 
@@ -1999,7 +1774,7 @@ static void param_size
         char const *id_name;
 
         NAMETABLE_id_to_string(param_p->name, &id_name);
-        CHECKER_error(param_p, NIDL_ARRSIZEINFO, id_name);
+        CHECKER_error_1(TO_ASTP_NODE(param_p), NIDL_ARRSIZEINFO, id_name);
     }
 
     /*
@@ -2023,7 +1798,7 @@ static void param_size
         char const *id_name;
 
         NAMETABLE_id_to_string(param_p->name, &id_name);
-        CHECKER_error(param_p, NIDL_ARRSIZEINFO, id_name);
+        CHECKER_error_1(TO_ASTP_NODE(param_p), NIDL_ARRSIZEINFO, id_name);
     }
 
     /* A [string] array can not have varying array attributes */
@@ -2035,13 +1810,13 @@ static void param_size
         &&  (fattr_p->first_is_vec != NULL
             ||  fattr_p->last_is_vec != NULL
             ||  fattr_p->length_is_vec != NULL))
-        CHECKER_error(param_p, NIDL_STRVARY);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_STRVARY);
 
     /* Arrays with [transmit_as] can't be conformant or varying */
 
     if (type_p->xmit_as_type != NULL
         &&  fattr_p != NULL)
-        CHECKER_error(param_p, NIDL_ARRXMITOPEN);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_ARRXMITOPEN);
 
     /*
      * Current rules allow mixed open array [] and pointer * syntax ONLY
@@ -2078,7 +1853,7 @@ static void param_size
             &&  (fattr_p->min_is_vec != NULL
                 ||  fattr_p->max_is_vec != NULL
                 ||  fattr_p->size_is_vec != NULL))
-            CHECKER_error(param_p, NIDL_ARRSYNTAX);
+            CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_ARRSYNTAX);
 
         /* Pointers to conformant arrays are not allowed */
 
@@ -2094,7 +1869,7 @@ static void param_size
                         ||  fattr_p->max_is_vec != NULL
                         ||  fattr_p->size_is_vec != NULL))))
         {
-            CHECKER_error(param_p, NIDL_PTRCFMTARR);
+            CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_PTRCFMTARR);
             return;     /* Return with no further checking */
         }
 
@@ -2110,7 +1885,7 @@ static void param_size
                 ||  fattr_p->last_is_vec != NULL
                 ||  fattr_p->length_is_vec != NULL))
         {
-            CHECKER_error(param_p, NIDL_PTRVARYARR);
+            CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_PTRVARYARR);
             return;     /* Return with no further checking */
         }
     }
@@ -2126,7 +1901,7 @@ static void param_size
         &&  param_p->type->xmit_as_type == NULL
         &&  !AST_IN_SET(param_p)
         &&  FE_TEST(param_p->fe_info->flags, FE_HAS_CFMT_ARR))
-        CHECKER_error(param_p, NIDL_OUTCFMTARR);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_OUTCFMTARR);
 }
 
 
@@ -2155,7 +1930,7 @@ static void param_struct
     if (!AST_OUT_SET(param_p)
         &&  top_type_p->kind != AST_pointer_k
         &&  AST_CONFORMANT_SET(type_p))
-        CHECKER_error(param_p, NIDL_CFMTARRREF);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_CFMTARRREF);
 }
 
 
@@ -2166,19 +1941,12 @@ static void param_struct
 */
 
 static void param_pipe
-#ifdef PROTO
 (
     AST_parameter_n_t   *param_p,       /* [in] Ptr to AST parameter node */
-    AST_type_n_t        *top_type_p __attribute__((__unused__)),    /* [in] Top-level parameter type */
+	[[maybe_unused]]
+    AST_type_n_t        *top_type_p,    /* [in] Top-level parameter type */
     AST_type_n_t        *type_p         /* [in] Parameter type */
 )
-#else
-(param_p, top_type_p, type_p)
-    AST_parameter_n_t   *param_p;       /* [in] Ptr to AST parameter node */
-    AST_type_n_t        *top_type_p;    /* [in] Top-level parameter type */
-    AST_type_n_t        *type_p;        /* [in] Parameter type */
-#endif
-
 {
     type_p = type_xmit_type(type_p);    /* Pick up transmissible type */
 
@@ -2186,13 +1954,13 @@ static void param_pipe
 
     if (type_p->kind == AST_pipe_k
         &&  AST_PTR_SET(param_p))
-        CHECKER_error(param_p, NIDL_PTRPIPE);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_PTRPIPE);
 
     /* Operation result may not be a pipe */
 
     if (param_p == param_p->uplink->result
         &&  type_p->kind == AST_pipe_k)
-        CHECKER_error(param_p, NIDL_OPRESPIPE);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_OPRESPIPE);
 }
 
 
@@ -2203,23 +1971,16 @@ static void param_pipe
 */
 
 static void param_in_line
-#ifdef PROTO
 (
     AST_parameter_n_t   *param_p,       /* [in] Ptr to AST parameter node */
     AST_type_n_t        *type_p         /* [in] Parameter type */
 )
-#else
-(param_p, type_p)
-    AST_parameter_n_t   *param_p;       /* [in] Ptr to AST parameter node */
-    AST_type_n_t        *type_p;        /* [in] Parameter type */
-#endif
-
 {
     /* Can't have both [in_line] and [out_of_line] parameter attributes */
 
     if (AST_IN_LINE_SET(param_p)
         &&  AST_OUT_OF_LINE_SET(param_p))
-        CHECKER_acf_error(param_p, NIDL_PRMLINEATTR);
+        CHECKER_acf_error(TO_ASTP_NODE(param_p), NIDL_PRMLINEATTR, NULL, NULL, NULL, NULL, NULL);
 
     /* [in_line] and [out_of_line] attributes apply only to non-scalar types */
 
@@ -2232,9 +1993,8 @@ static void param_in_line
         STRTAB_str_to_string(type_p->fe_info->file, &file_name);
         NAMETABLE_id_to_string(type_p->name, &type_name);
 
-        CHECKER_acf_warning(param_p, NIDL_LINENONSCAL);
-        CHECKER_acf_warning(param_p, NIDL_NAMEDECLAT, type_name, file_name,
-                          type_p->fe_info->source_line);
+        CHECKER_acf_warning(TO_ASTP_NODE(param_p), NIDL_LINENONSCAL, NULL, NULL, NULL, NULL, NULL);
+        CHECKER_acf_warning(TO_ASTP_NODE(param_p), NIDL_NAMEDECLAT, type_name, file_name, TO_CHARZ_PTR(type_p->fe_info->source_line), NULL, NULL);
     }
 }
 
@@ -2246,36 +2006,29 @@ static void param_in_line
 */
 
 static void param_string
-#ifdef PROTO
 (
     AST_parameter_n_t   *param_p,       /* [in] Ptr to AST parameter node */
     AST_type_n_t        *type_p         /* [in] Parameter type */
 )
-#else
-(param_p, type_p)
-    AST_parameter_n_t   *param_p;       /* [in] Ptr to AST parameter node */
-    AST_type_n_t        *type_p;        /* [in] Parameter type */
-#endif
-
 {
     /* A [v1_string] must be an array of char with fixed bounds */
 
     if (AST_STRING0_SET(param_p)
         &&  !type_is_v1_string(type_p))
-        CHECKER_error(param_p, NIDL_STRV1FIXED);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_STRV1FIXED);
 
     /* The [v1_string] attribute can only be applied to a [v1_array] */
 
     if ((AST_STRING0_SET(param_p) || AST_STRING0_SET(type_p))
         &&  !(AST_SMALL_SET(param_p) || AST_SMALL_SET(type_p)))
-        CHECKER_error(param_p, NIDL_STRV1ARRAY);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_STRV1ARRAY);
 
     /* The [string] attribute cannot be applied to a [v1_array] */
 
     if ((AST_STRING_SET(param_p) && AST_SMALL_SET(param_p))
         ||  (AST_STRING_SET(param_p) && AST_SMALL_SET(type_p))
         ||  (AST_STRING_SET(type_p) && AST_SMALL_SET(param_p)))
-        CHECKER_error(param_p, NIDL_STRARRAYV1);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_STRARRAYV1);
 
     /* Cannot have both [string] and [v1_string] attributes */
 
@@ -2285,7 +2038,7 @@ static void param_string
         ASTP_attr_flag_t attr1 = ASTP_STRING;
         ASTP_attr_flag_t attr2 = ASTP_STRING0;
 
-        CHECKER_error(param_p, NIDL_CONFLICTATTR,
+        CHECKER_error_2(TO_ASTP_NODE(param_p), NIDL_CONFLICTATTR,
             KEYWORDS_lookup_text(AST_attribute_to_token(&attr1)),
             KEYWORDS_lookup_text(AST_attribute_to_token(&attr2)));
     }
@@ -2312,7 +2065,7 @@ static void param_string
 
     if (AST_STRING_SET(param_p)
         &&  !type_is_string(param_p->type))
-        CHECKER_error(param_p, NIDL_STRCHARBYTE);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_STRCHARBYTE);
 }
 
 
@@ -2323,21 +2076,12 @@ static void param_string
 */
 
 static void param_pointer
-#ifdef PROTO
 (
     AST_parameter_n_t   *param_p,       /* [in] Ptr to AST parameter node */
     AST_type_n_t        *top_type_p,    /* [in] Top-level parameter type */
     AST_type_n_t        *type_p,        /* [in] Parameter type */
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(param_p, top_type_p, type_p, int_p)
-    AST_parameter_n_t   *param_p;       /* [in] Ptr to AST parameter node */
-    AST_type_n_t        *top_type_p;    /* [in] Top-level parameter type */
-    AST_type_n_t        *type_p;        /* [in] Parameter type */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     boolean pointer_attr_valid = FALSE;
 
@@ -2354,7 +2098,7 @@ static void param_pointer
         &&  !AST_IN_SET(param_p)
         &&  AST_PTR_SET(param_p)
         &&  param_p->uplink->result != param_p) /* Not the result param */
-        CHECKER_error(param_p, NIDL_OUTPTRPRM);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_OUTPTRPRM);
 
     /* [out,unique] parameters are not allowed */
 
@@ -2362,19 +2106,19 @@ static void param_pointer
         &&  !AST_IN_SET(param_p)
         &&  AST_UNIQUE_SET(param_p)
         &&  param_p->uplink->result != param_p) /* Not the result param */
-        CHECKER_error(param_p, NIDL_OUTUNIQPRM);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_OUTUNIQPRM);
 
     /* [ref] function results are not valid */
 
     if (param_p->uplink->result == param_p      /* IS the result param */
         &&  AST_REF_SET(param_p))
-        CHECKER_error(param_p, NIDL_REFFUNRES);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_REFFUNRES);
 
     /* [unique] function results are not valid */
 
     if (param_p->uplink->result == param_p      /* IS the result param */
         &&  AST_UNIQUE_SET(param_p))
-        CHECKER_error(param_p, NIDL_UNIQFUNRES);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_UNIQFUNRES);
 
     if (top_type_p->kind == AST_array_k
         ||  (top_type_p->kind == AST_pointer_k
@@ -2385,33 +2129,33 @@ static void param_pointer
     /* [ref] attribute valid only for pointer or array types */
 
     if (AST_REF_SET(param_p) && !pointer_attr_valid)
-        CHECKER_error(param_p, NIDL_REFATTRPTR);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_REFATTRPTR);
 
     /* [unique] attribute valid only for pointer or array types */
 
     if (AST_UNIQUE_SET(param_p) && !pointer_attr_valid)
-        CHECKER_error(param_p, NIDL_UNIQATTRPTR);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_UNIQATTRPTR);
 
     /* [ptr] attribute valid only for pointer or array types */
 
     if (AST_PTR_SET(param_p) && !pointer_attr_valid)
-        CHECKER_error(param_p, NIDL_PTRATTRPTR);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_PTRATTRPTR);
 
     /* [unique] attribute requires -standard extended */
 
     if (AST_UNIQUE_SET(param_p)
         &&  (*(int *)cmd_val[opt_standard] <= opt_standard_dce_1_0))
-        CHECKER_warning(param_p, NIDL_NOPORTUNIQUE, OPT_STD_EXTENDED);
+        CHECKER_warning_1(TO_ASTP_NODE(param_p), NIDL_NOPORTUNIQUE, OPT_STD_EXTENDED);
 
 #if 0
 	/* if the parameter is a pointer to an interface, then it should ignore
 	 * the pointer attributes REF, UNIQUE or PTR */
 	 if (top_type_p->kind == AST_pointer_k && type_p->kind == AST_interface_k
 			 && AST_REF_SET(param_p))
-		 CHECKER_warning(param_p, NIDL_PTRATTBIGN);
+		 CHECKER_warning_0(param_p, NIDL_PTRATTBIGN);
 	 if (type_p->kind == AST_pointer_k && type_p->type_structure.pointer->pointee_type->kind == AST_interface_k
 			 && (AST_UNIQUE_SET(param_p) || AST_PTR_SET(param_p)))
-		 CHECKER_warning(param_p, NIDL_PTRATTBIGN);
+		 CHECKER_warning_0(param_p, NIDL_PTRATTBIGN);
 #endif
 	 
     /*
@@ -2445,19 +2189,11 @@ static void param_pointer
 */
 
 static void param_small
-#ifdef PROTO
 (
     AST_parameter_n_t   *param_p,       /* [in] Ptr to AST parameter node */
     AST_type_n_t        *top_type_p,    /* [in] Top-level parameter type */
     AST_type_n_t        *type_p         /* [in] Parameter type */
 )
-#else
-(param_p, top_type_p, type_p)
-    AST_parameter_n_t   *param_p;       /* [in] Ptr to AST parameter node */
-    AST_type_n_t        *top_type_p;    /* [in] Top-level parameter type */
-    AST_type_n_t        *type_p;        /* [in] Parameter type */
-#endif
-
 {
     AST_array_n_t       *array_p;       /* Ptr to array node */
     AST_field_attr_n_t  *fattr_p;       /* Ptr to field attribute node */
@@ -2467,7 +2203,7 @@ static void param_small
     if (AST_SMALL_SET(param_p)
         &&  (type_p->kind == AST_pointer_k
             ||  top_type_p->kind == AST_pointer_k))
-        CHECKER_error(param_p, NIDL_SMALLARRSYN);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_SMALLARRSYN);
 
     /*
      * Remaining checks only apply to array types in array syntax.
@@ -2487,20 +2223,20 @@ static void param_small
             ||
             (AST_VARYING_SET(param_p)
                 && instance_is_varying_upper(array_p, param_p->field_attrs))))
-        CHECKER_error(param_p, NIDL_SMALLMULTID);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_SMALLMULTID);
 
     /* [v1_array] attribute invalid for array with more than 65535 elements */
 
     if (AST_SMALL_SET(param_p)
         &&  array_is_large(array_p))
-        CHECKER_error(param_p, NIDL_SMALLINV);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_SMALLINV);
 
     /* A conformant [v1_array] must also be varying */
 
     if ((AST_SMALL_SET(type_p) || AST_SMALL_SET(param_p))
         &&  AST_CONFORMANT_SET(type_p)
         &&  !AST_VARYING_SET(param_p))
-        CHECKER_error(param_p, NIDL_SMALLCFMT);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_SMALLCFMT);
 
     /* A [v1_array] can not have the [min_is] or [first_is] attributes */
 
@@ -2508,7 +2244,7 @@ static void param_small
         &&  fattr_p != NULL
         &&  (fattr_p->min_is_vec != NULL
             ||  fattr_p->first_is_vec != NULL))
-        CHECKER_error(param_p, NIDL_SMALLMINFIRST);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_SMALLMINFIRST);
 }
 
 
@@ -2519,19 +2255,11 @@ static void param_small
 */
 
 static void param_context
-#ifdef PROTO
 (
     AST_parameter_n_t   *param_p,       /* [in] Ptr to AST parameter node */
     AST_type_n_t        *top_type_p,    /* [in] Top-level parameter type */
     AST_type_n_t        *type_p         /* [in] Parameter type */
 )
-#else
-(param_p, top_type_p, type_p)
-    AST_parameter_n_t   *param_p;       /* [in] Ptr to AST parameter node */
-    AST_type_n_t        *top_type_p;    /* [in] Top-level parameter type */
-    AST_type_n_t        *type_p;        /* [in] Parameter type */
-#endif
-
 {
     AST_type_n_t        *deref_type_p;  /* Explicit pointer's pointee type */
     boolean             type_is_pointer;/* Type is real pointer, not void* */
@@ -2554,7 +2282,7 @@ static void param_context
             ||  (deref_type_p->kind == AST_pointer_k
                 &&  deref_type_p->type_structure.pointer->pointee_type->kind
                     != AST_void_k)))
-            CHECKER_error(param_p, NIDL_CTXPTRVOID);
+            CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_CTXPTRVOID);
 
     type_is_pointer = (deref_type_p != top_type_p);
 
@@ -2563,7 +2291,7 @@ static void param_context
     if (type_is_pointer
         &&  (AST_CONTEXT_SET(param_p) || AST_CONTEXT_RD_SET(deref_type_p))
         &&  AST_UNIQUE_SET(param_p))
-        CHECKER_error(param_p, NIDL_UNIQCTXHAN);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_UNIQCTXHAN);
 
     /* Full pointers to context handles are not allowed */
 
@@ -2571,7 +2299,7 @@ static void param_context
         &&  (AST_CONTEXT_SET(param_p) || AST_CONTEXT_RD_SET(deref_type_p))
         &&  AST_PTR_SET(param_p)
         &&  deref_type_p->kind != AST_structure_k)  /* opaque ctx handle */
-        CHECKER_error(param_p, NIDL_PTRCTXHAN);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_PTRCTXHAN);
 }
 
 
@@ -2582,19 +2310,11 @@ static void param_context
 */
 
 static void param_varying
-#ifdef PROTO
 (
     AST_parameter_n_t   *param_p,       /* [in] Ptr to AST parameter node */
     AST_type_n_t        *type_p,        /* [in] Parameter type */
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(param_p, type_p, int_p)
-    AST_parameter_n_t   *param_p;       /* [in] Ptr to AST parameter node */
-    AST_type_n_t        *type_p;        /* [in] Parameter type */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     /*
      * Assume that if the varying attribute is set, the parameter is an
@@ -2613,7 +2333,7 @@ static void param_varying
         &&  instance_is_varying_upper(type_p->type_structure.array,
                                       param_p->field_attrs)
         &&  (*(int *)cmd_val[opt_standard] <= opt_standard_dce_1_0))
-        CHECKER_warning(param_p, NIDL_NOPORTVARY, OPT_STD_EXTENDED);
+        CHECKER_warning_1(TO_ASTP_NODE(param_p), NIDL_NOPORTVARY, OPT_STD_EXTENDED);
 }
 
 
@@ -2624,21 +2344,12 @@ static void param_varying
 */
 
 static void param_direction
-#ifdef PROTO
 (
     AST_parameter_n_t   *param_p,       /* [in] Ptr to AST parameter node */
     AST_type_n_t        *top_type_p,    /* [in] Top-level parameter type */
     AST_type_n_t        *type_p,        /* [in] Parameter type */
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(param_p, top_type_p, type_p, int_p)
-    AST_parameter_n_t   *param_p;       /* [in] Ptr to AST parameter node */
-    AST_type_n_t        *top_type_p;    /* [in] Top-level parameter type */
-    AST_type_n_t        *type_p;        /* [in] Parameter type */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     type_p = type_xmit_type(type_p);    /* Pick up transmissible type */
 
@@ -2648,7 +2359,7 @@ static void param_direction
 		  &&  !AST_LOCAL_SET(int_p)
         &&  !AST_IN_SET(param_p)
         &&  !AST_OUT_SET(param_p))
-        CHECKER_error(param_p, NIDL_PRMINOROUT);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_PRMINOROUT);
 
     /* [out] parameters must be passed by reference */
 
@@ -2663,7 +2374,7 @@ static void param_direction
 			 || (top_type_p->kind == AST_pointer_k
 				 && top_type_p->type_structure.pointer->pointee_type->kind == AST_interface_k)
 			 ))
-        CHECKER_error(param_p, NIDL_OUTPRMREF);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_OUTPRMREF);
 
     /* [out] parameter requires explicit top-level '*' */
 
@@ -2674,7 +2385,7 @@ static void param_direction
         &&  top_type_p->type_structure.pointer->pointee_type->kind
             != AST_function_k               /* Func ptrs an exception */
         &&  top_type_p->name != NAMETABLE_NIL_ID)
-        CHECKER_error(param_p, NIDL_OUTSTAR);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_OUTSTAR);
 
     /* Function pointer parameters can only be [in] parameters */
 
@@ -2682,17 +2393,17 @@ static void param_direction
         &&  type_p->kind == AST_pointer_k
         &&  type_p->type_structure.pointer->pointee_type->kind
             == AST_function_k)
-        CHECKER_error(param_p, NIDL_FPINPRM);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_FPINPRM);
 
     /* [in(shape)] is not yet supported */
 
     if (AST_IN_SHAPE_SET(param_p))
-        CHECKER_error(param_p, NIDL_NYSINSHAPE);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_NYSINSHAPE);
 
     /* [out(shape)] is not yet supported */
 
     if (AST_OUT_SHAPE_SET(param_p))
-        CHECKER_error(param_p, NIDL_NYSOUTSHAPE);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_NYSOUTSHAPE);
 
     if (type_p->kind == AST_pointer_k)
         type_p = ASTP_chase_ptr_to_kind(type_p, AST_disc_union_k);
@@ -2706,7 +2417,7 @@ static void param_direction
         &&  param_p->field_attrs != NULL
         &&  param_p->field_attrs->switch_is != NULL
         &&  !AST_IN_SET(param_p->field_attrs->switch_is->ref.p_ref))
-        CHECKER_error(param_p, NIDL_DISCRIMIN);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_DISCRIMIN);
 
     /* An [in,out] or [out] union must have an [out] discriminator */
 
@@ -2717,7 +2428,7 @@ static void param_direction
         &&  param_p->field_attrs != NULL
         &&  param_p->field_attrs->switch_is != NULL
         &&  !AST_OUT_SET(param_p->field_attrs->switch_is->ref.p_ref))
-        CHECKER_error(param_p, NIDL_DISCRIMOUT);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_DISCRIMOUT);
 }
 
 
@@ -2728,17 +2439,10 @@ static void param_direction
 */
 
 static void param_comm_status
-#ifdef PROTO
 (
     AST_parameter_n_t   *param_p,       /* [in] Ptr to AST parameter node */
     AST_type_n_t        *type_p         /* [in] Parameter type */
 )
-#else
-(param_p, type_p)
-    AST_parameter_n_t   *param_p;       /* [in] Ptr to AST parameter node */
-    AST_type_n_t        *type_p;        /* [in] Parameter type */
-#endif
-
 {
     char const *type_name;     /* Data type name */
 
@@ -2747,16 +2451,14 @@ static void param_comm_status
     if (AST_COMM_STATUS_SET(param_p)
         &&  param_p != param_p->uplink->result  /* Op result special cased */
         &&  !AST_OUT_SET(param_p))
-        CHECKER_error(param_p, NIDL_STSPRMOUT,
-            acf_keyword_lookup(COMM_STATUS_KW));
+        CHECKER_error_1(TO_ASTP_NODE(param_p), NIDL_STSPRMOUT, acf_keyword_lookup(COMM_STATUS_KW));
 
     /* [fault_status] parameter must be an [out] parameter */
 
     if (AST_FAULT_STATUS_SET(param_p)
         &&  param_p != param_p->uplink->result  /* Op result special cased */
         &&  !AST_OUT_SET(param_p))
-        CHECKER_error(param_p, NIDL_STSPRMOUT,
-            acf_keyword_lookup(FAULT_STATUS_KW));
+        CHECKER_error_1(TO_ASTP_NODE(param_p), NIDL_STSPRMOUT, acf_keyword_lookup(FAULT_STATUS_KW));
 
     /* Chase type down to base named type. */
 
@@ -2769,45 +2471,34 @@ static void param_comm_status
     if (AST_COMM_STATUS_SET(param_p)
         &&  param_p != param_p->uplink->result  /* Op result special cased */
         &&  strcmp(type_name, "error_status_t") != 0)
-        CHECKER_error(param_p, NIDL_STSVARTYPE,
-            acf_keyword_lookup(COMM_STATUS_KW));
+        CHECKER_error_1(TO_ASTP_NODE(param_p), NIDL_STSVARTYPE, acf_keyword_lookup(COMM_STATUS_KW));
 
     /* [fault_status] parameter must be of type error_status_t */
 
     if (AST_FAULT_STATUS_SET(param_p)
         &&  param_p != param_p->uplink->result  /* Op result special cased */
         &&  strcmp(type_name, "error_status_t") != 0)
-        CHECKER_error(param_p, NIDL_STSVARTYPE,
-            acf_keyword_lookup(FAULT_STATUS_KW));
+        CHECKER_error_1(TO_ASTP_NODE(param_p), NIDL_STSVARTYPE, acf_keyword_lookup(FAULT_STATUS_KW));
 
     /* A [comm_status] operation must return a value of type error_status_t */
 
     if (AST_COMM_STATUS_SET(param_p)
         &&  param_p == param_p->uplink->result  /* The operation result */
         &&  strcmp(type_name, "error_status_t") != 0)
-        CHECKER_error(param_p->uplink, NIDL_STSRETVAL,
-            acf_keyword_lookup(COMM_STATUS_KW));
+        CHECKER_error_1(TO_ASTP_NODE(param_p->uplink), NIDL_STSRETVAL, acf_keyword_lookup(COMM_STATUS_KW));
 
     /* A [fault_status] operation must return a value of type error_status_t */
 
     if (AST_FAULT_STATUS_SET(param_p)
         &&  param_p == param_p->uplink->result  /* The operation result */
         &&  strcmp(type_name, "error_status_t") != 0)
-        CHECKER_error(param_p->uplink, NIDL_STSRETVAL,
-            acf_keyword_lookup(FAULT_STATUS_KW));
+        CHECKER_error_1(TO_ASTP_NODE(param_p->uplink), NIDL_STSRETVAL, acf_keyword_lookup(FAULT_STATUS_KW));
 }
 static void param_switch_is
-#ifdef PROTO
 (
     AST_parameter_n_t   *param_p,       /* [in] Ptr to AST parameter node */
     AST_type_n_t        *type_p         /* [in] Parameter type */
 )
-#else
-(param_p, type_p)
-    AST_parameter_n_t   *param_p;       /* [in] Ptr to AST parameter node */
-    AST_type_n_t        *type_p;        /* [in] Parameter type */
-#endif
-
 {
     if (type_p->kind == AST_pointer_k)
         type_p = ASTP_chase_ptr_to_kind(type_p, AST_disc_union_k);
@@ -2819,7 +2510,7 @@ static void param_switch_is
         &&  type_p->type_structure.disc_union->discrim_name == NAMETABLE_NIL_ID
         &&  (param_p->field_attrs == NULL
             ||  param_p->field_attrs->switch_is == NULL))
-        CHECKER_error(param_p, NIDL_NEUSWATTR);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_NEUSWATTR);
 }
 
 
@@ -2831,19 +2522,13 @@ static void param_switch_is
 */
 
 static void param_first_handle
-#ifdef PROTO
 (
     AST_parameter_n_t   *param_p,       /* [in] Ptr to AST parameter node */
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(param_p, int_p)
-    AST_parameter_n_t   *param_p;       /* [in] Ptr to AST parameter node */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     AST_operation_n_t   *op_p;          /* Operation containing the parameter */
+	[[maybe_unused]]
     AST_type_n_t        *top_type_p;    /* Top-level parameter type */
     AST_type_n_t        *type_p;        /* Param type (deref'd if necess.) */
 
@@ -2881,28 +2566,28 @@ static void param_first_handle
     if (!AST_LOCAL_SET(int_p)
         &&  type_p->kind == AST_handle_k
         &&  (!AST_IN_SET(param_p) || AST_OUT_SET(param_p)))
-        CHECKER_error(param_p, NIDL_HANPRMIN);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_HANPRMIN);
 
     /* [handle] binding parameter must be an in parameter */
 
     if (!AST_LOCAL_SET(int_p)
         &&  AST_HANDLE_SET(type_p)
         &&  !AST_IN_SET(param_p))
-        CHECKER_error(param_p, NIDL_HANDLEIN);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_HANDLEIN);
 
     /* [ptr] attribute invalid on binding handle parameter */
 
     if (!AST_LOCAL_SET(int_p)
         &&  type_is_handle(type_p)
         &&  AST_PTR_SET(param_p))
-        CHECKER_error(param_p, NIDL_PTRATTRHAN);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_PTRATTRHAN);
 
     /* [unique] attribute invalid on binding handle parameter */
 
     if (!AST_LOCAL_SET(int_p)
         &&  type_is_handle(type_p)
         &&  AST_UNIQUE_SET(param_p))
-        CHECKER_error(param_p, NIDL_UNIQATTRHAN);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_UNIQATTRHAN);
 
     /* handle_t first parameter must not have [transmit_as] type */
 
@@ -2910,7 +2595,7 @@ static void param_first_handle
         &&  type_p->kind == AST_handle_k
         &&  !AST_HANDLE_SET(type_p)
         &&  type_p->xmit_as_type != NULL)
-        CHECKER_error(param_p, NIDL_HANXMITAS);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_HANXMITAS);
 
     /* Type with [transmit_as] cannot be used in defn of type with [handle] */
 
@@ -2920,7 +2605,7 @@ static void param_first_handle
     {
         ASTP_attr_flag_t attr1 = ASTP_TRANSMIT_AS;
         ASTP_attr_flag_t attr2 = ASTP_HANDLE;
-        CHECKER_error(param_p, NIDL_TYPEATTRUSE,
+        CHECKER_error_2(TO_ASTP_NODE(param_p), NIDL_TYPEATTRUSE,
             KEYWORDS_lookup_text(AST_attribute_to_token(&attr1)),
             KEYWORDS_lookup_text(AST_attribute_to_token(&attr2)));
     }
@@ -2933,7 +2618,7 @@ static void param_first_handle
     {
         ASTP_attr_flag_t attr1 = ASTP_HANDLE;
         ASTP_attr_flag_t attr2 = ASTP_TRANSMIT_AS;
-        CHECKER_error(param_p, NIDL_TYPEATTRUSE,
+        CHECKER_error_2(TO_ASTP_NODE(param_p), NIDL_TYPEATTRUSE,
             KEYWORDS_lookup_text(AST_attribute_to_token(&attr1)),
             KEYWORDS_lookup_text(AST_attribute_to_token(&attr2)));
     }
@@ -2948,17 +2633,10 @@ static void param_first_handle
 */
 
 static void param_check_first
-#ifdef PROTO
 (
     AST_parameter_n_t   *param_p,       /* [in] Ptr to AST parameter node */
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(param_p, int_p)
-    AST_parameter_n_t   *param_p;       /* [in] Ptr to AST parameter node */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     param_first_handle(param_p, int_p);
 }
@@ -2972,17 +2650,10 @@ static void param_check_first
 */
 
 static void param_check_non_handle
-#ifdef PROTO
 (
     AST_parameter_n_t   *param_p,       /* [in] Ptr to AST parameter node */
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(param_p, int_p)
-    AST_parameter_n_t   *param_p;       /* [in] Ptr to AST parameter node */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     AST_type_n_t        *type_p;        /* Param type (deref'd if necess.) */
 
@@ -2999,7 +2670,7 @@ static void param_check_non_handle
     if (!AST_LOCAL_SET(int_p)
         &&  type_p->kind == AST_handle_k
         &&  type_p->xmit_as_type == NULL)
-        CHECKER_error(param_p, NIDL_HANFIRSTPRM);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_HANFIRSTPRM);
 }
 
 
@@ -3010,23 +2681,16 @@ static void param_check_non_handle
 */
 
 static void param_check
-#ifdef PROTO
 (
     AST_parameter_n_t   *param_p,       /* [in] Ptr to AST parameter node */
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(param_p, int_p)
-    AST_parameter_n_t   *param_p;       /* [in] Ptr to AST parameter node */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     AST_field_attr_n_t  *fattr_p;       /* Field attributes assoc. with param */
     AST_type_n_t        *top_type_p;    /* Top-level parameter type */
     AST_type_n_t        *type_p;        /* Param type (deref'd if necess.) */
     AST_type_n_t        *deref_type_p;  /* Param type (deref'd if necess.) */
-	
+
     /*
      * If the parameter type has a top-level '*' which indicates passing
      * mechanism only, follow the pointer to the data of interest.
@@ -3053,7 +2717,7 @@ static void param_check
 	 if (type_p->kind == AST_interface_k)	{
 		char const * id_name;
 		 NAMETABLE_id_to_string(type_p->name, &id_name);
-		 CHECKER_error(param_p, NIDL_INTREFNOTALO, id_name);
+		 CHECKER_error_1(TO_ASTP_NODE(param_p), NIDL_INTREFNOTALO, id_name);
 	 }
 	 
     param_size(param_p, top_type_p, type_p, int_p);
@@ -3081,17 +2745,10 @@ static void param_check
 */
 
 static void op_handle
-#ifdef PROTO
 (
     AST_operation_n_t   *op_p,          /* [in] Ptr to AST operation node */
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(op_p, int_p)
-    AST_operation_n_t   *op_p;          /* [in] Ptr to AST operation node */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     /* No binding handle parameter for 'operation' - auto_handle assumed. */
 
@@ -3111,15 +2768,9 @@ static void op_handle
 */
 
 static void op_comm_status
-#ifdef PROTO
 (
     AST_operation_n_t   *op_p           /* [in] Ptr to AST operation node */
 )
-#else
-(op_p)
-    AST_operation_n_t   *op_p;          /* [in] Ptr to AST operation node */
-#endif
-
 {
     AST_parameter_n_t   *param_p;       /* A parameter in the operation */
     int     comm_status_count;          /* Number [comm_status] parameters */
@@ -3144,14 +2795,14 @@ static void op_comm_status
     /* Operation can have at most one [comm_status] parameter */
 
     if (comm_status_count > 1)
-        CHECKER_acf_error(op_p, NIDL_STSATTRONCE,
-            acf_keyword_lookup(COMM_STATUS_KW));
+        CHECKER_acf_error(TO_ASTP_NODE(op_p), NIDL_STSATTRONCE,
+            acf_keyword_lookup(COMM_STATUS_KW), nullptr, nullptr, nullptr, nullptr);
 
     /* Operation can have at most one [fault_status] parameter */
 
     if (fault_status_count > 1)
-        CHECKER_acf_error(op_p, NIDL_STSATTRONCE,
-            acf_keyword_lookup(FAULT_STATUS_KW));
+        CHECKER_acf_error(TO_ASTP_NODE(op_p), NIDL_STSATTRONCE,
+            acf_keyword_lookup(FAULT_STATUS_KW), nullptr, nullptr, nullptr, nullptr);
 }
 
 
@@ -3162,21 +2813,15 @@ static void op_comm_status
 */
 
 static void op_broadcast
-#ifdef PROTO
 (
     AST_operation_n_t   *op_p           /* [in] Ptr to AST operation node */
 )
-#else
-(op_p)
-    AST_operation_n_t   *op_p;          /* [in] Ptr to AST operation node */
-#endif
-
 {
     /* Can't have [broadcast] attribute on operation with pipes */
 
     if (AST_BROADCAST_SET(op_p)
         &&  (AST_HAS_IN_PIPES_SET(op_p) || AST_HAS_OUT_PIPES_SET(op_p)))
-        CHECKER_error(op_p, NIDL_BROADPIPE);
+        CHECKER_error_0(TO_ASTP_NODE(op_p), NIDL_BROADPIPE);
 }
 
 
@@ -3187,21 +2832,15 @@ static void op_broadcast
 */
 
 static void op_maybe
-#ifdef PROTO
 (
     AST_operation_n_t   *op_p           /* [in] Ptr to AST operation node */
 )
-#else
-(op_p)
-    AST_operation_n_t   *op_p;          /* [in] Ptr to AST operation node */
-#endif
-
 {
     /* [maybe] operations cannot have [out] parameters */
 
     if (AST_MAYBE_SET(op_p)
         &&  (AST_HAS_OUTS_SET(op_p) || AST_HAS_OUT_PIPES_SET(op_p)))
-        CHECKER_error(op_p, NIDL_MAYBEOUTPRM);
+        CHECKER_error_0(TO_ASTP_NODE(op_p), NIDL_MAYBEOUTPRM);
 }
 
 
@@ -3212,28 +2851,22 @@ static void op_maybe
 */
 
 static void op_code
-#ifdef PROTO
 (
     AST_operation_n_t   *op_p           /* [in] Ptr to AST operation node */
 )
-#else
-(op_p)
-    AST_operation_n_t   *op_p;          /* [in] Ptr to AST operation node */
-#endif
-
 {
     /* Can't have both [code] and [nocode] operation attributes */
 
     if (AST_CODE_SET(op_p)
         &&  AST_NO_CODE_SET(op_p))
-        CHECKER_acf_error(op_p, NIDL_OPCODEATTR);
+        CHECKER_acf_error(TO_ASTP_NODE(op_p), NIDL_OPCODEATTR, nullptr, nullptr, nullptr, nullptr, nullptr);
 
     /* [nocode] attribute does not apply to server stub */
 
     if (AST_NO_CODE_SET(op_p)
         &&  cmd_opt[opt_emit_sstub]
         &&  !cmd_opt[opt_emit_cstub])
-        CHECKER_acf_warning(op_p, NIDL_SRVNOCODE);
+        CHECKER_acf_warning(TO_ASTP_NODE(op_p), NIDL_SRVNOCODE, nullptr, nullptr, nullptr, nullptr, nullptr);
 }
 
 
@@ -3244,22 +2877,16 @@ static void op_code
 */
 
 static void op_idempotent
-#ifdef PROTO
 (
     AST_operation_n_t   *op_p           /* [in] Ptr to AST operation node */
 )
-#else
-(op_p)
-    AST_operation_n_t   *op_p;          /* [in] Ptr to AST operation node */
-#endif
-
 {
     /* Can't have [idempotent] attribute on operation with pipes */
 
     if (AST_IDEMPOTENT_SET(op_p)
         &&  !AST_BROADCAST_SET(op_p)    /* broadcast gens its own error */
         &&  (AST_HAS_IN_PIPES_SET(op_p) || AST_HAS_OUT_PIPES_SET(op_p)))
-        CHECKER_error(op_p, NIDL_IDEMPIPE);
+        CHECKER_error_0(TO_ASTP_NODE(op_p), NIDL_IDEMPIPE);
 }
 
 
@@ -3270,15 +2897,9 @@ static void op_idempotent
 */
 
 static void op_encode
-#ifdef PROTO
 (
     AST_operation_n_t   *op_p           /* [in] Ptr to AST operation node */
 )
-#else
-(op_p)
-    AST_operation_n_t   *op_p;          /* [in] Ptr to AST operation node */
-#endif
-
 {
     AST_parameter_n_t   *param_p;       /* A parameter in the operation */
     AST_parameter_n_t   *p1;            /* First parameter in the operation */
@@ -3343,7 +2964,7 @@ static void op_encode
         {
             char const *id_name;
             NAMETABLE_id_to_string(param_p->name, &id_name);
-            CHECKER_warning(param_p, NIDL_ENCOUTONLY, id_name);
+            CHECKER_warning_1(TO_ASTP_NODE(param_p), NIDL_ENCOUTONLY, id_name);
         }
 
         /* Operation with [decode] has [in]-only parameter P */
@@ -3354,12 +2975,12 @@ static void op_encode
         {
             char const *id_name;
             NAMETABLE_id_to_string(param_p->name, &id_name);
-            CHECKER_warning(param_p, NIDL_DECINONLY, id_name);
+            CHECKER_warning_1(TO_ASTP_NODE(param_p), NIDL_DECINONLY, id_name);
         }
 
         /* A [fault_status] parameter has no utility in this operation */
         if (AST_FAULT_STATUS_SET(param_p) || AST_ADD_FAULT_STATUS_SET(param_p))
-            CHECKER_acf_warning(op_p, NIDL_NOFLTPARAM);
+            CHECKER_acf_warning(TO_ASTP_NODE(op_p), NIDL_NOFLTPARAM, nullptr, nullptr, nullptr, nullptr, nullptr);
 
         /* Update to next parameter or operation result */
         if (param_p == op_p->result)
@@ -3372,23 +2993,23 @@ static void op_encode
     /* Operation with [encode] must have at least one [in] or [in,out] param */
 
     if (AST_ENCODE_SET(op_p) && !AST_DECODE_SET(op_p) && all_out)
-        CHECKER_error(op_p, NIDL_ENCNOPARAMS);
+        CHECKER_error_0(TO_ASTP_NODE(op_p), NIDL_ENCNOPARAMS);
 
     /* Operation with [decode] must have at least one [out] or [in,out] param */
 
     if (AST_DECODE_SET(op_p) && !AST_ENCODE_SET(op_p) && all_in)
-        CHECKER_error(op_p, NIDL_DECNOPARAMS);
+        CHECKER_error_0(TO_ASTP_NODE(op_p), NIDL_DECNOPARAMS);
 
     /* Operation with [encode,decode] must have all [in,out] parameters */
 
     if (AST_ENCODE_SET(op_p) && AST_DECODE_SET(op_p) && !all_in_out)
-        CHECKER_error(op_p, NIDL_ENCDECDIR);
+        CHECKER_error_0(TO_ASTP_NODE(op_p), NIDL_ENCDECDIR);
 
     /* Operation with [encode] or [decode] may not contain pipe parameters */
 
     if (   (AST_ENCODE_SET(op_p) || AST_DECODE_SET(op_p))
         && (AST_HAS_IN_PIPES_SET(op_p) || AST_HAS_OUT_PIPES_SET(op_p)) )
-        CHECKER_error(op_p, NIDL_ENCDECPIPE);
+        CHECKER_error_0(TO_ASTP_NODE(op_p), NIDL_ENCDECPIPE);
 
     /* Operation with [encode] or [decode] must use explicit binding */
 
@@ -3398,17 +3019,17 @@ static void op_encode
      */
     if (   (AST_ENCODE_SET(op_p) || AST_DECODE_SET(op_p))
         && !p1_is_handle_t )
-        CHECKER_error(op_p, NIDL_ENCDECBIND);
+        CHECKER_error_0(TO_ASTP_NODE(op_p), NIDL_ENCDECBIND);
 
     /* Use of [encode] attribute requires -standard extended */
     if (AST_ENCODE_SET(op_p)
         && (*(int *)cmd_val[opt_standard] < opt_standard_dce_1_1))
-        CHECKER_acf_warning(op_p, NIDL_NOPORTATTR, "encode", OPT_STD_EXTENDED);
+        CHECKER_acf_warning(TO_ASTP_NODE(op_p), NIDL_NOPORTATTR, "encode", OPT_STD_EXTENDED, nullptr, nullptr, nullptr);
 
     /* Use of [decode] attribute requires -standard extended */
     if (AST_DECODE_SET(op_p)
         && (*(int *)cmd_val[opt_standard] < opt_standard_dce_1_1))
-        CHECKER_acf_warning(op_p, NIDL_NOPORTATTR, "decode", OPT_STD_EXTENDED);
+        CHECKER_acf_warning(TO_ASTP_NODE(op_p), NIDL_NOPORTATTR, "decode", OPT_STD_EXTENDED, nullptr, nullptr, nullptr);
 }
 
 
@@ -3419,17 +3040,10 @@ static void op_encode
 */
 
 static void operation_check
-#ifdef PROTO
 (
     AST_operation_n_t   *op_p,          /* [in] Ptr to AST operation node */
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(op_p, int_p)
-    AST_operation_n_t   *op_p;          /* [in] Ptr to AST operation node */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     AST_parameter_n_t   *param_p;       /* A parameter in the operation */
 
@@ -3451,21 +3065,21 @@ static void operation_check
         char const *id_name;   /* Operation name */
 
         NAMETABLE_id_to_string(op_p->name, &id_name);
-        CHECKER_warning(op_p, NIDL_FLOATPROM, id_name);
+        CHECKER_warning_1(TO_ASTP_NODE(op_p), NIDL_FLOATPROM, id_name);
     }
 
     /* Operation with [reflect_deletions] has no [in] or [in,out] full ptrs */
 
     if (AST_REFLECT_DELETIONS_SET(op_p)
         &&  !FE_TEST(op_p->fe_info->flags, FE_HAS_IN_FULL_PTR))
-        CHECKER_warning(op_p, NIDL_OPREFDELIN);
+        CHECKER_warning_0(TO_ASTP_NODE(op_p), NIDL_OPREFDELIN);
 
     /* Use of [reflect_deletions] attribute requires -standard extended */
     if (AST_REFLECT_DELETIONS_SET(op_p)
         && (*(int *)cmd_val[opt_standard] < opt_standard_dce_1_1))
     {
         ASTP_attr_flag_t attr1 = ASTP_REFLECT_DELETIONS;
-        CHECKER_warning(op_p, NIDL_NOPORTATTR,
+        CHECKER_warning_2(TO_ASTP_NODE(op_p), NIDL_NOPORTATTR,
             KEYWORDS_lookup_text(AST_attribute_to_token(&attr1)),
             OPT_STD_EXTENDED);
     }
@@ -3505,17 +3119,10 @@ static void operation_check
 */
 
 static void field_type
-#ifdef PROTO
 (
     AST_field_n_t       *field_p,       /* [in] Ptr to AST field node */
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(field_p, int_p)
-    AST_field_n_t       *field_p;       /* [in] Ptr to AST field node */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     AST_type_n_t        *type_p;        /* Data type of the field */
 
@@ -3538,13 +3145,13 @@ static void field_type
          || AST_SMALL_SET(field_p)
          || AST_CONTEXT_SET(field_p)
          || AST_PTR_SET(field_p)))
-        CHECKER_error(field_p, NIDL_XMITTYPEATTRS);
+        CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_XMITTYPEATTRS);
 
     /* A field cannot be of presented type for which xmit type is conformant */
 
     if (type_p->xmit_as_type != NULL
         &&  AST_CONFORMANT_SET(type_p->xmit_as_type))
-        CHECKER_error(field_p, NIDL_FLDXMITCFMT);
+        CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_FLDXMITCFMT);
 
     type_p = type_xmit_type(type_p);    /* Pick up transmissible type */
 
@@ -3554,25 +3161,25 @@ static void field_type
         &&  field_p->next != NULL
         &&  AST_CONFORMANT_SET(type_p)
         &&  type_p->kind != AST_pointer_k)  /* ptr does not make struct cfmt */
-        CHECKER_error(field_p, NIDL_CFMTFLDLAST);
+        CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_CFMTFLDLAST);
 
     /* Pipes not valid as structure fields */
 
     if (type_p->kind == AST_pipe_k)
-        CHECKER_error(field_p, NIDL_PIPESTRFLD);
+        CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_PIPESTRFLD);
 
 	/* interface must have a * */
 	 if (type_p->kind == AST_interface_k)	{
 		 char const * id_name;
 		 NAMETABLE_id_to_string(type_p->name, &id_name);
-		 CHECKER_error(field_p, NIDL_INTREFNOTALO, id_name);
+		 CHECKER_error_1(TO_ASTP_NODE(field_p), NIDL_INTREFNOTALO, id_name);
 	 }
 	 
     /* Context handles not valid as structure fields */
 
     if (AST_CONTEXT_RD_SET(type_p)
         ||  AST_CONTEXT_SET(field_p))
-        CHECKER_error(field_p, NIDL_CTXSTRFLD);
+        CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_CTXSTRFLD);
 
     /* Function pointers not valid as structure fields */
 
@@ -3580,7 +3187,7 @@ static void field_type
         &&  type_is_function(type_p)
         &&  type_p->xmit_as_type == NULL /* allowed if void* is not xmited */
 		  )
-        CHECKER_error(field_p, NIDL_FPSTRFLD);
+        CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_FPSTRFLD);
 
     /* Structure fields cannot be of type handle_t */
 
@@ -3588,12 +3195,12 @@ static void field_type
 #if 0   /** Obsolete **/
         &&  type_p->xmit_as_type == NULL)
 #endif
-        CHECKER_error(field_p, NIDL_HANSTRFLD);
+        CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_HANSTRFLD);
 
     /* void is valid only in an operation or pointer declaration */
 
     if (type_p->kind == AST_void_k)
-        CHECKER_error(field_p, NIDL_VOIDOPPTR);
+        CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_VOIDOPPTR);
 
     /* void * must be used in conjunction with the [context_handle] attr */
 
@@ -3603,7 +3210,7 @@ static void field_type
         &&  !AST_CONTEXT_RD_SET(type_p)
         &&  !AST_CONTEXT_SET(field_p)
 		  )
-        CHECKER_error(field_p, NIDL_PTRVOIDCTX);
+        CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_PTRVOIDCTX);
 
     /*
      * V1 attributes are incompatible with this type
@@ -3613,7 +3220,7 @@ static void field_type
         &&  FE_TEST(field_p->fe_info->flags, FE_HAS_V2_ATTR)
         &&  ! ( FE_TEST(type_p->fe_info->flags, FE_HAS_V1_ATTR)
                 &&  FE_TEST(type_p->fe_info->flags, FE_HAS_V2_ATTR) ))
-        CHECKER_warning(field_p, NIDL_INCOMPATV1);
+        CHECKER_warning_0(TO_ASTP_NODE(field_p), NIDL_INCOMPATV1);
 }
 
 
@@ -3624,17 +3231,10 @@ static void field_type
 */
 
 static void field_size
-#ifdef PROTO
 (
     AST_field_n_t       *field_p,       /* [in] Ptr to AST field node */
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(field_p, int_p)
-    AST_field_n_t       *field_p;       /* [in] Ptr to AST field node */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     AST_type_n_t        *type_p;        /* Data type of the field */
     AST_field_attr_n_t  *fattr_p;       /* Field attributes */
@@ -3656,7 +3256,7 @@ static void field_size
         char const *id_name;
 
         NAMETABLE_id_to_string(field_p->name, &id_name);
-        CHECKER_error(field_p, NIDL_ARRSIZEINFO, id_name);
+        CHECKER_error_1(TO_ASTP_NODE(field_p), NIDL_ARRSIZEINFO, id_name);
     }
 
     /* A [string] array can not have varying array attributes */
@@ -3668,7 +3268,7 @@ static void field_size
         &&  (fattr_p->first_is_vec != NULL
             ||  fattr_p->last_is_vec != NULL
             ||  fattr_p->length_is_vec != NULL))
-        CHECKER_error(field_p, NIDL_STRVARY);
+        CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_STRVARY);
 
     /* Arrays with [transmit_as] can't be conformant or varying */
 
@@ -3680,7 +3280,7 @@ static void field_size
     if (type_p->xmit_as_type != NULL
         &&  fattr_p != NULL
         &&  type_p->kind != AST_pointer_k)
-        CHECKER_error(field_p, NIDL_ARRXMITOPEN);
+        CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_ARRXMITOPEN);
 
     /*
      * Current rules allow mixed open array [] and pointer * syntax ONLY
@@ -3717,7 +3317,7 @@ static void field_size
             &&  (fattr_p->min_is_vec != NULL
                 ||  fattr_p->max_is_vec != NULL
                 ||  fattr_p->size_is_vec != NULL))
-            CHECKER_error(field_p, NIDL_ARRSYNTAX);
+            CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_ARRSYNTAX);
 
         /* Pointers to conformant arrays are not allowed */
 
@@ -3733,7 +3333,7 @@ static void field_size
                         ||  fattr_p->max_is_vec != NULL
                         ||  fattr_p->size_is_vec != NULL))))
         {
-            CHECKER_error(field_p, NIDL_PTRCFMTARR);
+            CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_PTRCFMTARR);
             return;     /* Return with no further checking */
         }
 
@@ -3749,7 +3349,7 @@ static void field_size
                 ||  fattr_p->last_is_vec != NULL
                 ||  fattr_p->length_is_vec != NULL))
         {
-            CHECKER_error(field_p, NIDL_PTRVARYARR);
+            CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_PTRVARYARR);
             return;     /* Return with no further checking */
         }
     }
@@ -3762,15 +3362,9 @@ static void field_size
 */
 
 static void field_in_line
-#ifdef PROTO
 (
     AST_field_n_t       *field_p        /* [in] Ptr to AST field node */
 )
-#else
-(field_p)
-    AST_field_n_t       *field_p;       /* [in] Ptr to AST field node */
-#endif
-
 {
     AST_type_n_t        *type_p;        /* Data type of the field */
 
@@ -3780,7 +3374,7 @@ static void field_in_line
 
     if (AST_IN_LINE_SET(field_p)
         &&  AST_OUT_OF_LINE_SET(field_p))
-        CHECKER_acf_error(field_p, NIDL_CONFLINEATTR);
+        CHECKER_acf_error(TO_ASTP_NODE(field_p), NIDL_CONFLINEATTR, nullptr, nullptr, nullptr, nullptr, nullptr);
 
     /* [in_line] and [out_of_line] attributes apply only to non-scalar types */
 
@@ -3793,9 +3387,8 @@ static void field_in_line
         STRTAB_str_to_string(type_p->fe_info->file, &file_name);
         NAMETABLE_id_to_string(type_p->name, &type_name);
 
-        CHECKER_acf_warning(field_p, NIDL_LINENONSCAL);
-        CHECKER_acf_warning(field_p, NIDL_NAMEDECLAT, type_name, file_name,
-                          type_p->fe_info->source_line);
+        CHECKER_acf_warning(TO_ASTP_NODE(field_p), NIDL_LINENONSCAL, nullptr, nullptr, nullptr, nullptr, nullptr);
+        CHECKER_acf_warning(TO_ASTP_NODE(field_p), NIDL_NAMEDECLAT, type_name, file_name, TO_CHARZ_PTR(type_p->fe_info->source_line), nullptr, nullptr);
     }
 }
 
@@ -3807,15 +3400,9 @@ static void field_in_line
 */
 
 static void field_string
-#ifdef PROTO
 (
     AST_field_n_t       *field_p        /* [in] Ptr to AST field node */
 )
-#else
-(field_p)
-    AST_field_n_t       *field_p;       /* [in] Ptr to AST field node */
-#endif
-
 {
     AST_type_n_t        *type_p;        /* Data type of the field */
 
@@ -3825,20 +3412,20 @@ static void field_string
 
     if (AST_STRING0_SET(field_p)
         &&  !type_is_v1_string(type_p))
-        CHECKER_error(field_p, NIDL_STRV1FIXED);
+        CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_STRV1FIXED);
 
     /* The [v1_string] attribute can only be applied to a [v1_array] */
 
     if ((AST_STRING0_SET(field_p) || AST_STRING0_SET(type_p))
         &&  !(AST_SMALL_SET(field_p) || AST_SMALL_SET(type_p)))
-        CHECKER_error(field_p, NIDL_STRV1ARRAY);
+        CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_STRV1ARRAY);
 
     /* The [string] attribute cannot be applied to a [v1_array] */
 
     if ((AST_STRING_SET(field_p) && AST_SMALL_SET(field_p))
         ||  (AST_STRING_SET(field_p) && AST_SMALL_SET(type_p))
         ||  (AST_STRING_SET(type_p) && AST_SMALL_SET(field_p)))
-        CHECKER_error(field_p, NIDL_STRARRAYV1);
+        CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_STRARRAYV1);
 
     /* Cannot have both [string] and [v1_string] attributes */
 
@@ -3848,7 +3435,7 @@ static void field_string
         ASTP_attr_flag_t attr1 = ASTP_STRING;
         ASTP_attr_flag_t attr2 = ASTP_STRING0;
 
-        CHECKER_error(field_p, NIDL_CONFLICTATTR,
+        CHECKER_error_2(TO_ASTP_NODE(field_p), NIDL_CONFLICTATTR,
             KEYWORDS_lookup_text(AST_attribute_to_token(&attr1)),
             KEYWORDS_lookup_text(AST_attribute_to_token(&attr2)));
     }
@@ -3875,7 +3462,7 @@ static void field_string
 
     if (AST_STRING_SET(field_p)
         &&  !type_is_string(type_p))
-        CHECKER_error(field_p, NIDL_STRCHARBYTE);
+        CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_STRCHARBYTE);
 }
 
 
@@ -3885,18 +3472,12 @@ static void field_string
 **  Checks a field node's attributes related to pointers.
 */
 
+[[gnu::nonnull(1, 2)]]
 static void field_pointer
-#ifdef PROTO
 (
     AST_field_n_t       *field_p,       /* [in] Ptr to AST field node */
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(field_p, int_p)
-    AST_field_n_t       *field_p;       /* [in] Ptr to AST field node */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     AST_type_n_t        *type_p;        /* Data type of the field */
     boolean pointer_attr_valid = FALSE;
@@ -3910,35 +3491,35 @@ static void field_pointer
     /* [ref] attribute valid only for pointer or array types */
 
     if (AST_REF_SET(field_p) && !pointer_attr_valid)
-        CHECKER_error(field_p, NIDL_REFATTRPTR);
+        CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_REFATTRPTR);
 
     /* [unique] attribute valid only for pointer or array types */
 
     if (AST_UNIQUE_SET(field_p) && !pointer_attr_valid)
-        CHECKER_error(field_p, NIDL_UNIQATTRPTR);
+        CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_UNIQATTRPTR);
 
     /* [ptr] attribute valid only for pointer or array types */
 
     if (AST_PTR_SET(field_p) && !pointer_attr_valid)
-        CHECKER_error(field_p, NIDL_PTRATTRPTR);
+        CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_PTRATTRPTR);
 
     /* [unique] attribute requires -standard extended */
 
     if (AST_UNIQUE_SET(field_p)
         &&  (*(int *)cmd_val[opt_standard] <= opt_standard_dce_1_0))
-        CHECKER_warning(field_p, NIDL_NOPORTUNIQUE, OPT_STD_EXTENDED);
+        CHECKER_warning_1(TO_ASTP_NODE(field_p), NIDL_NOPORTUNIQUE, OPT_STD_EXTENDED);
 
     /* An array with a pointer attribute is valid only as a parameter. */
 
     if (type_p->kind == AST_array_k &&
         (AST_REF_SET(field_p) || AST_PTR_SET(field_p) || AST_UNIQUE_SET(field_p)))
-        CHECKER_error(field_p, NIDL_ARRPTRPRM);
+        CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_ARRPTRPRM);
 
 	/* ignore REF, UNIQUE, PTR attributes on pointers to interfaces */
 #if 0
 	 if (type_p->kind == AST_pointer_k && type_p->type_structure.pointer->pointee_type->kind == AST_interface_k
 			 && (AST_UNIQUE_SET(field_p) || AST_REF_SET(field_p) || AST_PTR_SET(field_p)))
-		 CHECKER_warning(field_p, NIDL_PTRATTBIGN);
+		 CHECKER_warning_0(field_p, NIDL_PTRATTBIGN);
 #endif
     /*
      * If the field is a pointer, and it is not a pointer to an array,
@@ -3971,15 +3552,9 @@ static void field_pointer
 */
 
 static void field_small
-#ifdef PROTO
 (
     AST_field_n_t       *field_p        /* [in] Ptr to AST field node */
 )
-#else
-(field_p)
-    AST_field_n_t       *field_p;       /* [in] Ptr to AST field node */
-#endif
-
 {
     AST_type_n_t        *type_p;        /* Data type of the field */
     AST_array_n_t       *array_p;       /* Ptr to array node */
@@ -3991,7 +3566,7 @@ static void field_small
 
     if (AST_SMALL_SET(field_p)
         &&  type_p->kind == AST_pointer_k)
-        CHECKER_error(field_p, NIDL_SMALLARRSYN);
+        CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_SMALLARRSYN);
 
     /*
      * Remaining checks only apply to array types in array syntax.
@@ -4011,20 +3586,20 @@ static void field_small
             ||
             (AST_VARYING_SET(field_p)
                 && instance_is_varying_upper(array_p, field_p->field_attrs))))
-        CHECKER_error(field_p, NIDL_SMALLMULTID);
+        CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_SMALLMULTID);
 
     /* [v1_array] attribute invalid for array with more than 65535 elements */
 
     if (AST_SMALL_SET(field_p)
         &&  array_is_large(array_p))
-        CHECKER_error(field_p, NIDL_SMALLINV);
+        CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_SMALLINV);
 
     /* A conformant [v1_array] must also be varying */
 
     if ((AST_SMALL_SET(type_p) || AST_SMALL_SET(field_p))
         &&  AST_CONFORMANT_SET(type_p)
         &&  !AST_VARYING_SET(field_p))
-        CHECKER_error(field_p, NIDL_SMALLCFMT);
+        CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_SMALLCFMT);
 
     /* A [v1_array] can not have the [min_is] or [first_is] attributes */
 
@@ -4032,7 +3607,7 @@ static void field_small
         &&  fattr_p != NULL
         &&  (fattr_p->min_is_vec != NULL
             ||  fattr_p->first_is_vec != NULL))
-        CHECKER_error(field_p, NIDL_SMALLMINFIRST);
+        CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_SMALLMINFIRST);
 }
 
 
@@ -4043,15 +3618,9 @@ static void field_small
 */
 
 static void field_context
-#ifdef PROTO
 (
     AST_field_n_t       *field_p        /* [in] Ptr to AST field node */
 )
-#else
-(field_p)
-    AST_field_n_t       *field_p;       /* [in] Ptr to AST field node */
-#endif
-
 {
     AST_type_n_t        *type_p;        /* Data type of the field */
 
@@ -4064,21 +3633,21 @@ static void field_context
             ||  (type_p->kind == AST_pointer_k
                 &&  type_p->type_structure.pointer->pointee_type->kind
                     != AST_void_k)))
-        CHECKER_error(field_p, NIDL_CTXPTRVOID);
+        CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_CTXPTRVOID);
 
     /* [unique] pointers to context handles are not allowed */
 
     if (AST_UNIQUE_SET(field_p)
         &&  type_p->kind == AST_pointer_k
         &&  AST_CONTEXT_RD_SET(type_p->type_structure.pointer->pointee_type))
-        CHECKER_error(field_p, NIDL_UNIQCTXHAN);
+        CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_UNIQCTXHAN);
 
     /* Full pointers to context handles are not allowed */
 
     if (AST_PTR_SET(field_p)
         &&  type_p->kind == AST_pointer_k
         &&  AST_CONTEXT_RD_SET(type_p->type_structure.pointer->pointee_type))
-        CHECKER_error(field_p, NIDL_PTRCTXHAN);
+        CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_PTRCTXHAN);
 }
 
 
@@ -4089,17 +3658,10 @@ static void field_context
 */
 
 static void field_varying
-#ifdef PROTO
 (
     AST_field_n_t       *field_p,       /* [in] Ptr to AST field node */
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(field_p, int_p)
-    AST_field_n_t       *field_p;       /* [in] Ptr to AST field node */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     AST_type_n_t        *type_p;        /* Field data type */
 
@@ -4122,7 +3684,7 @@ static void field_varying
         &&  instance_is_varying_upper(type_p->type_structure.array,
                                       field_p->field_attrs)
         &&  (*(int *)cmd_val[opt_standard] <= opt_standard_dce_1_0))
-        CHECKER_warning(field_p, NIDL_NOPORTVARY, OPT_STD_EXTENDED);
+        CHECKER_warning_1(TO_ASTP_NODE(field_p), NIDL_NOPORTVARY, OPT_STD_EXTENDED);
 }
 
 
@@ -4133,15 +3695,9 @@ static void field_varying
 */
 
 static void field_ignore
-#ifdef PROTO
 (
     AST_field_n_t       *field_p        /* [in] Ptr to AST field node */
 )
-#else
-(field_p)
-    AST_field_n_t       *field_p;       /* [in] Ptr to AST field node */
-#endif
-
 {
     AST_type_n_t        *type_p;        /* Field data type */
 
@@ -4151,18 +3707,12 @@ static void field_ignore
 
     if (AST_IGNORE_SET(field_p)
         &&  type_p->kind != AST_pointer_k)
-        CHECKER_error(field_p, NIDL_IGNATTRPTR);
+        CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_IGNATTRPTR);
 }
 static void field_switch_is
-#ifdef PROTO
 (
     AST_field_n_t       *field_p        /* [in] Ptr to AST field node */
 )
-#else
-(field_p)
-    AST_field_n_t       *field_p;       /* [in] Ptr to AST field node */
-#endif
-
 {
     AST_type_n_t        *type_p;        /* Field data type */
 
@@ -4178,7 +3728,7 @@ static void field_switch_is
         &&  type_p->type_structure.disc_union->discrim_name == NAMETABLE_NIL_ID
         &&  (field_p->field_attrs == NULL
             ||  field_p->field_attrs->switch_is == NULL))
-        CHECKER_error(field_p, NIDL_NEUSWATTR);
+        CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_NEUSWATTR);
 }
 
 
@@ -4189,17 +3739,10 @@ static void field_switch_is
 */
 
 static void field_check
-#ifdef PROTO
 (
     AST_field_n_t       *field_p,       /* [in] Ptr to AST field node */
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(field_p, int_p)
-    AST_field_n_t       *field_p;       /* [in] Ptr to AST field node */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     AST_field_attr_n_t  *fattr_p;       /* Ptr to field attribute node */
 
@@ -4231,17 +3774,10 @@ static void field_check
 */
 
 static void struct_check
-#ifdef PROTO
 (
     AST_structure_n_t   *struct_p,      /* [in] Ptr to AST structure node */
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(struct_p, int_p)
-    AST_structure_n_t   *struct_p;      /* [in] Ptr to AST structure node */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     AST_field_n_t       *field_p;       /* A field of the structure */
 
@@ -4263,19 +3799,11 @@ static void struct_check
 */
 
 static void fp_param_handle
-#ifdef PROTO
 (
     AST_parameter_n_t   *param_p,       /* [in] Ptr to AST parameter node */
     AST_type_n_t        *type_p,        /* [in] Parameter type */
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(param_p, type_p, int_p)
-    AST_parameter_n_t   *param_p;       /* [in] Ptr to AST parameter node */
-    AST_type_n_t        *type_p;        /* [in] Parameter type */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     type_p = type_xmit_type(type_p);    /* Pick up transmissible type */
 
@@ -4283,13 +3811,13 @@ static void fp_param_handle
 
     if (!AST_LOCAL_SET(int_p)
         &&  type_p->kind == AST_handle_k)
-        CHECKER_error(param_p, NIDL_FPHANPRM);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_FPHANPRM);
 
 #if 0   /** This warning is disabled. **/
     /* [handle] attribute of function pointer parameter ignored */
 
     if (AST_HANDLE_SET(type_p))
-        CHECKER_warning(param_p, NIDL_FPHANATTR);
+        CHECKER_warning_0(param_p, NIDL_FPHANATTR);
 #endif
 }
 
@@ -4303,17 +3831,10 @@ static void fp_param_handle
 */
 
 static void fp_param_check
-#ifdef PROTO
 (
     AST_parameter_n_t   *param_p,       /* [in] Ptr to AST parameter node */
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(param_p, int_p)
-    AST_parameter_n_t   *param_p;       /* [in] Ptr to AST parameter node */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     AST_field_attr_n_t  *fattr_p;       /* Field attributes assoc. with param */
     AST_type_n_t        *top_type_p;    /* Top-level parameter type */
@@ -4360,19 +3881,11 @@ static void fp_param_check
 */
 
 static void function_ptr_check
-#ifdef PROTO
 (
     AST_operation_n_t   *op_p,          /* [in] Ptr to operation node */
     AST_type_n_t        *type_p,        /* [in] Ptr to type node of pointer */
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(op_p, type_p, int_p)
-    AST_operation_n_t   *op_p;          /* [in] Ptr to operation node */
-    AST_type_n_t        *type_p;        /* [in] Ptr to type node of pointer */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     AST_parameter_n_t   *param_p;       /* A parameter in the operation */
 
@@ -4385,7 +3898,7 @@ static void function_ptr_check
 
     if (!AST_LOCAL_SET(int_p)
         &&  type_p->xmit_as_type == NULL)
-        CHECKER_error(op_p, NIDL_FPLOCINT);
+        CHECKER_error_0(TO_ASTP_NODE(op_p), NIDL_FPLOCINT);
 
     /* Check each parameter in the function. */
 
@@ -4405,21 +3918,12 @@ static void function_ptr_check
 */
 
 static void ptr_pointee_type
-#ifdef PROTO
 (
     AST_pointer_n_t     *ptr_p,         /* [in] Ptr to AST pointer node */
     AST_type_n_t        *ptr_type_p,    /* [in] Pointer type node */
     ASTP_node_t         *node_p,        /* [in] Parent node of ptr type node */
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(ptr_p, ptr_type_p, node_p, int_p)
-    AST_pointer_n_t     *ptr_p;         /* [in] Ptr to AST pointer node */
-    AST_type_n_t        *ptr_type_p;    /* [in] Pointer type node */
-    ASTP_node_t         *node_p;        /* [in] Parent node of ptr type node */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     AST_type_n_t        *type_p;        /* Pointee data type node */
 
@@ -4443,7 +3947,7 @@ static void ptr_pointee_type
 
     if (type_p->kind == AST_pipe_k
         &&  node_p->fe_info->node_kind != fe_parameter_n_k)
-        CHECKER_error(ptr_p, NIDL_INVPTRPIPE);
+        CHECKER_error_0(TO_ASTP_NODE(ptr_p), NIDL_INVPTRPIPE);
 
     /* Pointers to context handles valid only in parameter declarations */
 
@@ -4453,13 +3957,13 @@ static void ptr_pointee_type
         &&  !(node_p->fe_info->node_kind == fe_export_n_k
               && type_p->kind == AST_structure_k
               && AST_DEF_AS_TAG_SET(type_p)))
-        CHECKER_error(ptr_p, NIDL_INVPTRCTX);
+        CHECKER_error_0(TO_ASTP_NODE(ptr_p), NIDL_INVPTRCTX);
 
     /* Pointers to type handle_t valid only in parameter declarations */
 
     if (type_p->kind == AST_handle_k
         &&  node_p->fe_info->node_kind != fe_parameter_n_k)
-        CHECKER_error(ptr_p, NIDL_HANDLEPTR);
+        CHECKER_error_0(TO_ASTP_NODE(ptr_p), NIDL_HANDLEPTR);
 
     /* void * must be used in conjunction with the [context_handle] attribute */
     /*
@@ -4476,7 +3980,7 @@ static void ptr_pointee_type
         &&  !(node_p->fe_info->node_kind == fe_parameter_n_k /* (1) */
               && AST_CONTEXT_SET((AST_parameter_n_t *)node_p))
 		  )
-        CHECKER_error(node_p, NIDL_PTRVOIDCTX);
+        CHECKER_error_0(TO_ASTP_NODE(node_p), NIDL_PTRVOIDCTX);
 
     /* If this is a function pointer, call routine to check it. */
 
@@ -4492,21 +3996,12 @@ static void ptr_pointee_type
 */
 
 static void ptr_check
-#ifdef PROTO
 (
     AST_pointer_n_t     *ptr_p,         /* [in] Ptr to AST pointer node */
     AST_type_n_t        *ptr_type_p,    /* [in] Pointer type node */
     ASTP_node_t         *node_p,        /* [in] Parent node of ptr type node */
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(ptr_p, ptr_type_p, node_p, int_p)
-    AST_pointer_n_t     *ptr_p;         /* [in] Ptr to AST pointer node */
-    AST_type_n_t        *ptr_type_p;    /* [in] Pointer type node */
-    ASTP_node_t         *node_p;        /* [in] Parent node of ptr type node */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     ptr_pointee_type(ptr_p, ptr_type_p, node_p, int_p);
 }
@@ -4518,17 +4013,10 @@ static void ptr_check
 */
 
 static void pipe_base_type
-#ifdef PROTO
 (
     AST_pipe_n_t        *pipe_p,        /* [in] Ptr to AST pipe node */
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(pipe_p, int_p)
-    AST_pipe_n_t        *pipe_p;        /* [in] Ptr to AST pipe node */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     AST_type_n_t        *type_p;        /* Pipe base data type node */
 
@@ -4542,33 +4030,33 @@ static void pipe_base_type
     /* Base type of a pipe can't be a pipe type */
 
     if (type_p->kind == AST_pipe_k)
-        CHECKER_error(pipe_p, NIDL_PIPEBASETYP);
+        CHECKER_error_0(TO_ASTP_NODE(pipe_p), NIDL_PIPEBASETYP);
 
     /* Base type of a pipe can't be a [context_handle] type */
 
     if (AST_CONTEXT_RD_SET(type_p))
-        CHECKER_error(pipe_p, NIDL_CTXBASETYP);
+        CHECKER_error_0(TO_ASTP_NODE(pipe_p), NIDL_CTXBASETYP);
 
     /* Base type of a pipe can't be a conformant type */
 
     if (AST_CONFORMANT_SET(type_p))
-        CHECKER_error(pipe_p, NIDL_CFMTBASETYP);
+        CHECKER_error_0(TO_ASTP_NODE(pipe_p), NIDL_CFMTBASETYP);
 
     /* Base type of a pipe cannot be handle_t */
 
     if (type_p->kind == AST_handle_k)
-        CHECKER_error(pipe_p, NIDL_HANPIPEBASE);
+        CHECKER_error_0(TO_ASTP_NODE(pipe_p), NIDL_HANPIPEBASE);
 
     /* Base type of a pipe cannot be a function pointer */
 
     if (type_is_function(type_p))
-        CHECKER_error(pipe_p, NIDL_FPPIPEBASE);
+        CHECKER_error_0(TO_ASTP_NODE(pipe_p), NIDL_FPPIPEBASE);
 
 	/* Cant be an interface or interface reference */
 	 if (type_p->kind == AST_interface_k)
-		 CHECKER_error(pipe_p, NIDL_PIPECTYPE, "interface");
+		 CHECKER_error_1(TO_ASTP_NODE(pipe_p), NIDL_PIPECTYPE, "interface");
 	if (type_p->kind == AST_pointer_k && type_p->type_structure.pointer->pointee_type->kind == AST_interface_k)
-		 CHECKER_error(pipe_p, NIDL_PIPECTYPE, "interface reference");
+		 CHECKER_error_1(TO_ASTP_NODE(pipe_p), NIDL_PIPECTYPE, "interface reference");
 
 	 
 	 
@@ -4576,17 +4064,17 @@ static void pipe_base_type
 
     if (!type_is_function(type_p)
         &&  FE_TEST(type_p->fe_info->flags, FE_HAS_PTR))
-        CHECKER_error(pipe_p, NIDL_PTRBASETYP);
+        CHECKER_error_0(TO_ASTP_NODE(pipe_p), NIDL_PTRBASETYP);
 
     /* Base type of a pipe may not have a [transmit_as] type */
 
     if (type_p->xmit_as_type != NULL)
-        CHECKER_error(pipe_p, NIDL_XMITPIPEBASE);
+        CHECKER_error_0(TO_ASTP_NODE(pipe_p), NIDL_XMITPIPEBASE);
 
     /* void is valid only in an operation or pointer declaration */
 
     if (type_p->kind == AST_void_k)
-        CHECKER_error(pipe_p, NIDL_VOIDOPPTR);
+        CHECKER_error_0(TO_ASTP_NODE(pipe_p), NIDL_VOIDOPPTR);
 
     /* void * must be used in conjunction with the [context_handle] attribute */
 
@@ -4596,7 +4084,7 @@ static void pipe_base_type
         &&  type_p->type_structure.pointer->pointee_type->kind == AST_void_k
         &&  !AST_CONTEXT_RD_SET(type_p)
 		  )
-        CHECKER_error(pipe_p, NIDL_PTRVOIDCTX);
+        CHECKER_error_0(TO_ASTP_NODE(pipe_p), NIDL_PTRVOIDCTX);
 
     CHK_pipe_base_type_cs(pipe_p, int_p);
 }
@@ -4609,29 +4097,21 @@ static void pipe_base_type
 */
 
 static void pipe_check
-#ifdef PROTO
 (
     AST_pipe_n_t        *pipe_p,        /* [in] Ptr to AST pipe node */
     AST_type_n_t        *type_p,        /* [in] Ptr to pipe data type node */
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(pipe_p, type_p, int_p)
-    AST_pipe_n_t        *pipe_p;        /* [in] Ptr to AST pipe node */
-    AST_type_n_t        *type_p;        /* [in] Ptr to pipe data type node */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     /* A pipe may not have a [transmit_as] type */
 
     if (type_p->xmit_as_type != NULL)
-        CHECKER_error(pipe_p, NIDL_PIPEXMITAS);
+        CHECKER_error_0(TO_ASTP_NODE(pipe_p), NIDL_PIPEXMITAS);
 
     /* Pipes must be defined with typedef */
 
     if (type_p->name == NAMETABLE_NIL_ID)
-        CHECKER_error(pipe_p, NIDL_ANONPIPE);
+        CHECKER_error_0(TO_ASTP_NODE(pipe_p), NIDL_ANONPIPE);
 
     pipe_base_type(pipe_p, int_p);
 }
@@ -4643,21 +4123,14 @@ static void pipe_check
 */
 
 static void enum_check
-#ifdef PROTO
 (
     AST_enumeration_n_t *enum_p,        /* [in] Ptr to AST enumeration node */
     AST_type_n_t        *type_p         /* [in] Ptr to enum data type node */
 )
-#else
-(enum_p, type_p)
-    AST_enumeration_n_t *enum_p;        /* [in] Ptr to AST enumeration node */
-    AST_type_n_t        *type_p;        /* [in] Ptr to enum data type node */
-#endif
-
 {
     /* Use of anonymous enum may not be portable across C compilers */
     if (type_is_anonymous(type_p))
-        CHECKER_warning(enum_p, NIDL_NOPORTANON, "enum");
+        CHECKER_warning_1(TO_ASTP_NODE(enum_p), NIDL_NOPORTANON, "enum");
 }
 
 /*
@@ -4667,17 +4140,10 @@ static void enum_check
 */
 
 static void clabel_value
-#ifdef PROTO
 (
     AST_case_label_n_t  *clabel_p,      /* [in] Ptr to AST case label node */
     AST_type_n_t        *type_p         /* [in] Union discriminator data type */
 )
-#else
-(clabel_p, type_p)
-    AST_case_label_n_t  *clabel_p;      /* [in] Ptr to AST case label node */
-    AST_type_n_t        *type_p;        /* [in] Union discriminator data type */
-#endif
-
 {
     AST_constant_n_t    *const_p;       /* Constant value in case label */
 
@@ -4695,7 +4161,7 @@ static void clabel_value
         &&  const_p->kind != AST_boolean_const_k
         &&  const_p->kind != AST_char_const_k)
     {
-        CHECKER_error(clabel_p, NIDL_INVCASETYP);
+        CHECKER_error_0(TO_ASTP_NODE(clabel_p), NIDL_INVCASETYP);
         return;
     }
 
@@ -4710,7 +4176,7 @@ static void clabel_value
         ||  (type_p->kind == AST_character_k
             &&  const_p->kind != AST_char_const_k))
     {
-        CHECKER_error(clabel_p, NIDL_CASEDISCTYPE);
+        CHECKER_error_0(TO_ASTP_NODE(clabel_p), NIDL_CASEDISCTYPE);
         return;
     }
 
@@ -4744,7 +4210,7 @@ static void clabel_value
 
         /* Matching constant name not found in the relevant enumeration. */
 
-        CHECKER_error(clabel_p, NIDL_CASECONENUM);
+        CHECKER_error_0(TO_ASTP_NODE(clabel_p), NIDL_CASECONENUM);
     }
 }
 
@@ -4756,17 +4222,10 @@ static void clabel_value
 */
 
 static void clabel_check
-#ifdef PROTO
 (
     AST_case_label_n_t  *clabel_p,      /* [in] Ptr to AST case label node */
     AST_type_n_t        *type_p         /* [in] Union discriminator data type */
 )
-#else
-(clabel_p, type_p)
-    AST_case_label_n_t  *clabel_p;      /* [in] Ptr to AST case label node */
-    AST_type_n_t        *type_p;        /* [in] Union discriminator data type */
-#endif
-
 {
     clabel_value(clabel_p, type_p);
 }
@@ -4778,17 +4237,10 @@ static void clabel_check
 */
 
 static void arm_type
-#ifdef PROTO
 (
     AST_arm_n_t         *arm_p,         /* [in] Ptr to AST arm node */
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(arm_p, int_p)
-    AST_arm_n_t         *arm_p;         /* [in] Ptr to AST arm node */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     AST_type_n_t        *type_p;        /* Data type of the arm */
 
@@ -4812,7 +4264,7 @@ static void arm_type
          || AST_SMALL_SET(arm_p)
          || AST_CONTEXT_SET(arm_p)
          || AST_PTR_SET(arm_p)))
-        CHECKER_error(arm_p, NIDL_XMITTYPEATTRS);
+        CHECKER_error_0(TO_ASTP_NODE(arm_p), NIDL_XMITTYPEATTRS);
 
     type_p = type_xmit_type(type_p);    /* Pick up transmissible type */
 
@@ -4820,26 +4272,26 @@ static void arm_type
 	/* WEZ:FIXME we need them for ORPC! */
 #if !ENABLE_DCOM
     if (AST_CONFORMANT_SET(type_p))
-        CHECKER_error(arm_p, NIDL_CFMTUNION);
+        CHECKER_error_0(TO_ASTP_NODE(arm_p), NIDL_CFMTUNION);
 #endif
 
 	/* interface must have a * */
 	 if (type_p->kind == AST_interface_k)	{
 		 char const * id_name;
 		 NAMETABLE_id_to_string(type_p->name, &id_name);
-		 CHECKER_error(arm_p, NIDL_INTREFNOTALO, id_name);
+		 CHECKER_error_1(TO_ASTP_NODE(arm_p), NIDL_INTREFNOTALO, id_name);
 	 }
 	 
     /* Pipes not valid as members of unions */
 
     if (type_p->kind == AST_pipe_k)
-        CHECKER_error(arm_p, NIDL_PIPEUNIMEM);
+        CHECKER_error_0(TO_ASTP_NODE(arm_p), NIDL_PIPEUNIMEM);
 
     /* Context handles not valid as members of unions */
 
     if (AST_CONTEXT_RD_SET(type_p)
         ||  AST_CONTEXT_SET(arm_p))
-        CHECKER_error(arm_p, NIDL_CTXUNIMEM);
+        CHECKER_error_0(TO_ASTP_NODE(arm_p), NIDL_CTXUNIMEM);
 
     /* Function pointers not valid as members of unions */
 
@@ -4848,7 +4300,7 @@ static void arm_type
 #if 0   /** Obsolete **/
         &&  type_p->xmit_as_type == NULL)
 #endif
-        CHECKER_error(arm_p, NIDL_FPUNIMEM);
+        CHECKER_error_0(TO_ASTP_NODE(arm_p), NIDL_FPUNIMEM);
 
     /* Members of unions cannot be of type handle_t */
 
@@ -4856,12 +4308,12 @@ static void arm_type
 #if 0   /** Obsolete **/
         &&  type_p->xmit_as_type == NULL)
 #endif
-        CHECKER_error(arm_p, NIDL_HANUNIMEM);
+        CHECKER_error_0(TO_ASTP_NODE(arm_p), NIDL_HANUNIMEM);
 
     /* void is valid only in an operation or pointer declaration */
 
     if (type_p->kind == AST_void_k)
-        CHECKER_error(arm_p, NIDL_VOIDOPPTR);
+        CHECKER_error_0(TO_ASTP_NODE(arm_p), NIDL_VOIDOPPTR);
 
     /* void * must be used in conjunction with the [context_handle] attribute */
 
@@ -4874,7 +4326,7 @@ static void arm_type
         &&  !AST_CONTEXT_RD_SET(type_p)
         &&  !AST_CONTEXT_SET(arm_p)
 		  )
-        CHECKER_error(arm_p, NIDL_PTRVOIDCTX);
+        CHECKER_error_0(TO_ASTP_NODE(arm_p), NIDL_PTRVOIDCTX);
 
     /*
      * V1 attributes are incompatible with this type
@@ -4884,7 +4336,7 @@ static void arm_type
         &&  FE_TEST(arm_p->fe_info->flags, FE_HAS_V2_ATTR)
         &&  ! ( FE_TEST(type_p->fe_info->flags, FE_HAS_V1_ATTR)
                 &&  FE_TEST(type_p->fe_info->flags, FE_HAS_V2_ATTR) ))
-        CHECKER_warning(arm_p, NIDL_INCOMPATV1);
+        CHECKER_warning_0(TO_ASTP_NODE(arm_p), NIDL_INCOMPATV1);
 }
 
 
@@ -4895,15 +4347,9 @@ static void arm_type
 */
 
 static void arm_string
-#ifdef PROTO
 (
     AST_arm_n_t         *arm_p          /* [in] Ptr to AST arm node */
 )
-#else
-(arm_p)
-    AST_arm_n_t         *arm_p;         /* [in] Ptr to AST arm node */
-#endif
-
 {
     AST_type_n_t        *type_p;        /* Data type of the arm */
 
@@ -4918,26 +4364,26 @@ static void arm_string
 
     if (AST_STRING0_SET(arm_p)
         &&  !type_is_v1_string(type_p))
-        CHECKER_error(arm_p, NIDL_STRV1FIXED);
+        CHECKER_error_0(TO_ASTP_NODE(arm_p), NIDL_STRV1FIXED);
 
     /* The [v1_string] attribute can only be applied to a [v1_array] */
 
     if ((AST_STRING0_SET(arm_p) || AST_STRING0_SET(type_p))
         &&  !(AST_SMALL_SET(arm_p) || AST_SMALL_SET(type_p)))
-        CHECKER_error(arm_p, NIDL_STRV1ARRAY);
+        CHECKER_error_0(TO_ASTP_NODE(arm_p), NIDL_STRV1ARRAY);
 
     /* The [string] attribute cannot be applied to a [v1_array] */
 
     if ((AST_STRING_SET(arm_p) && AST_SMALL_SET(arm_p))
         ||  (AST_STRING_SET(arm_p) && AST_SMALL_SET(type_p))
         ||  (AST_STRING_SET(type_p) && AST_SMALL_SET(arm_p)))
-        CHECKER_error(arm_p, NIDL_STRARRAYV1);
+        CHECKER_error_0(TO_ASTP_NODE(arm_p), NIDL_STRARRAYV1);
 
     /* [string] attribute valid only for one-dim arrays of char or byte */
 
     if (AST_STRING_SET(arm_p)
         &&  !type_is_string(type_p))
-        CHECKER_error(arm_p, NIDL_STRCHARBYTE);
+        CHECKER_error_0(TO_ASTP_NODE(arm_p), NIDL_STRCHARBYTE);
 
     /* Cannot have both [string] and [v1_string] attributes */
 
@@ -4947,7 +4393,7 @@ static void arm_string
         ASTP_attr_flag_t attr1 = ASTP_STRING;
         ASTP_attr_flag_t attr2 = ASTP_STRING0;
 
-        CHECKER_error(arm_p, NIDL_CONFLICTATTR,
+        CHECKER_error_2(TO_ASTP_NODE(arm_p), NIDL_CONFLICTATTR,
             KEYWORDS_lookup_text(AST_attribute_to_token(&attr1)),
             KEYWORDS_lookup_text(AST_attribute_to_token(&attr2)));
     }
@@ -4961,17 +4407,10 @@ static void arm_string
 */
 
 static void arm_pointer
-#ifdef PROTO
 (
     AST_arm_n_t         *arm_p,         /* [in] Ptr to AST arm node */
     AST_interface_n_t   *int_p __attribute__((__unused__))         /* [in] Ptr to interface node */
 )
-#else
-(arm_p, int_p)
-    AST_arm_n_t         *arm_p;         /* [in] Ptr to AST arm node */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     AST_type_n_t        *type_p;        /* Data type of the arm */
     boolean pointer_attr_valid = FALSE;
@@ -4987,7 +4426,7 @@ static void arm_pointer
 #if !ENABLE_DCOM
     if (FE_TEST(type_p->fe_info->flags, FE_HAS_REF_PTR) ||
         AST_REF_SET(arm_p))
-        CHECKER_error(arm_p, NIDL_ARMREFPTR);
+        CHECKER_error_0(TO_ASTP_NODE(arm_p), NIDL_ARMREFPTR);
 #endif
     if (type_p->kind == AST_pointer_k
         &&  type_p->type_structure.pointer->pointee_type->kind != AST_void_k)
@@ -4996,35 +4435,35 @@ static void arm_pointer
     /* [ref] attribute valid only for pointer or array types */
 
     if (AST_REF_SET(arm_p) && !pointer_attr_valid)
-        CHECKER_error(arm_p, NIDL_REFATTRPTR);
+        CHECKER_error_0(TO_ASTP_NODE(arm_p), NIDL_REFATTRPTR);
 
 #if 0
 	/* ignore REF, UNIQUE or PTR for pointers to interfaces */
 	 if (type_p->kind == AST_pointer_k && type_p->type_structure.pointer->pointee_type->kind == AST_interface_k
 			 && (AST_UNIQUE_SET(arm_p) || AST_REF_SET(arm_p) || AST_PTR_SET(arm_p)))
-		 CHECKER_warning(arm_p, NIDL_PTRATTBIGN);
+		 CHECKER_warning_0(arm_p, NIDL_PTRATTBIGN);
 #endif
     /* An arm of a union can't be or contain a [unique] pointer */
 
     if (FE_TEST(type_p->fe_info->flags, FE_HAS_UNIQUE_PTR) ||
         AST_UNIQUE_SET(arm_p))
-        CHECKER_error(arm_p, NIDL_ARMUNIQUEPTR);
+        CHECKER_error_0(TO_ASTP_NODE(arm_p), NIDL_ARMUNIQUEPTR);
 
     /* [unique] attribute valid only for pointer or array types */
 
     if (AST_UNIQUE_SET(arm_p) && !pointer_attr_valid)
-        CHECKER_error(arm_p, NIDL_UNIQATTRPTR);
+        CHECKER_error_0(TO_ASTP_NODE(arm_p), NIDL_UNIQATTRPTR);
 
     /* [ptr] attribute valid only for pointer or array types */
 
     if (AST_PTR_SET(arm_p) && !pointer_attr_valid)
-        CHECKER_error(arm_p, NIDL_PTRATTRPTR);
+        CHECKER_error_0(TO_ASTP_NODE(arm_p), NIDL_PTRATTRPTR);
 
     /* [unique] attribute requires -standard extended */
 
     if (AST_UNIQUE_SET(arm_p)
         &&  (*(int *)cmd_val[opt_standard] <= opt_standard_dce_1_0))
-        CHECKER_warning(arm_p, NIDL_NOPORTUNIQUE, OPT_STD_EXTENDED);
+        CHECKER_warning_1(TO_ASTP_NODE(arm_p), NIDL_NOPORTUNIQUE, OPT_STD_EXTENDED);
 
     /* An array with a pointer attribute is valid only as a parameter. */
 
@@ -5036,7 +4475,7 @@ static void arm_pointer
     if (type_p->kind == AST_array_k &&
         (AST_REF_SET(arm_p) || AST_PTR_SET(arm_p) || AST_UNIQUE_SET(arm_p) ||
          AST_REF_SET(type_p) || AST_PTR_SET(type_p) || AST_UNIQUE_SET(type_p)))
-        CHECKER_error(arm_p, NIDL_ARRPTRPRM);
+        CHECKER_error_0(TO_ASTP_NODE(arm_p), NIDL_ARRPTRPRM);
 
     /*
      * **NOTE**: It could be valid for an arm to be a varying array, however
@@ -5054,15 +4493,9 @@ static void arm_pointer
 */
 
 static void arm_small
-#ifdef PROTO
 (
     AST_arm_n_t         *arm_p          /* [in] Ptr to AST arm node */
 )
-#else
-(arm_p)
-    AST_arm_n_t         *arm_p;         /* [in] Ptr to AST arm node */
-#endif
-
 {
     AST_type_n_t        *type_p;        /* Data type of the arm */
     AST_array_n_t       *array_p;       /* Ptr to array node */
@@ -5081,7 +4514,7 @@ static void arm_small
 
     if (AST_SMALL_SET(arm_p)
         &&  array_is_large(array_p))
-        CHECKER_error(arm_p, NIDL_SMALLINV);
+        CHECKER_error_0(TO_ASTP_NODE(arm_p), NIDL_SMALLINV);
 }
 
 
@@ -5092,15 +4525,9 @@ static void arm_small
 */
 
 static void arm_context
-#ifdef PROTO
 (
     AST_arm_n_t         *arm_p          /* [in] Ptr to AST arm node */
 )
-#else
-(arm_p)
-    AST_arm_n_t         *arm_p;         /* [in] Ptr to AST arm node */
-#endif
-
 {
     AST_type_n_t        *type_p;        /* Data type of the arm */
 
@@ -5115,21 +4542,21 @@ static void arm_context
             ||  (type_p->kind == AST_pointer_k
                 &&  type_p->type_structure.pointer->pointee_type->kind
                     != AST_void_k)))
-        CHECKER_error(arm_p, NIDL_CTXPTRVOID);
+        CHECKER_error_0(TO_ASTP_NODE(arm_p), NIDL_CTXPTRVOID);
 
     /* [unique] pointers to context handles are not allowed */
 
     if (AST_UNIQUE_SET(arm_p)
         &&  type_p->kind == AST_pointer_k
         &&  AST_CONTEXT_RD_SET(type_p->type_structure.pointer->pointee_type))
-        CHECKER_error(arm_p, NIDL_UNIQCTXHAN);
+        CHECKER_error_0(TO_ASTP_NODE(arm_p), NIDL_UNIQCTXHAN);
 
     /* Full pointers to context handles are not allowed */
 
     if (AST_PTR_SET(arm_p)
         &&  type_p->kind == AST_pointer_k
         &&  AST_CONTEXT_RD_SET(type_p->type_structure.pointer->pointee_type))
-        CHECKER_error(arm_p, NIDL_PTRCTXHAN);
+        CHECKER_error_0(TO_ASTP_NODE(arm_p), NIDL_PTRCTXHAN);
 }
 
 
@@ -5140,19 +4567,11 @@ static void arm_context
 */
 
 static void arm_check
-#ifdef PROTO
 (
     AST_arm_n_t         *arm_p,         /* [in] Ptr to AST arm node */
     AST_type_n_t        *type_p,        /* [in] Discriminator data type */
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(arm_p, type_p, int_p)
-    AST_arm_n_t         *arm_p;         /* [in] Ptr to AST arm node */
-    AST_type_n_t        *type_p;        /* [in] Discriminator data type */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     AST_case_label_n_t  *clabel_p;      /* List of case labels for this arm */
 
@@ -5181,15 +4600,9 @@ static void arm_check
 */
 
 static void union_discrim_type
-#ifdef PROTO
 (
     AST_disc_union_n_t  *union_p        /* [in] Ptr to AST discr. union node */
 )
-#else
-(union_p)
-    AST_disc_union_n_t  *union_p;       /* [in] Ptr to AST discr. union node */
-#endif
-
 {
     AST_type_n_t        *type_p;        /* Discriminator data type */
 
@@ -5202,7 +4615,7 @@ static void union_discrim_type
         &&  !type_is_enum(type_p)
         &&  type_p->kind != AST_boolean_k
         &&  type_p->kind != AST_character_k)
-        CHECKER_error(union_p, NIDL_UNIDISCTYP);
+        CHECKER_error_0(TO_ASTP_NODE(union_p), NIDL_UNIDISCTYP);
 }
 
 
@@ -5213,15 +4626,9 @@ static void union_discrim_type
 */
 
 static void union_case_labels
-#ifdef PROTO
 (
     AST_disc_union_n_t  *union_p        /* [in] Ptr to AST discr. union node */
 )
-#else
-(union_p)
-    AST_disc_union_n_t  *union_p;       /* [in] Ptr to AST discr. union node */
-#endif
-
 {
     AST_arm_n_t         *arm_p;         /* Ptr to one arm node of the union */
     AST_case_label_n_t  *clabel_p;      /* Ptr to one case label of the arm */
@@ -5286,7 +4693,7 @@ static void union_case_labels
                                    == s_clabel_p->value->value.boolean_val);
                             break;
                         default:
-                            error(NIDL_INTERNAL_ERROR, __FILE__, __LINE__);
+                            error_zi(NIDL_INTERNAL_ERROR, __FILE__, __LINE__);
                         }   /* switch (clabel_p->value->kind) */
                     }   /* else if (same constant kinds) */
 
@@ -5294,7 +4701,7 @@ static void union_case_labels
 
                     if (dup)
                     {
-                        CHECKER_error(s_clabel_p, NIDL_DUPCASEVAL);
+                        CHECKER_error_0(TO_ASTP_NODE(s_clabel_p), NIDL_DUPCASEVAL);
                         break;
                     }
 
@@ -5322,17 +4729,10 @@ static void union_case_labels
 */
 
 static void union_check
-#ifdef PROTO
 (
     AST_disc_union_n_t  *union_p,       /* [in] Ptr to AST discr. union node */
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(union_p, int_p)
-    AST_disc_union_n_t  *union_p;       /* [in] Ptr to AST discr. union node */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     AST_arm_n_t         *arm_p;         /* Ptr to one arm node of the union */
 
@@ -5343,7 +4743,7 @@ static void union_check
 
     if (union_p->discrim_name == NAMETABLE_NIL_ID
         &&  (*(int *)cmd_val[opt_standard] <= opt_standard_dce_1_0))
-        CHECKER_warning(union_p, NIDL_NOPORTNEU, OPT_STD_EXTENDED);
+        CHECKER_warning_1(TO_ASTP_NODE(union_p), NIDL_NOPORTNEU, OPT_STD_EXTENDED);
 
     /* Check each arm of the union. */
 
@@ -5386,7 +4786,7 @@ static void type_name_len
 
         max_len = MAX_ID - strlen("_from_xmit");
         if (type_len > max_len)
-            CHECKER_error(top_type_p, NIDL_MAXIDTYPTA, max_len);
+            CHECKER_error_1(TO_ASTP_NODE(top_type_p), NIDL_MAXIDTYPTA, TO_CHARZ_PTR(max_len));
     }
 
     if (type_p->name == NAMETABLE_NIL_ID)
@@ -5404,7 +4804,7 @@ static void type_name_len
     if (!AST_LOCAL_SET(int_p)
         &&  type_len > max_len
         &&  AST_HANDLE_SET(type_p))
-        CHECKER_error(type_p, NIDL_MAXIDTYPHAN, max_len);
+        CHECKER_error_1(TO_ASTP_NODE(type_p), NIDL_MAXIDTYPHAN, TO_CHARZ_PTR(max_len));
 
     /* Maximum identifier length for [context_handle] type is <n> characters */
 
@@ -5412,7 +4812,7 @@ static void type_name_len
     if (!AST_LOCAL_SET(int_p)
         &&  type_len > max_len
         &&  AST_CONTEXT_RD_SET(type_p))
-        CHECKER_error(type_p, NIDL_MAXIDTYPCH, max_len);
+        CHECKER_error_1(TO_ASTP_NODE(type_p), NIDL_MAXIDTYPCH, TO_CHARZ_PTR(max_len));
 
     /* Maximum identifier length for pointed-to type is <n> characters */
 
@@ -5425,11 +4825,10 @@ static void type_name_len
         char const *file_name;
         AST_type_n_t *ptr_type_p = type_p->fe_info->type_specific.pointer_type;
 
-        CHECKER_error(type_p, NIDL_MAXIDTYPPT, max_len);
+        CHECKER_error_1(TO_ASTP_NODE(type_p), NIDL_MAXIDTYPPT, TO_CHARZ_PTR(max_len));
         /* Give location of pointer declaration that points at this type. */
         STRTAB_str_to_string(ptr_type_p->fe_info->file, &file_name);
-        CHECKER_warning(type_p, NIDL_NAMEREFAT, file_name,
-            ptr_type_p->fe_info->source_line);
+        CHECKER_warning_2(TO_ASTP_NODE(type_p), NIDL_NAMEREFAT, file_name, TO_CHARZ_PTR(ptr_type_p->fe_info->source_line));
     }
 
     max_len = MAX_ID - strlen("_mrV");
@@ -5441,11 +4840,10 @@ static void type_name_len
         char const *file_name;
         AST_type_n_t *ptr_type_p = type_p->fe_info->type_specific.pointer_type;
 
-        CHECKER_error(type_p, NIDL_MAXIDTYPPT, max_len);
+        CHECKER_error_1(TO_ASTP_NODE(type_p), NIDL_MAXIDTYPPT, TO_CHARZ_PTR(max_len));
         /* Give location of pointer declaration that points at this type. */
         STRTAB_str_to_string(ptr_type_p->fe_info->file, &file_name);
-        CHECKER_warning(type_p, NIDL_NAMEREFAT, file_name,
-            ptr_type_p->fe_info->source_line);
+        CHECKER_warning_2(TO_ASTP_NODE(type_p), NIDL_NAMEREFAT, file_name, TO_CHARZ_PTR(ptr_type_p->fe_info->source_line));
     }
 
     /* Maximum identifier length for pipe type is <n> characters */
@@ -5454,7 +4852,7 @@ static void type_name_len
     if (!AST_LOCAL_SET(int_p)
         &&  type_len > max_len
         &&  type_p->kind == AST_pipe_k)
-        CHECKER_error(type_p, NIDL_MAXIDTYPPIPE, max_len);
+        CHECKER_error_1(TO_ASTP_NODE(type_p), NIDL_MAXIDTYPPIPE, TO_CHARZ_PTR(max_len));
 
     /* Maximum identifier length for [represent_as] type is <n> characters */
 
@@ -5462,7 +4860,7 @@ static void type_name_len
     if (!AST_LOCAL_SET(int_p)
         &&  type_len > max_len
         &&  type_p->rep_as_type != NULL)
-        CHECKER_error(type_p, NIDL_MAXIDTYPRA, max_len);
+        CHECKER_error_1(TO_ASTP_NODE(type_p), NIDL_MAXIDTYPRA, TO_CHARZ_PTR(max_len));
 
     /* Maximum identifier length for [out_of_line] type is <n> characters */
 
@@ -5471,14 +4869,14 @@ static void type_name_len
         &&  !AST_IN_VARYING_SET(type_p) && !AST_OUT_VARYING_SET(type_p)
         &&  type_len > max_len
         &&  AST_OUT_OF_LINE_SET(type_p))
-        CHECKER_error(type_p, NIDL_MAXIDTYPOOL, max_len);
+        CHECKER_error_1(TO_ASTP_NODE(type_p), NIDL_MAXIDTYPOOL, TO_CHARZ_PTR(max_len));
 
     max_len = MAX_ID - strlen("OmrV");
     if (!AST_LOCAL_SET(int_p)
         &&  (AST_IN_VARYING_SET(type_p) || AST_OUT_VARYING_SET(type_p))
         &&  type_len > max_len
         &&  AST_OUT_OF_LINE_SET(type_p))
-        CHECKER_error(type_p, NIDL_MAXIDTYPOOL, max_len);
+        CHECKER_error_1(TO_ASTP_NODE(type_p), NIDL_MAXIDTYPOOL, TO_CHARZ_PTR(max_len));
 }
 
 
@@ -5489,21 +4887,15 @@ static void type_name_len
 */
 
 static void type_in_line
-#ifdef PROTO
 (
     AST_type_n_t        *type_p         /* [in] Ptr to AST type node */
 )
-#else
-(type_p)
-    AST_type_n_t        *type_p;        /* [in] Ptr to AST type node */
-#endif
-
 {
     /* Can't have both [in_line] and [out_of_line] type attributes */
 
     if (AST_IN_LINE_SET(type_p)
         &&  AST_OUT_OF_LINE_SET(type_p))
-        CHECKER_acf_error(type_p, NIDL_TYPLINEATTR);
+        CHECKER_acf_error(TO_ASTP_NODE(type_p), NIDL_TYPLINEATTR, nullptr, nullptr, nullptr, nullptr, nullptr);
 
     /* [in_line] and [out_of_line] attributes apply only to non-scalar types */
 
@@ -5516,9 +4908,8 @@ static void type_in_line
         STRTAB_str_to_string(type_p->fe_info->file, &file_name);
         NAMETABLE_id_to_string(type_p->name, &type_name);
 
-        CHECKER_acf_warning(type_p, NIDL_LINENONSCAL);
-        CHECKER_acf_warning(type_p, NIDL_NAMEDECLAT, type_name, file_name,
-                          type_p->fe_info->source_line);
+        CHECKER_acf_warning(TO_ASTP_NODE(type_p), NIDL_LINENONSCAL, nullptr, nullptr, nullptr, nullptr, nullptr);
+        CHECKER_acf_warning(TO_ASTP_NODE(type_p), NIDL_NAMEDECLAT, type_name, file_name, TO_CHARZ_PTR(type_p->fe_info->source_line), nullptr, nullptr);
     }
 }
 
@@ -5530,32 +4921,26 @@ static void type_in_line
 */
 
 static void type_string
-#ifdef PROTO
 (
     AST_type_n_t        *type_p         /* [in] Ptr to AST type node */
 )
-#else
-(type_p)
-    AST_type_n_t        *type_p;        /* [in] Ptr to AST type node */
-#endif
-
 {
     /* A [v1_string] must be an array of char with fixed bounds */
 
     if (AST_STRING0_SET(type_p)
         &&  !type_is_v1_string(type_p))
-        CHECKER_error(type_p, NIDL_STRV1FIXED);
+        CHECKER_error_0(TO_ASTP_NODE(type_p), NIDL_STRV1FIXED);
 
     /* The [string] attribute cannot be applied to a [v1_array] */
 
     if (AST_STRING_SET(type_p) && AST_SMALL_SET(type_p))
-        CHECKER_error(type_p, NIDL_STRARRAYV1);
+        CHECKER_error_0(TO_ASTP_NODE(type_p), NIDL_STRARRAYV1);
 
     /* [string] attribute valid only for one-dim arrays of char or byte */
 
     if (AST_STRING_SET(type_p)
         &&  !type_is_string(type_p))
-        CHECKER_error(type_p, NIDL_STRCHARBYTE);
+        CHECKER_error_0(TO_ASTP_NODE(type_p), NIDL_STRCHARBYTE);
 
     /* Cannot have both [string] and [v1_string] attributes */
 
@@ -5565,7 +4950,7 @@ static void type_string
         ASTP_attr_flag_t attr1 = ASTP_STRING;
         ASTP_attr_flag_t attr2 = ASTP_STRING0;
 
-        CHECKER_error(type_p, NIDL_CONFLICTATTR,
+        CHECKER_error_2(TO_ASTP_NODE(type_p), NIDL_CONFLICTATTR,
             KEYWORDS_lookup_text(AST_attribute_to_token(&attr1)),
             KEYWORDS_lookup_text(AST_attribute_to_token(&attr2)));
     }
@@ -5579,15 +4964,9 @@ static void type_string
 */
 
 static void type_pointer
-#ifdef PROTO
 (
     AST_type_n_t        *type_p         /* [in] Ptr to AST type node */
 )
-#else
-(type_p)
-    AST_type_n_t        *type_p;        /* [in] Ptr to AST type node */
-#endif
-
 {
     boolean pointer_attr_valid = FALSE;
 
@@ -5600,33 +4979,33 @@ static void type_pointer
     /* [ref] attribute valid only for pointer or array types */
 
     if (AST_REF_SET(type_p) && !pointer_attr_valid)
-        CHECKER_error(type_p, NIDL_REFATTRPTR);
+        CHECKER_error_0(TO_ASTP_NODE(type_p), NIDL_REFATTRPTR);
 
     /* [unique] attribute valid only for pointer or array types */
 
     if (AST_UNIQUE_SET(type_p) && !pointer_attr_valid)
-        CHECKER_error(type_p, NIDL_UNIQATTRPTR);
+        CHECKER_error_0(TO_ASTP_NODE(type_p), NIDL_UNIQATTRPTR);
 #if 0
 	/* ignore REF, UNIQUE or PTR for pointers to interfaces */
 	 if (type_p->kind == AST_pointer_k && type_p->type_structure.pointer->pointee_type->kind == AST_interface_k
 			 && (AST_UNIQUE_SET(type_p) || AST_REF_SET(type_p) || AST_PTR_SET(type_p)))
-		 CHECKER_warning(type_p, NIDL_PTRATTBIGN);
+		 CHECKER_warning_0(type_p, NIDL_PTRATTBIGN);
 #endif
     /* [ptr] attribute valid only for pointer or array types */
 
     if (AST_PTR_SET(type_p) && !pointer_attr_valid)
-        CHECKER_error(type_p, NIDL_PTRATTRPTR);
+        CHECKER_error_0(TO_ASTP_NODE(type_p), NIDL_PTRATTRPTR);
 
     /* [unique] attribute requires -standard extended */
 
     if (AST_UNIQUE_SET(type_p)
         &&  (*(int *)cmd_val[opt_standard] <= opt_standard_dce_1_0))
-        CHECKER_warning(type_p, NIDL_NOPORTUNIQUE, OPT_STD_EXTENDED);
+        CHECKER_warning_1(TO_ASTP_NODE(type_p), NIDL_NOPORTUNIQUE, OPT_STD_EXTENDED);
 
     /* An array with a pointer attribute is valid only as a parameter. */
 
     if (FE_TEST(type_p->fe_info->flags, FE_HAS_PTR_ARRAY))
-        CHECKER_error(type_p, NIDL_ARRPTRPRM);
+        CHECKER_error_0(TO_ASTP_NODE(type_p), NIDL_ARRPTRPRM);
 
     /* Cannot have more than one level of indirection to a ne union */
 
@@ -5637,7 +5016,7 @@ static void type_pointer
         &&  type_p->kind == AST_disc_union_k
         &&  type_p->type_structure.disc_union->discrim_name == NAMETABLE_NIL_ID
         &&  type_p->fe_info->pointer_count > 1)
-        CHECKER_error(top_type_p, NIDL_PTRNEUNION);
+        CHECKER_error_0(TO_ASTP_NODE(top_type_p), NIDL_PTRNEUNION);
     }
 }
 
@@ -5649,15 +5028,9 @@ static void type_pointer
 */
 
 static void type_small
-#ifdef PROTO
 (
     AST_type_n_t        *type_p         /* [in] Ptr to AST type node */
 )
-#else
-(type_p)
-    AST_type_n_t        *type_p;        /* [in] Ptr to AST type node */
-#endif
-
 {
     AST_array_n_t       *array_p;       /* Ptr to array node */
 
@@ -5665,7 +5038,7 @@ static void type_small
 
     if (AST_SMALL_SET(type_p)
         &&  type_p->kind == AST_pointer_k)
-        CHECKER_error(type_p, NIDL_SMALLARRSYN);
+        CHECKER_error_0(TO_ASTP_NODE(type_p), NIDL_SMALLARRSYN);
 
     /*
      * Remaining checks only apply to array types in array syntax.
@@ -5681,20 +5054,20 @@ static void type_small
     if (AST_SMALL_SET(type_p)
         &&  AST_CONFORMANT_SET(type_p)
         &&  array_is_conformant_upper(array_p))
-        CHECKER_error(type_p, NIDL_SMALLMULTID);
+        CHECKER_error_0(TO_ASTP_NODE(type_p), NIDL_SMALLMULTID);
 
     /* [v1_array] attribute invalid for array with more than 65535 elements */
 
     if (AST_SMALL_SET(type_p)
         &&  array_is_large(array_p))
-        CHECKER_error(type_p, NIDL_SMALLINV);
+        CHECKER_error_0(TO_ASTP_NODE(type_p), NIDL_SMALLINV);
 
     /* A [v1_array] cannot have a conformant lower bound */
 
     if (AST_SMALL_SET(type_p)
         &&  AST_CONFORMANT_SET(type_p)
         &&  array_has_open_lb(array_p))
-        CHECKER_error(type_p, NIDL_SMALLOPENLB);
+        CHECKER_error_0(TO_ASTP_NODE(type_p), NIDL_SMALLOPENLB);
 }
 
 
@@ -5705,15 +5078,9 @@ static void type_small
 */
 
 static void type_context
-#ifdef PROTO
 (
     AST_type_n_t        *type_p         /* [in] Ptr to AST type node */
 )
-#else
-(type_p)
-    AST_type_n_t        *type_p;        /* [in] Ptr to AST type node */
-#endif
-
 {
     /* [context_handle] attribute only applies to void * types */
 
@@ -5727,21 +5094,21 @@ static void type_context
                       == AST_structure_k
                       && AST_DEF_AS_TAG_SET(type_p->type_structure.pointer->
                                             pointee_type)))))
-        CHECKER_error(type_p, NIDL_CTXPTRVOID);
+        CHECKER_error_0(TO_ASTP_NODE(type_p), NIDL_CTXPTRVOID);
 
     /* [unique] pointers to context handles are not allowed */
 
     if (AST_UNIQUE_SET(type_p)
         &&  type_p->kind == AST_pointer_k
         &&  AST_CONTEXT_RD_SET(type_p->type_structure.pointer->pointee_type))
-        CHECKER_error(type_p, NIDL_UNIQCTXHAN);
+        CHECKER_error_0(TO_ASTP_NODE(type_p), NIDL_UNIQCTXHAN);
 
     /* Full pointers to context handles are not allowed */
 
     if (AST_PTR_SET(type_p)
         &&  type_p->kind == AST_pointer_k
         &&  AST_CONTEXT_RD_SET(type_p->type_structure.pointer->pointee_type))
-        CHECKER_error(type_p, NIDL_PTRCTXHAN);
+        CHECKER_error_0(TO_ASTP_NODE(type_p), NIDL_PTRCTXHAN);
 
     /* Attribute [handle] cannot be applied to a void * type */
 
@@ -5750,7 +5117,7 @@ static void type_context
         && type_p->type_structure.pointer->pointee_type->kind == AST_void_k)
     {
         ASTP_attr_flag_t attr1 = ASTP_HANDLE;
-        CHECKER_error(type_p, NIDL_ATTRPTRVOID,
+        CHECKER_error_1(TO_ASTP_NODE(type_p), NIDL_ATTRPTRVOID,
             KEYWORDS_lookup_text(AST_attribute_to_token(&attr1)));
     }
 
@@ -5758,7 +5125,7 @@ static void type_context
 
     if (AST_HANDLE_SET(type_p)
         && type_p->kind == AST_handle_k)
-        CHECKER_error(type_p, NIDL_HANATTRTRAN);
+        CHECKER_error_0(TO_ASTP_NODE(type_p), NIDL_HANATTRTRAN);
 
     /* The attributes [handle] and [represent_as] cannot occur together */
 
@@ -5766,7 +5133,7 @@ static void type_context
         && type_p->rep_as_type != NULL)
     {
         ASTP_attr_flag_t attr1 = ASTP_HANDLE;
-        CHECKER_error(type_p, NIDL_CONFLICTATTR,
+        CHECKER_error_2(TO_ASTP_NODE(type_p), NIDL_CONFLICTATTR,
             KEYWORDS_lookup_text(AST_attribute_to_token(&attr1)),
             "represent_as");
     }
@@ -5780,17 +5147,10 @@ static void type_context
 */
 
 static void type_conformant
-#ifdef PROTO
 (
     AST_type_n_t        *type_p,        /* [in] Ptr to AST type node */
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(type_p, int_p)
-    AST_type_n_t        *type_p;        /* [in] Ptr to AST type node */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     AST_array_n_t       *array_p;       /* Ptr to array node */
 
@@ -5807,7 +5167,7 @@ static void type_conformant
         &&  AST_CONFORMANT_SET(type_p)
         &&  array_is_conformant_upper(array_p)
         &&  (*(int *)cmd_val[opt_standard] <= opt_standard_dce_1_0))
-        CHECKER_warning(type_p, NIDL_NOPORTCFMT, OPT_STD_EXTENDED);
+        CHECKER_warning_1(TO_ASTP_NODE(type_p), NIDL_NOPORTCFMT, OPT_STD_EXTENDED);
 }
 
 
@@ -5818,21 +5178,15 @@ static void type_conformant
 */
 
 static void type_ignore
-#ifdef PROTO
 (
     AST_type_n_t        *type_p         /* [in] Ptr to AST type node */
 )
-#else
-(type_p)
-    AST_type_n_t        *type_p;        /* [in] Ptr to AST type node */
-#endif
-
 {
     /* The [ignore] attribute is valid only for pointers */
 
     if (AST_IGNORE_SET(type_p)
         &&  type_p->kind != AST_pointer_k)
-        CHECKER_error(type_p, NIDL_IGNATTRPTR);
+        CHECKER_error_0(TO_ASTP_NODE(type_p), NIDL_IGNATTRPTR);
 }
 
 
@@ -5843,22 +5197,16 @@ static void type_ignore
 */
 
 static void type_switch_type
-#ifdef PROTO
 (
     AST_type_n_t        *type_p         /* [in] Ptr to AST type node */
 )
-#else
-(type_p)
-    AST_type_n_t        *type_p;        /* [in] Ptr to AST type node */
-#endif
-
 {
     /* A non-encapsulated union type must have a [switch_type] attribute */
 
     if (type_p->kind == AST_disc_union_k
         &&  type_p->type_structure.disc_union->discrim_name == NAMETABLE_NIL_ID
         &&  type_p->type_structure.disc_union->discrim_type == NULL)
-        CHECKER_error(type_p, NIDL_NEUSWTYPE);
+        CHECKER_error_0(TO_ASTP_NODE(type_p), NIDL_NEUSWTYPE);
 }
 
 
@@ -5869,17 +5217,10 @@ static void type_switch_type
 */
 
 static void type_transmit_as
-#ifdef PROTO
 (
     AST_type_n_t        *top_type_p,    /* [in] Top-level presented type */
     AST_type_n_t        *type_p         /* [in] Ptr to AST type node */
 )
-#else
-(top_type_p, type_p)
-    AST_type_n_t        *top_type_p;    /* [in] Top-level presented type */
-    AST_type_n_t        *type_p;        /* [in] Ptr to AST type node */
-#endif
-
 {
     if (top_type_p->xmit_as_type == NULL)   /* Presented type = transmit type */
         return;
@@ -5897,21 +5238,21 @@ static void type_transmit_as
     if (AST_CONFORMANT_SET(type_p)
         &&  !AST_STRING_SET(type_p)
         &&  type_is_array(type_p))
-        CHECKER_error(top_type_p, NIDL_XMITCFMTARR);
+        CHECKER_error_0(TO_ASTP_NODE(top_type_p), NIDL_XMITCFMTARR);
 
     /* Net [transmit_as] type can not be a conformant array */
 
     if (AST_CONFORMANT_SET(top_type_p->xmit_as_type)
         &&  !AST_STRING_SET(top_type_p->xmit_as_type)
         &&  type_is_array(top_type_p->xmit_as_type))
-        CHECKER_error(top_type_p, NIDL_XMITCFMTARR);
+        CHECKER_error_0(TO_ASTP_NODE(top_type_p), NIDL_XMITCFMTARR);
 
 
     /* Presented type can't be conformant */
 
     if (AST_CONFORMANT_SET(top_type_p)
         &&  top_type_p->kind == AST_structure_k)
-        CHECKER_error(top_type_p, NIDL_STRUCTXMITCFMT);
+        CHECKER_error_0(TO_ASTP_NODE(top_type_p), NIDL_STRUCTXMITCFMT);
 
     /* A translated transmissible type cannot contain pointers. */
 
@@ -5919,28 +5260,25 @@ static void type_transmit_as
     {
         ASTP_attr_flag_t attr = ASTP_REF;
 
-        CHECKER_error(type_p, NIDL_XMITPTR,
-            KEYWORDS_lookup_text(AST_attribute_to_token(&attr)));
+        CHECKER_error_1(TO_ASTP_NODE(type_p), NIDL_XMITPTR, KEYWORDS_lookup_text(AST_attribute_to_token(&attr)));
     }
     if (FE_TEST(type_p->fe_info->flags, FE_HAS_FULL_PTR))
     {
         ASTP_attr_flag_t attr = ASTP_PTR;
 
-        CHECKER_error(type_p, NIDL_XMITPTR,
-            KEYWORDS_lookup_text(AST_attribute_to_token(&attr)));
+        CHECKER_error_1(TO_ASTP_NODE(type_p), NIDL_XMITPTR, KEYWORDS_lookup_text(AST_attribute_to_token(&attr)));
     }
     if (FE_TEST(type_p->fe_info->flags, FE_HAS_UNIQUE_PTR))
     {
         ASTP_attr_flag_t attr = ASTP_UNIQUE;
 
-        CHECKER_error(type_p, NIDL_XMITPTR,
-            KEYWORDS_lookup_text(AST_attribute_to_token(&attr)));
+        CHECKER_error_1(TO_ASTP_NODE(type_p), NIDL_XMITPTR, KEYWORDS_lookup_text(AST_attribute_to_token(&attr)));
     }
 
     /* A type used in a transmit_as clause cannot have a represent_as type */
 
     if (type_p->rep_as_type != NULL)
-        CHECKER_error(type_p, NIDL_XMITASREP);
+        CHECKER_error_0(TO_ASTP_NODE(type_p), NIDL_XMITASREP);
 
     /* A type with [transmit_as] may not have other type attributes */
 
@@ -5952,19 +5290,19 @@ static void type_transmit_as
         ||  AST_SMALL_SET(top_type_p)
         ||  AST_CONTEXT_RD_SET(top_type_p)
         ||  AST_PTR_SET(top_type_p))
-        CHECKER_error(top_type_p, NIDL_XMITTYPEATTRS);
+        CHECKER_error_0(TO_ASTP_NODE(top_type_p), NIDL_XMITTYPEATTRS);
 
     /* A [transmit_as] type cannot be a non-encapsulated union */
 
     if (type_p->kind == AST_disc_union_k
         &&  type_p->type_structure.disc_union->discrim_name == NAMETABLE_NIL_ID)
-        CHECKER_error(top_type_p, NIDL_NEUXMITAS);
+        CHECKER_error_0(TO_ASTP_NODE(top_type_p), NIDL_NEUXMITAS);
 
     /* A non-encapsulated union cannot have a [transmit_as] type */
 
     if (top_type_p->kind == AST_disc_union_k
      && top_type_p->type_structure.disc_union->discrim_name == NAMETABLE_NIL_ID)
-        CHECKER_error(top_type_p, NIDL_NEUXMITYPE);
+        CHECKER_error_0(TO_ASTP_NODE(top_type_p), NIDL_NEUXMITYPE);
 }
 
 /*
@@ -5974,17 +5312,10 @@ static void type_transmit_as
 */
 
 static void type_represent_as
-#ifdef PROTO
 (
     AST_type_n_t        *type_p,        /* [in] Top-level presented type */
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(type_p, int_p)
-    AST_type_n_t        *type_p;        /* [in] Top-level presented type */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     if (type_p->rep_as_type == NULL)   /* Presented type = Net type */
         return;
@@ -5999,7 +5330,7 @@ static void type_represent_as
     /* Net type can not be conformant */
 
     if (AST_CONFORMANT_SET(type_p))
-        CHECKER_error(type_p, NIDL_TYPEREPCFMT);
+        CHECKER_error_0(TO_ASTP_NODE(type_p), NIDL_TYPEREPCFMT);
 
     /* A translated transmissible type cannot contain pointers. */
 
@@ -6007,21 +5338,21 @@ static void type_represent_as
     {
         ASTP_attr_flag_t attr = ASTP_REF;
 
-        CHECKER_error(type_p, NIDL_XMITPTR,
+        CHECKER_error_1(TO_ASTP_NODE(type_p), NIDL_XMITPTR,
             KEYWORDS_lookup_text(AST_attribute_to_token(&attr)));
     }
     if (FE_TEST(type_p->fe_info->flags, FE_HAS_FULL_PTR))
     {
         ASTP_attr_flag_t attr = ASTP_PTR;
 
-        CHECKER_error(type_p, NIDL_XMITPTR,
+        CHECKER_error_1(TO_ASTP_NODE(type_p), NIDL_XMITPTR,
             KEYWORDS_lookup_text(AST_attribute_to_token(&attr)));
     }
     if (FE_TEST(type_p->fe_info->flags, FE_HAS_UNIQUE_PTR))
     {
         ASTP_attr_flag_t attr = ASTP_UNIQUE;
 
-        CHECKER_error(type_p, NIDL_XMITPTR,
+        CHECKER_error_1(TO_ASTP_NODE(type_p), NIDL_XMITPTR,
             KEYWORDS_lookup_text(AST_attribute_to_token(&attr)));
     }
 
@@ -6034,7 +5365,7 @@ static void type_represent_as
         char const*id_name;
 
         NAMETABLE_id_to_string(type_p->rep_as_type->type_name, &id_name);
-        CHECKER_acf_warning(type_p, NIDL_INCLTYPE, id_name);
+        CHECKER_acf_warning(TO_ASTP_NODE(type_p), NIDL_INCLTYPE, id_name, nullptr, nullptr, nullptr, nullptr);
     }
 
     {
@@ -6047,14 +5378,14 @@ static void type_represent_as
         &&  rep_type_p->kind == AST_disc_union_k
         &&  rep_type_p->type_structure.disc_union->discrim_name
             == NAMETABLE_NIL_ID)
-        CHECKER_acf_error(type_p, NIDL_NEUREPAS);
+        CHECKER_acf_error(TO_ASTP_NODE(type_p), NIDL_NEUREPAS, nullptr, nullptr, nullptr, nullptr, nullptr);
     }
 
     /* A non-encapsulated union cannot have a [represent_as] type */
 
     if (type_p->kind == AST_disc_union_k
         &&  type_p->type_structure.disc_union->discrim_name == NAMETABLE_NIL_ID)
-        CHECKER_acf_error(type_p, NIDL_NEUREPTYPE);
+        CHECKER_acf_error(TO_ASTP_NODE(type_p), NIDL_NEUREPTYPE, nullptr, nullptr, nullptr, nullptr, nullptr);
 }
 
 
@@ -6065,19 +5396,11 @@ static void type_represent_as
 */
 
 static void type_check
-#ifdef PROTO
 (
     AST_type_n_t        *type_p,        /* [in] Ptr to AST type node */
     ASTP_node_t         *node_p,        /* [in] Parent node of type node */
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(type_p, node_p, int_p)
-    AST_type_n_t        *type_p;        /* [in] Ptr to AST type node */
-    ASTP_node_t         *node_p;        /* [in] Parent node of type node */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     AST_type_n_t        *xmit_type_p;   /* Transmissible type */
 	char const * id_name;
@@ -6107,7 +5430,7 @@ static void type_check
 
     if (FE_TEST(type_p->fe_info->flags, FE_HAS_V1_ATTR)
         &&  FE_TEST(type_p->fe_info->flags, FE_HAS_V2_ATTR))
-        CHECKER_warning(type_p, NIDL_INCOMPATV1);
+        CHECKER_warning_0(TO_ASTP_NODE(type_p), NIDL_INCOMPATV1);
 
     switch (type_p->kind)
     {
@@ -6156,7 +5479,7 @@ static void type_check
     case AST_function_k:
         /* Function type declaration is not allowed */
         if (!AST_LOCAL_SET(int_p))
-            CHECKER_error(type_p, NIDL_FUNTYPDCL);
+            CHECKER_error_0(TO_ASTP_NODE(type_p), NIDL_FUNTYPDCL);
         break;
 
     case AST_disc_union_k:
@@ -6166,11 +5489,11 @@ static void type_check
 	case AST_interface_k:
 		  /* Interface type declaration is not allowed */
 		  NAMETABLE_id_to_string(type_p->name, &id_name);
-		  CHECKER_error(type_p, NIDL_INTREFNOTALO, id_name);
+		  CHECKER_error_1(TO_ASTP_NODE(type_p), NIDL_INTREFNOTALO, id_name);
 		  break;
-		  
+
     default:
-        error(NIDL_INTERNAL_ERROR, __FILE__, __LINE__);
+        error_zi(NIDL_INTERNAL_ERROR, __FILE__, __LINE__);
     }
 }
 
@@ -6181,15 +5504,9 @@ static void type_check
 */
 
 static void constant_check
-#ifdef PROTO
 (
     AST_constant_n_t    *const_p __attribute__((__unused__))       /* [in] Ptr to AST constant node */
 )
-#else
-(const_p)
-    AST_constant_n_t    *const_p;       /* [in] Ptr to AST constant node */
-#endif
-
 {
 }
 
@@ -6200,19 +5517,11 @@ static void constant_check
 */
 
 static void export_check
-#ifdef PROTO
 (
     AST_export_n_t      *export_p,      /* [in] Ptr to AST export node */
     AST_interface_n_t   *int_p,         /* [in] Ptr to interface node */
     AST_interface_n_t   *parent_int_p   /* [in] Parent interface node */
 )
-#else
-(export_p, int_p, parent_int_p)
-    AST_export_n_t      *export_p;      /* [in] Ptr to AST export node */
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-    AST_interface_n_t   *parent_int_p;  /* [in] Parent interface node */
-#endif
-
 {
     switch (export_p->kind)
     {
@@ -6231,7 +5540,7 @@ static void export_check
         break;
 
     default:
-        error(NIDL_INTERNAL_ERROR, __FILE__, __LINE__);
+        error_zi(NIDL_INTERNAL_ERROR, __FILE__, __LINE__);
     }
 }
 
@@ -6257,7 +5566,7 @@ static void int_name_len
 
     max_len = MAX_ID - strlen("_v#_#_c_ifspec");    /* Could do better here */
     if (strlen(int_name) > max_len)
-        CHECKER_error(int_p, NIDL_MAXIDINTF, max_len);
+        CHECKER_error_1(TO_ASTP_NODE(int_p), NIDL_MAXIDINTF, TO_CHARZ_PTR(max_len));
 }
 
 
@@ -6268,21 +5577,15 @@ static void int_name_len
 */
 
 static void int_in_line
-#ifdef PROTO
 (
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(int_p)
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     /* Can't have both [in_line] and [out_of_line] interface attributes */
 
     if (AST_IN_LINE_SET(int_p)
         &&  AST_OUT_OF_LINE_SET(int_p))
-        CHECKER_acf_error(int_p, NIDL_INTLINEATTR);
+        CHECKER_acf_error(TO_ASTP_NODE(int_p), NIDL_INTLINEATTR, nullptr, nullptr, nullptr, nullptr, nullptr);
 }
 
 
@@ -6293,23 +5596,16 @@ static void int_in_line
 */
 
 static void int_code
-#ifdef PROTO
 (
     AST_interface_n_t   *int_p,         /* [in] Ptr to interface node */
     AST_interface_n_t   *parent_int_p   /* [in] Parent interface node */
 )
-#else
-(int_p, parent_int_p)
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-    AST_interface_n_t   *parent_int_p;  /* [in] Parent interface node */
-#endif
-
 {
     /* Can't have both [code] and [nocode] interface attributes */
 
     if (AST_CODE_SET(int_p)
         &&  AST_NO_CODE_SET(int_p))
-        CHECKER_acf_error(int_p, NIDL_INTCODEATTR);
+        CHECKER_acf_error(TO_ASTP_NODE(int_p), NIDL_INTCODEATTR, nullptr, nullptr, nullptr, nullptr, nullptr);
 
     /* [nocode] attribute does not apply to server stub */
 
@@ -6317,7 +5613,7 @@ static void int_code
         &&  AST_NO_CODE_SET(int_p)
         &&  cmd_opt[opt_emit_sstub]
         &&  !cmd_opt[opt_emit_cstub])
-        CHECKER_acf_warning(int_p, NIDL_SRVNOCODE);
+        CHECKER_acf_warning(TO_ASTP_NODE(int_p), NIDL_SRVNOCODE, nullptr, nullptr, nullptr, nullptr, nullptr);
 
     /* At least one operation should have the [code] attribute */
 
@@ -6337,7 +5633,7 @@ static void int_code
             }
         }
         if (!code_op)
-            CHECKER_acf_warning(int_p, NIDL_NOCODEOPS);
+            CHECKER_acf_warning(TO_ASTP_NODE(int_p), NIDL_NOCODEOPS, nullptr, nullptr, nullptr, nullptr, nullptr);
     }
 }
 
@@ -6349,21 +5645,15 @@ static void int_code
 */
 
 static void int_handle
-#ifdef PROTO
 (
     AST_interface_n_t   *int_p          /* [in] Ptr to interface node */
 )
-#else
-(int_p)
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-#endif
-
 {
     /* Can't have both [auto_handle] and [implicit_handle] interface attrs */
 
     if (int_p->implicit_handle_name != NAMETABLE_NIL_ID
         &&  AST_AUTO_HANDLE_SET(int_p))
-        CHECKER_acf_error(int_p, NIDL_CONFHANATTR);
+        CHECKER_acf_error(TO_ASTP_NODE(int_p), NIDL_CONFHANATTR, nullptr, nullptr, nullptr, nullptr, nullptr);
 
     /*
      * [implicit_handle] variable must either be of type handle_t
@@ -6372,7 +5662,7 @@ static void int_handle
     if (int_p->implicit_handle_name != NAMETABLE_NIL_ID
         &&  int_p->implicit_handle_type != NULL /* is an IDL-defined type */
         &&  !type_is_handle(int_p->implicit_handle_type))
-        CHECKER_acf_error(int_p, NIDL_IMPHANVAR);
+        CHECKER_acf_error(TO_ASTP_NODE(int_p), NIDL_IMPHANVAR, nullptr, nullptr, nullptr, nullptr, nullptr);
 }
 
 
@@ -6383,17 +5673,10 @@ static void int_handle
 */
 
 static void int_local
-#ifdef PROTO
 (
     AST_interface_n_t   *int_p,         /* [in] Ptr to interface node */
     AST_interface_n_t   *parent_int_p   /* [in] Parent interface node */
 )
-#else
-(int_p, parent_int_p)
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-    AST_interface_n_t   *parent_int_p;  /* [in] Parent interface node */
-#endif
-
 {
     boolean             uuid_null;
 
@@ -6403,7 +5686,7 @@ static void int_local
 
     if (AST_LOCAL_SET(int_p)
         &&  !uuid_null && !AST_OBJECT_SET(int_p))
-        CHECKER_error(int_p, NIDL_UUIDINV);
+        CHECKER_error_0(TO_ASTP_NODE(int_p), NIDL_UUIDINV);
 
     /*
      * If this is a non-local interface being imported by a local interface,
@@ -6420,14 +5703,14 @@ static void int_local
         &&  uuid_null
         &&  parent_int_p == NULL    /* main interface */
         &&  int_p->op_count != 0)
-        CHECKER_error(int_p, NIDL_INTUUIDREQ);
+        CHECKER_error_0(TO_ASTP_NODE(int_p), NIDL_INTUUIDREQ);
 
     /* A non-local interface cannot import a local interface */
 
     if (parent_int_p != NULL
         &&  !AST_LOCAL_SET(parent_int_p)
         &&  AST_LOCAL_SET(int_p))
-        CHECKER_error(int_p, NIDL_IMPORTLOCAL);
+        CHECKER_error_0(TO_ASTP_NODE(int_p), NIDL_IMPORTLOCAL);
 }
 
 
@@ -6441,7 +5724,7 @@ static void int_inherit(AST_interface_n_t * int_p)
 		/* WEZ:TODO only valid for ORPC */
 		if (!NAMETABLE_lookup_local(int_p->inherited_interface_name))	{
 			NAMETABLE_id_to_string(int_p->inherited_interface_name, &id_name);
-			//CHECKER_error(int_p, NIDL_INHERITNOTDEF, id_name);
+			//CHECKER_error_0(int_p, NIDL_INHERITNOTDEF, id_name);
 		}
 	}
 }
@@ -6453,17 +5736,10 @@ static void int_inherit(AST_interface_n_t * int_p)
 */
 
 static void interface_check
-#ifdef PROTO
 (
     AST_interface_n_t   *int_p,         /* [in] Ptr to interface node */
     AST_interface_n_t   *parent_int_p   /* [in] Parent interface node */
 )
-#else
-(int_p, parent_int_p)
-    AST_interface_n_t   *int_p;         /* [in] Ptr to interface node */
-    AST_interface_n_t   *parent_int_p;  /* [in] Parent interface node */
-#endif
-
 {
     AST_export_n_t      *export_p;      /* Ptr to export node */
     AST_import_n_t      *import_p;      /* Ptr to import node */
@@ -6512,20 +5788,19 @@ static void interface_check
 
             if (type_p->kind == AST_enum_k
                 &&  AST_V1_ENUM_SET(type_p))
-                CHECKER_error(type_p, NIDL_PTRV1ENUM);
+                CHECKER_error_0(TO_ASTP_NODE(type_p), NIDL_PTRV1ENUM);
         }
 
         /* Use of [exceptions] attribute requires -standard extended */
         if (int_p->exceptions != NULL
             && (*(int *)cmd_val[opt_standard] < opt_standard_dce_1_1))
-            CHECKER_warning(int_p, NIDL_NOPORTATTR,
-                            "exceptions", OPT_STD_EXTENDED);
+            CHECKER_warning_2(TO_ASTP_NODE(int_p), NIDL_NOPORTATTR, "exceptions", OPT_STD_EXTENDED);
     }
 	if (AST_OBJECT_SET(int_p) && ASTP_IF_AF_SET(int_p, ASTP_IF_VERSION))	{
-		CHECKER_warning(int_p, NIDL_CONFLICTATTR, "version", "object");
+		CHECKER_warning_2(TO_ASTP_NODE(int_p), NIDL_CONFLICTATTR, "version", "object");
 	}
 	if (!AST_OBJECT_SET(int_p) && int_p->inherited_interface_name != NAMETABLE_NIL_ID)	{
-		CHECKER_warning(int_p, NIDL_ANCREQSOBJ);
+		CHECKER_warning_0(TO_ASTP_NODE(int_p), NIDL_ANCREQSOBJ);
 	}
 
 }
@@ -6539,19 +5814,11 @@ static void interface_check
 */
 
 boolean CHECKER_main            /* Returns TRUE on success */
-#ifdef PROTO
 (
     boolean     *cmd_opt_arr,   /* [in] Array of command option flags */
     void        **cmd_val_arr,  /* [in] Array of command option values */
     AST_interface_n_t *int_p    /* [in] Ptr to AST interface node */
 )
-#else
-(cmd_opt_arr, cmd_val_arr, int_p)
-    boolean     *cmd_opt_arr;   /* [in] Array of command option flags */
-    void        **cmd_val_arr;  /* [in] Array of command option values */
-    AST_interface_n_t *int_p;   /* [in] Ptr to AST interface node */
-#endif
-
 {
     /* Save passed command array addresses in static storage. */
     cmd_opt = cmd_opt_arr;
@@ -6589,22 +5856,78 @@ boolean CHECKER_main            /* Returns TRUE on success */
 **          a la printf.
 */
 
-/* FIXME TODO change param list to va_list */
-void CHECKER_error
-(node_p, msgid, arg1, arg2, arg3, arg4, arg5)
-    ASTP_node_t         *node_p;        /* [in] Ptr to an AST node */
-    long                msgid;          /* [in] Message ID */
-    char                *arg1;          /* [in] 0 to 5 message arguments */
-    char                *arg2;
-    char                *arg3;
-    char                *arg4;
-    char                *arg5;
+void CHECKER_error_0
+(ASTP_node_t *node_p, /* [in] Ptr to an AST node */
+ long         msgid  /* [in] Message ID */
+)
+{
+    log_source_error(node_p->fe_info->file,
+                     node_p->fe_info->source_line,
+                     msgid, NULL, NULL, NULL, NULL, NULL);
+}
+
+void CHECKER_error_1
+(ASTP_node_t *node_p, /* [in] Ptr to an AST node */
+ long         msgid,  /* [in] Message ID */
+ char const  *arg1    /* [in] 1 message arguments */
+)
+{
+    log_source_error(node_p->fe_info->file,
+                     node_p->fe_info->source_line,
+                     msgid, arg1, NULL, NULL, NULL, NULL);
+}
+void CHECKER_error_2
+(ASTP_node_t *node_p, /* [in] Ptr to an AST node */
+ long         msgid,  /* [in] Message ID */
+ char const  *arg1,   /* [in] 1 message arguments */
+ char const  *arg2    /* [in] 2 message arguments */
+)
+{
+    log_source_error(node_p->fe_info->file,
+                     node_p->fe_info->source_line,
+                     msgid, arg1, arg2, NULL, NULL, NULL);
+}
+void CHECKER_error_3
+(ASTP_node_t *node_p, /* [in] Ptr to an AST node */
+ long         msgid,  /* [in] Message ID */
+ char const  *arg1,   /* [in] 1 message arguments */
+ char const  *arg2,   /* [in] 2 message arguments */
+ char const  *arg3    /* [in] 3 message arguments */
+)
+{
+    log_source_error(node_p->fe_info->file,
+                     node_p->fe_info->source_line,
+                     msgid, arg1, arg2, arg3, NULL, NULL);
+}
+
+void CHECKER_error_4
+(ASTP_node_t *node_p, /* [in] Ptr to an AST node */
+ long         msgid,  /* [in] Message ID */
+ char const  *arg1,   /* [in] 1 message arguments */
+ char const  *arg2,   /* [in] 2 message arguments */
+ char const  *arg3,   /* [in] 3 message arguments */
+ char const  *arg4    /* [in] 4 message arguments */
+)
+{
+    log_source_error(node_p->fe_info->file,
+                     node_p->fe_info->source_line,
+                     msgid, arg1, arg2, arg3, arg4, NULL);
+}
+
+void CHECKER_error_5
+(ASTP_node_t *node_p, /* [in] Ptr to an AST node */
+ long         msgid,  /* [in] Message ID */
+ char const  *arg1,   /* [in] 1 message arguments */
+ char const  *arg2,   /* [in] 2 message arguments */
+ char const  *arg3,   /* [in] 3 message arguments */
+ char const  *arg4,   /* [in] 4 message arguments */
+ char const  *arg5    /* [in] 5 message arguments */
+)
 {
     log_source_error(node_p->fe_info->file,
                      node_p->fe_info->source_line,
                      msgid, arg1, arg2, arg3, arg4, arg5);
 }
-
 
 /*
 **  C H E C K E R _ w a r n i n g
@@ -6620,21 +5943,93 @@ void CHECKER_error
 **          a la printf.
 */
 
-/* FIXME TODO change param list to va_list */
-void CHECKER_warning
-(node_p, msgid, arg1, arg2, arg3, arg4, arg5)
-    ASTP_node_t         *node_p;        /* [in] Ptr to an AST node */
-    long                msgid;          /* [in] Message ID */
-    char                *arg1;          /* [in] 0 to 5 message arguments */
-    char                *arg2;
-    char                *arg3;
-    char                *arg4;
-    char                *arg5;
+void CHECKER_warning_0
+(ASTP_node_t *node_p, /* [in] Ptr to an AST node */
+ long         msgid  /* [in] Message ID */
+)
+{
+    log_source_warning(node_p->fe_info->file,
+                       node_p->fe_info->source_line,
+                       msgid, NULL, NULL, NULL, NULL, NULL);
+}
+
+void CHECKER_warning_1
+(ASTP_node_t *node_p, /* [in] Ptr to an AST node */
+ long         msgid,  /* [in] Message ID */
+ char const  *arg1    /* [in] 1 message arguments */
+)
+{
+    log_source_warning(node_p->fe_info->file,
+                       node_p->fe_info->source_line,
+                       msgid, arg1, NULL, NULL, NULL, NULL);
+}
+void CHECKER_warning_2
+(ASTP_node_t *node_p, /* [in] Ptr to an AST node */
+ long         msgid,  /* [in] Message ID */
+ char const  *arg1,   /* [in] 1 message arguments */
+ char const  *arg2    /* [in] 2 message arguments */
+)
+{
+    log_source_warning(node_p->fe_info->file,
+                       node_p->fe_info->source_line,
+                       msgid, arg1, arg2, NULL, NULL, NULL);
+}
+void CHECKER_warning_3
+(ASTP_node_t *node_p, /* [in] Ptr to an AST node */
+ long         msgid,  /* [in] Message ID */
+ char const  *arg1,   /* [in] 1 message arguments */
+ char const  *arg2,   /* [in] 2 message arguments */
+ char const  *arg3    /* [in] 3 message arguments */
+)
+{
+    log_source_warning(node_p->fe_info->file,
+                       node_p->fe_info->source_line,
+                       msgid, arg1, arg2, arg3, NULL, NULL);
+}
+
+void CHECKER_warning_4
+(ASTP_node_t *node_p, /* [in] Ptr to an AST node */
+ long         msgid,  /* [in] Message ID */
+ char const  *arg1,   /* [in] 1 message arguments */
+ char const  *arg2,   /* [in] 2 message arguments */
+ char const  *arg3,   /* [in] 3 message arguments */
+ char const  *arg4    /* [in] 4 message arguments */
+)
+{
+    log_source_warning(node_p->fe_info->file,
+                       node_p->fe_info->source_line,
+                       msgid, arg1, arg2, arg3, arg4, NULL);
+}
+
+void CHECKER_warning_5
+(ASTP_node_t *node_p, /* [in] Ptr to an AST node */
+ long         msgid,  /* [in] Message ID */
+ char const  *arg1,   /* [in] 1 message arguments */
+ char const  *arg2,   /* [in] 2 message arguments */
+ char const  *arg3,   /* [in] 3 message arguments */
+ char const  *arg4,   /* [in] 4 message arguments */
+ char const  *arg5    /* [in] 5 message arguments */
+)
 {
     log_source_warning(node_p->fe_info->file,
                        node_p->fe_info->source_line,
                        msgid, arg1, arg2, arg3, arg4, arg5);
 }
+/* FIXME TODO change param list to va_list */
+//void CHECKER_warning
+//(node_p, msgid, arg1, arg2, arg3, arg4, arg5)
+//    ASTP_node_t         *node_p;        /* [in] Ptr to an AST node */
+//    long                msgid;          /* [in] Message ID */
+//    char                *arg1;          /* [in] 0 to 5 message arguments */
+//    char                *arg2;
+//    char                *arg3;
+//    char                *arg4;
+//    char                *arg5;
+//{
+//    log_source_warning(node_p->fe_info->file,
+//                       node_p->fe_info->source_line,
+//                       msgid, arg1, arg2, arg3, arg4, arg5);
+//}
 
 /*
 **  C H E C K E R _ a c f _ e r r o r
@@ -6650,16 +6045,15 @@ void CHECKER_warning
 **          a la printf.
 */
 
-/* FIXME TODO change param list to va_list */
 void CHECKER_acf_error
-(node_p, msgid, arg1, arg2, arg3, arg4, arg5)
-    ASTP_node_t         *node_p;        /* [in] Ptr to an AST node */
-    long                msgid;          /* [in] Message ID */
-    char                *arg1;          /* [in] 0 to 5 message arguments */
-    char                *arg2;
-    char                *arg3;
-    char                *arg4;
-    char                *arg5;
+(ASTP_node_t *node_p /* [in] Ptr to an AST node */,
+ long         msgid  /* [in] Message ID */,
+ char const  *arg1,  /* [in] 1 message arguments */
+ char const  *arg2,  /* [in] 2 message arguments */
+ char const  *arg3,  /* [in] 3 message arguments */
+ char const  *arg4,  /* [in] 4 message arguments */
+ char const  *arg5   /* [in] 5 message arguments */
+)
 {
     if (node_p->fe_info->acf_file != (STRTAB_str_t)0)
         log_source_error(node_p->fe_info->acf_file,
@@ -6688,14 +6082,14 @@ void CHECKER_acf_error
 
 /* FIXME TODO change param list to va_list */
 void CHECKER_acf_warning
-(node_p, msgid, arg1, arg2, arg3, arg4, arg5)
-    ASTP_node_t         *node_p;        /* [in] Ptr to an AST node */
-    long                msgid;          /* [in] Message ID */
-    char                *arg1;          /* [in] 0 to 5 message arguments */
-    char                *arg2;
-    char                *arg3;
-    char                *arg4;
-    char                *arg5;
+(ASTP_node_t *node_p /* [in] Ptr to an AST node */,
+ long         msgid  /* [in] Message ID */,
+ char const  *arg1,  /* [in] 1 message arguments */
+ char const  *arg2,  /* [in] 2 message arguments */
+ char const  *arg3,  /* [in] 3 message arguments */
+ char const  *arg4,  /* [in] 4 message arguments */
+ char const  *arg5   /* [in] 5 message arguments */
+)
 {
     if (node_p->fe_info->acf_file != (STRTAB_str_t)0)
         log_source_warning(node_p->fe_info->acf_file,
@@ -6716,14 +6110,9 @@ void CHECKER_acf_warning
 */
 
 boolean type_is_base
-#ifdef PROTO
 (
     AST_type_n_t *type_p    /* [in] Ptr to AST type node */
 )
-#else
-(type_p)
-    AST_type_n_t *type_p;    /* [in] Ptr to AST type node */
-#endif
 {
     return      ((type_p) == ASTP_char_ptr
         ||  (type_p) == ASTP_boolean_ptr

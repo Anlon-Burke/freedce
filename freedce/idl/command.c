@@ -1,3 +1,4 @@
+// vim: ts=4 sw=4:
 /*
  * 
  * (c) Copyright 1989 OPEN SOFTWARE FOUNDATION, INC.
@@ -1018,7 +1019,7 @@ boolean CMD_parse_args          /* Returns TRUE on success */
         if (!FILE_parse(src_filespec, (char *)NULL, src_filename, (char *)NULL))
         {
             /* Not a valid filespec so probably a bogus option. */
-            error(NIDL_UNKFLAG, src_filespec);
+            error_z(NIDL_UNKFLAG, src_filespec);
             return FALSE;
         }
 #ifdef VMS
@@ -1098,10 +1099,10 @@ boolean CMD_parse_args          /* Returns TRUE on success */
     {
 #ifndef vms
         if (!FILE_kind(out_dir, &out_dir_kind))
-            error(NIDL_FILENOTFND, out_dir);
+            error_z(NIDL_FILENOTFND, out_dir);
 
         if (out_dir_kind != file_dir)
-            error(NIDL_FILENOTDIR, out_dir);
+            error_z(NIDL_FILENOTDIR, out_dir);
 #else
         /* Parse out dir so any logical gets translated and for error check */
         char odir[PATH_MAX];

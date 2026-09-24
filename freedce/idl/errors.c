@@ -1,3 +1,4 @@
+// vim: ts=4 sw=4 :
 /*
  *
  * (c) Copyright 1989 OPEN SOFTWARE FOUNDATION, INC.
@@ -223,14 +224,12 @@ void yyerror
  *
  */
 
-void nidl_yyerror(m)
- char * m;
+void nidl_yyerror(char *m)
 {
   yyerror(m);
 }
 
-void acf_yyerror(m)
- char * m;
+void acf_yyerror(char *m)
 {
   yyerror(m);
 }
@@ -642,8 +641,11 @@ void seek_for_line
 
     lines_to_skip = lineno - last_error_line;
 
+#pragma GCC diagnostic push
     for (i=0; i<lines_to_skip; i++)
+#pragma GCC diagnostic ignored "-Wunused-result"
         (void) fgets(source_line, MAX_LINE_LEN, source_file);
+#pragma GCC diagnostic pop
 
     /* Strip off newline. */
     i = strlen(source_line) - 1;
@@ -826,14 +828,40 @@ boolean print_errors
  *
  */
 
-void error
+void error0
+(
+    long msg_id
+)
+{
+    if (current_file)
+        message_print(NIDL_LINEFILE, current_file, *yylineno_p);
+    message_print(msg_id, nullptr, nullptr, nullptr, nullptr, nullptr);
+
+#ifndef HASPOPEN
+    sysdep_cleanup_temp();
+#endif
+
+    nidl_terminate();
+}
+
+void error_z(long msgid, char const *zc)
+{
+    message_print(msgid, zc, nullptr, nullptr, nullptr, nullptr);
+}
+
+void error_zi(long msgid, char const *zc, int v)
+{
+    message_print(msgid, zc, v, nullptr, nullptr, nullptr);
+}
+
+void error5
 (
     long msg_id,
-    char *arg1,
-    char *arg2,
-    char *arg3,
-    char *arg4,
-    char *arg5
+    char const *arg1,
+    char const *arg2,
+    char const *arg3,
+    char const *arg4,
+    char const *arg5
 )
 {
     if (current_file)
@@ -846,6 +874,7 @@ void error
 
     nidl_terminate();
 }
+
 
 /*
  *  e r r o r _ l i s t
@@ -905,14 +934,14 @@ void error_list
  *
  */
 
-void warning
+void warning5
 (
     long msg_id,
-    char *arg1,
-    char *arg2,
-    char *arg3,
-    char *arg4,
-    char *arg5
+    char const *arg1,
+    char const *arg2,
+    char const *arg3,
+    char const *arg4,
+    char const *arg5
 )
 {
     /* Return if warnings are suppressed. */

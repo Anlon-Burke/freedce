@@ -1,3 +1,4 @@
+// vim: ts=4 sw=4:
 /*
  * 
  * (c) Copyright 1989 OPEN SOFTWARE FOUNDATION, INC.
@@ -860,7 +861,7 @@ void NAMETABLE_push_level (void)
     if (currentLevel < MAX_LEVELS)
         levelStack[++currentLevel] = NULL;
     else
-        error(NIDL_SCOPELVLS);
+        error0(NIDL_SCOPELVLS);
 }
 
 /*--------------------------------------------------------------------*/

@@ -1,3 +1,4 @@
+// vim: ts=4 sw=4:
 /*
  *
  * (c) Copyright 1993 OPEN SOFTWARE FOUNDATION, INC.
@@ -3679,7 +3680,7 @@ static void export_prop
         break;
 
     default:
-        error(NIDL_INTERNAL_ERROR, __FILE__, __LINE__);
+        error_zi(NIDL_INTERNAL_ERROR, __FILE__, __LINE__);
     }
 }
 
@@ -3809,7 +3810,7 @@ static AST_type_p_n_t *PROP_remove_type_p
         /* Find the node */
         for (cp = *list_root; ((cp != NULL) && (cp != type_p)); cp = cp->next) pp = cp;
         /* If we didn't find the previous, error */
-        if ((cp != type_p) || (pp == NULL)) error(NIDL_INTERNAL_ERROR, __FILE__, __LINE__);
+        if ((cp != type_p) || (pp == NULL)) error_zi(NIDL_INTERNAL_ERROR, __FILE__, __LINE__);
         /* Call ourself to remove the node */
         return PROP_remove_type_p(list_root,type_p,pp);
     }

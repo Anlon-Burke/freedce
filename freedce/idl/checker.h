@@ -1,5 +1,6 @@
+// vim: ts=4 sw=4:
 /*
- * 
+ *
  * (c) Copyright 1989 OPEN SOFTWARE FOUNDATION, INC.
  * (c) Copyright 1989 HEWLETT-PACKARD COMPANY
  * (c) Copyright 1989 DIGITAL EQUIPMENT CORPORATION
@@ -16,7 +17,7 @@
  * Packard Company, nor Digital Equipment Corporation makes any
  * representations about the suitability of this software for any
  * purpose.
- * 
+ *
  */
 /*
 **
@@ -40,6 +41,7 @@
 #define CHECKERH_INCL
 
 #include <ast.h>                /* Abstract Syntax Tree defs */
+#include "astp.h"
 
 
 /*
@@ -232,9 +234,7 @@
 */
 
 extern boolean CHK_struct_is_all_byte_fields(
-#ifdef PROTO
     AST_structure_n_t   *struct_p       /* [in] Ptr to AST structure node */
-#endif
 );
 
 
@@ -280,10 +280,8 @@ CHK_follow_ref_arr_siz, /* Follow [ref] but not [unique] or [ptr] pointers   */
 } CHK_follow_t;
 
 extern AST_type_n_t * param_follow_ref_ptr( /* Returns ptr to type node */
-#ifdef PROTO
     AST_parameter_n_t   *param_p,       /* [in] Ptr to AST parameter node */
     CHK_follow_t        mode            /* [in] Follow mode (see above) */
-#endif
 );
 
 
@@ -294,9 +292,7 @@ extern AST_type_n_t * param_follow_ref_ptr( /* Returns ptr to type node */
 */
 
 extern boolean type_is_base(
-#ifdef PROTO
     AST_type_n_t *type_p    /* [in] Ptr to AST type node */
-#endif
 );
 
 
@@ -309,16 +305,99 @@ extern boolean type_is_base(
 */
 
 extern boolean CHECKER_main(    /* Returns true on success */
-#ifdef PROTO
     boolean     *cmd_opt_arr,   /* [in] Array of command option flags */
     void        **cmd_val_arr,  /* [in] Array of command option values */
     AST_interface_n_t *int_p    /* [in] Ptr to AST interface node */
-#endif
 );
 
-extern void CHECKER_error();    /* Intentionally not function prototyped */
-extern void CHECKER_warning();  /* See below */
-extern void CHECKER_acf_error();
-extern void CHECKER_acf_warning();
+#define CHECKER_error(...) _Pragma("GCC error \"use specialized CHECKER err instead\"")
+#define CHECKER_warning(...) _Pragma("GCC error \"use specialized CHECKER wrn instead\"")
+//extern void CHECKER_error();    /* Intentionally not function prototyped */
+//extern void CHECKER_warning();  /* See below */
+extern void CHECKER_acf_error
+(ASTP_node_t *node_p /* [in] Ptr to an AST node */,
+ long         msgid  /* [in] Message ID */,
+ char const  *arg1,  /* [in] 1 message arguments */
+ char const  *arg2,  /* [in] 2 message arguments */
+ char const  *arg3,  /* [in] 3 message arguments */
+ char const  *arg4,  /* [in] 4 message arguments */
+ char const  *arg5   /* [in] 5 message arguments */
+);
+extern void CHECKER_acf_warning
+(ASTP_node_t *node_p /* [in] Ptr to an AST node */,
+ long         msgid, /* [in] Message ID */
+ char const  *arg1,  /* [in] 1 message argument */
+ char const  *arg2,  /* [in] 2 message argument */
+ char const  *arg3,  /* [in] 3 message argument */
+ char const  *arg4,  /* [in] 4 message argument */
+ char const  *arg5   /* [in] 5 message argument */
+);
+
+extern void CHECKER_warning_0(ASTP_node_t *node_p, /* [in] Ptr to an AST node */
+                              long         msgid   /* [in] Message ID */
+);
+extern void CHECKER_warning_1(ASTP_node_t *node_p, /* [in] Ptr to an AST node */
+                              long         msgid,  /* [in] Message ID */
+                              char const  *arg1    /* [in] 1 message arguments */
+);
+extern void CHECKER_warning_2(ASTP_node_t *node_p, /* [in] Ptr to an AST node */
+                              long         msgid,  /* [in] Message ID */
+                              char const  *arg1,   /* [in] 1 message arguments */
+                              char const  *arg2    /* [in] 2 message arguments */
+);
+extern void CHECKER_warning_3(ASTP_node_t *node_p, /* [in] Ptr to an AST node */
+                              long         msgid,  /* [in] Message ID */
+                              char const  *arg1,   /* [in] 1 message arguments */
+                              char const  *arg2,   /* [in] 2 message arguments */
+                              char const  *arg3    /* [in] 3 message arguments */
+);
+extern void CHECKER_warning_4(ASTP_node_t *node_p, /* [in] Ptr to an AST node */
+                              long         msgid,  /* [in] Message ID */
+                              char const  *arg1,   /* [in] 1 message arguments */
+                              char const  *arg2,   /* [in] 2 message arguments */
+                              char const  *arg3,   /* [in] 3 message arguments */
+                              char const  *arg4    /* [in] 4 message arguments */
+);
+extern void CHECKER_warning_5(ASTP_node_t *node_p, /* [in] Ptr to an AST node */
+                              long         msgid,  /* [in] Message ID */
+                              char const  *arg1,   /* [in] 1 message arguments */
+                              char const  *arg2,   /* [in] 2 message arguments */
+                              char const  *arg3,   /* [in] 3 message arguments */
+                              char const  *arg4,   /* [in] 4 message arguments */
+                              char const  *arg5    /* [in] 5 message arguments */
+);
+extern void CHECKER_error_0(ASTP_node_t *node_p, /* [in] Ptr to an AST node */
+                            long         msgid   /* [in] Message ID */
+);
+extern void CHECKER_error_1(ASTP_node_t *node_p, /* [in] Ptr to an AST node */
+                            long         msgid,  /* [in] Message ID */
+                            char const  *arg1    /* [in] 1 message arguments */
+);
+extern void CHECKER_error_2(ASTP_node_t *node_p, /* [in] Ptr to an AST node */
+                            long         msgid,  /* [in] Message ID */
+                            char const  *arg1,   /* [in] 1 message arguments */
+                            char const  *arg2    /* [in] 2 message arguments */
+);
+extern void CHECKER_error_3(ASTP_node_t *node_p, /* [in] Ptr to an AST node */
+                            long         msgid,  /* [in] Message ID */
+                            char const  *arg1,   /* [in] 1 message arguments */
+                            char const  *arg2,   /* [in] 2 message arguments */
+                            char const  *arg3    /* [in] 3 message arguments */
+);
+extern void CHECKER_error_4(ASTP_node_t *node_p, /* [in] Ptr to an AST node */
+                            long         msgid,  /* [in] Message ID */
+                            char const  *arg1,   /* [in] 1 message arguments */
+                            char const  *arg2,   /* [in] 2 message arguments */
+                            char const  *arg3,   /* [in] 3 message arguments */
+                            char const  *arg4    /* [in] 4 message arguments */
+);
+extern void CHECKER_error_5(ASTP_node_t *node_p, /* [in] Ptr to an AST node */
+                            long         msgid,  /* [in] Message ID */
+                            char const  *arg1,   /* [in] 1 message arguments */
+                            char const  *arg2,   /* [in] 2 message arguments */
+                            char const  *arg3,   /* [in] 3 message arguments */
+                            char const  *arg4,   /* [in] 4 message arguments */
+                            char const  *arg5    /* [in] 5 message arguments */
+);
 
 #endif

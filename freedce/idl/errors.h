@@ -1,3 +1,4 @@
+// vim: ts=4 sw=4 :
 /*
  *
  * (c) Copyright 1989 OPEN SOFTWARE FOUNDATION, INC.
@@ -39,6 +40,11 @@
 #ifndef ERRORS_H
 #define ERRORS_H
 
+#include <stdint.h>
+
+#define TO_ASTP_NODE(p) ((ASTP_node_t *)p)
+#define TO_CHARZ_PTR(x) ((char const *)((intptr_t)x))
+
 #include <errno.h>
 #include <nidl.h>
 #include <nametbl.h>
@@ -52,8 +58,23 @@
  *  since they are designed, a la printf, to accept a variable number of
  *  arguments without using the varargs nonsense.
  */
-void error();
-void warning();
+#define error(...) _Pragma("GCC error \"use specialized err instead\"")
+#define warning(...) _Pragma("GCC error \"use specialized warn instead\"")
+
+void error0(long);
+[[gnu::nonnull (2, 3, 4, 5, 6)]]
+void error5(long, char const *, char const *, char const *, char const *, char const *);
+
+[[gnu::nonnull (2)]]
+void error_z(long, char const *);
+
+[[gnu::nonnull (2)]]
+void error_zi(long, char const *, int);
+
+
+[[gnu::nonnull (2, 3, 4, 5, 6)]]
+void warning5 (long msg_id, char const *arg1, char const *arg2, char const *arg3, char const *arg4, char const *arg5);
+
 
 void log_source_error
 (
@@ -166,7 +187,7 @@ extern STRTAB_str_t error_file_name_id;
 #ifdef DUMPERS
 #define INTERNAL_ERROR(string) {printf("Internal Error Diagnostic: %s\n",string);warning(NIDL_INTERNAL_ERROR,__FILE__,__LINE__);}
 #else
-#define INTERNAL_ERROR(string) {error(NIDL_INTERNAL_ERROR,__FILE__,__LINE__); printf(string);}
+#define INTERNAL_ERROR(string) {error_zi(NIDL_INTERNAL_ERROR,__FILE__,__LINE__); printf(string);}
 #endif
 #endif
 /* preserve coding style vim: set tw=78 sw=4 : */

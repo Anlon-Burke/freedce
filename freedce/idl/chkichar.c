@@ -1,3 +1,4 @@
+// vim: ts=4 sw=4:
 /*
  *
  * (c) Copyright 1991 OPEN SOFTWARE FOUNDATION, INC.
@@ -81,7 +82,7 @@ void CHK_param_cs
                 break;
         }
         if (pp == NULL)
-            CHECKER_acf_error(param_p, NIDL_OPINCSCHAR);
+            CHECKER_acf_error(TO_ASTP_NODE(param_p), NIDL_OPINCSCHAR, nullptr, nullptr, nullptr, nullptr, nullptr);
     }
 
     /* Operation with [out] [cs_char] data requires [cs_rtag] parameter */
@@ -95,50 +96,47 @@ void CHK_param_cs
                 break;
         }
         if (pp == NULL)
-            CHECKER_acf_error(param_p, NIDL_OPOUTCSCHAR);
+            CHECKER_acf_error(TO_ASTP_NODE(param_p), NIDL_OPOUTCSCHAR, nullptr, nullptr, nullptr, nullptr, nullptr);
     }
 
     /* A [cs_stag] parameter must have the [in] attribute */
     if (AST_CS_STAG_SET(param_p) && !AST_IN_SET(param_p))
     {
         ASTP_attr_flag_t attr2 = ASTP_IN;
-        CHECKER_error(param_p, NIDL_PRMDEPATTR, "cs_stag", 
-            KEYWORDS_lookup_text(AST_attribute_to_token(&attr2)));
+        CHECKER_error_2(TO_ASTP_NODE(param_p), NIDL_PRMDEPATTR, "cs_stag", KEYWORDS_lookup_text(AST_attribute_to_token(&attr2)));
     }
 
     /* A [cs_drtag] parameter must have the [in] attribute */
     if (AST_CS_DRTAG_SET(param_p) && !AST_IN_SET(param_p))
     {
         ASTP_attr_flag_t attr2 = ASTP_IN;
-        CHECKER_error(param_p, NIDL_PRMDEPATTR, "cs_drtag", 
-            KEYWORDS_lookup_text(AST_attribute_to_token(&attr2)));
+        CHECKER_error_2(TO_ASTP_NODE(param_p), NIDL_PRMDEPATTR, "cs_drtag", KEYWORDS_lookup_text(AST_attribute_to_token(&attr2)));
     }
 
     /* A [cs_rtag] parameter must have the [out] attribute */
     if (AST_CS_RTAG_SET(param_p) && !AST_OUT_SET(param_p))
     {
         ASTP_attr_flag_t attr2 = ASTP_OUT;
-        CHECKER_error(param_p, NIDL_PRMDEPATTR, "cs_rtag", 
-            KEYWORDS_lookup_text(AST_attribute_to_token(&attr2)));
+        CHECKER_error_2(TO_ASTP_NODE(param_p), NIDL_PRMDEPATTR, "cs_rtag", KEYWORDS_lookup_text(AST_attribute_to_token(&attr2)));
     }
 
     /* Array attr can't be used for both [cs_char] and non-[cs_char] arrays */
     if (FE_TEST(param_p->fe_info->flags, FE_USED_AS_CS_FLD_ATTR)
         && FE_TEST(param_p->fe_info->flags, FE_USED_AS_REG_FLD_ATTR))
-        CHECKER_error(param_p, NIDL_ARRATTRSHR);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_ARRATTRSHR);
 
     /* A [size_is] or [max_is] attr can't be applied to ptr to [cs_char] type */
     if (type_p->kind == AST_pointer_k
         && type_p->type_structure.pointer->pointee_type->cs_char_type != NULL
         && fattr_p != NULL
         && (fattr_p->max_is_vec != NULL || fattr_p->size_is_vec != NULL))
-        CHECKER_error(param_p, NIDL_CSARRSYN);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_CSARRSYN);
 
     /* An array with [cs_char] base type cannot have [ptr] or [unique] attrs */
     if (type_p->kind == AST_array_k
         && type_p->type_structure.array->element_type->cs_char_type != NULL
         && (AST_PTR_SET(param_p) || AST_UNIQUE_SET(param_p)))
-        CHECKER_error(param_p, NIDL_ARRPTRUNIQ, "cs_char");
+        CHECKER_error_1(TO_ASTP_NODE(param_p), NIDL_ARRPTRUNIQ, "cs_char");
 
     /* A [cs_stag] param must precede any [in] [cs_char] data in a param list */
     if (AST_CS_STAG_SET(param_p))
@@ -151,7 +149,7 @@ void CHK_param_cs
                 break;
         }
         if (pp != param_p)
-            CHECKER_error(param_p, NIDL_TAGBEFDATA);
+            CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_TAGBEFDATA);
     }
 
     /* A [cs_rtag] param must precede any [out][cs_char] data in a param list */
@@ -165,7 +163,7 @@ void CHK_param_cs
                 break;
         }
         if (pp != param_p)
-            CHECKER_error(param_p, NIDL_TAGAFTDATA);
+            CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_TAGAFTDATA);
     }
 
     /* A [handle] binding parameter cannot contain a [cs_char] type */
@@ -173,7 +171,7 @@ void CHK_param_cs
         && param_p == param_p->uplink->parameters   /* first param */
         && (type_p->cs_char_type != NULL
             || FE_TEST(type_p->fe_info->flags, FE_CT_CS_CHAR)))
-        CHECKER_error(param_p, NIDL_HANCTYPE, "cs_char");
+        CHECKER_error_1(TO_ASTP_NODE(param_p), NIDL_HANCTYPE, "cs_char");
 
     /* Arrays of [cs_char] can only use the [size_is] and [length_is] attrs */
     if (type_p->kind == AST_array_k
@@ -184,32 +182,29 @@ void CHK_param_cs
                     || fattr_p->max_is_vec != NULL
                     || fattr_p->first_is_vec != NULL
                     || fattr_p->last_is_vec != NULL))))
-        CHECKER_error(param_p, NIDL_ARRTYPATTR, "cs_char");
+        CHECKER_error_1(TO_ASTP_NODE(param_p), NIDL_ARRTYPATTR, "cs_char");
 
     /* Tag params must have type unsigned long int passed by value or ref */
     if (  (AST_CS_STAG_SET(param_p)
            || AST_CS_DRTAG_SET(param_p)
            || AST_CS_RTAG_SET(param_p))
         && type_p->kind != AST_long_unsigned_k )
-        CHECKER_error(param_p, NIDL_TAGPRMTYPE);
+        CHECKER_error_0(TO_ASTP_NODE(param_p), NIDL_TAGPRMTYPE);
 
     /* Use of [cs_stag] attribute requires -standard extended */
     if (AST_CS_STAG_SET(param_p)
         && (*(int *)CMD_vals[opt_standard] < opt_standard_dce_1_1))
-        CHECKER_acf_warning(param_p, NIDL_NOPORTATTR, "cs_stag",
-                            OPT_STD_EXTENDED);
+        CHECKER_acf_warning(TO_ASTP_NODE(param_p), NIDL_NOPORTATTR, "cs_stag", OPT_STD_EXTENDED, nullptr, nullptr, nullptr);
 
     /* Use of [cs_drtag] attribute requires -standard extended */
     if (AST_CS_DRTAG_SET(param_p)
         && (*(int *)CMD_vals[opt_standard] < opt_standard_dce_1_1))
-        CHECKER_acf_warning(param_p, NIDL_NOPORTATTR, "cs_drtag",
-                            OPT_STD_EXTENDED);
+        CHECKER_acf_warning(TO_ASTP_NODE(param_p), NIDL_NOPORTATTR, "cs_drtag", OPT_STD_EXTENDED, nullptr, nullptr, nullptr);
 
     /* Use of [cs_rtag] attribute requires -standard extended */
     if (AST_CS_RTAG_SET(param_p)
         && (*(int *)CMD_vals[opt_standard] < opt_standard_dce_1_1))
-        CHECKER_acf_warning(param_p, NIDL_NOPORTATTR, "cs_rtag",
-                            OPT_STD_EXTENDED);
+        CHECKER_acf_warning(TO_ASTP_NODE(param_p), NIDL_NOPORTATTR, "cs_rtag", OPT_STD_EXTENDED, nullptr, nullptr, nullptr);
 }
 
 
@@ -242,7 +237,7 @@ void CHK_op_cs
                 break;
         }
         if (param_p == NULL)
-            CHECKER_acf_warning(op_p, NIDL_OPNOTAGS);
+            CHECKER_acf_warning(TO_ASTP_NODE(op_p), NIDL_OPNOTAGS, nullptr, nullptr, nullptr, nullptr, nullptr);
     }
 
     /* The [name] attribute cannot be duplicated in the same parameter list */
@@ -253,17 +248,16 @@ void CHK_op_cs
         if (AST_CS_RTAG_SET(param_p)) r++;
     }
     if (s > 1)
-        CHECKER_acf_error(op_p, NIDL_DUPPRMATTR, "cs_stag");
+        CHECKER_acf_error(TO_ASTP_NODE(op_p), NIDL_DUPPRMATTR, "cs_stag", nullptr, nullptr, nullptr, nullptr);
     if (d > 1)
-        CHECKER_acf_error(op_p, NIDL_DUPPRMATTR, "cs_drtag");
+        CHECKER_acf_error(TO_ASTP_NODE(op_p), NIDL_DUPPRMATTR, "cs_drtag", nullptr, nullptr, nullptr, nullptr);
     if (r > 1)
-        CHECKER_acf_error(op_p, NIDL_DUPPRMATTR, "cs_rtag");
+        CHECKER_acf_error(TO_ASTP_NODE(op_p), NIDL_DUPPRMATTR, "cs_rtag", nullptr, nullptr, nullptr, nullptr);
 
     /* Use of [cs_tag_rtn] attribute requires -standard extended */
     if (op_p->cs_tag_rtn_name != NAMETABLE_NIL_ID
         && (*(int *)CMD_vals[opt_standard] < opt_standard_dce_1_1))
-        CHECKER_acf_warning(op_p, NIDL_NOPORTATTR, "cs_tag_rtn",
-                            OPT_STD_EXTENDED);
+        CHECKER_acf_warning(TO_ASTP_NODE(op_p), NIDL_NOPORTATTR, "cs_tag_rtn", OPT_STD_EXTENDED, nullptr, nullptr, nullptr);
 }
 
 
@@ -291,14 +285,14 @@ void CHK_field_cs
     /* Array attr cannot be used for both [cs_char] and non-[cs_char] arrays */
     if (FE_TEST(field_p->fe_info->flags, FE_USED_AS_CS_FLD_ATTR)
         && FE_TEST(field_p->fe_info->flags, FE_USED_AS_REG_FLD_ATTR))
-        CHECKER_error(field_p, NIDL_ARRATTRSHR);
+        CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_ARRATTRSHR);
 
     /* A [size_is] or [max_is] attr can't be applied to ptr to [cs_char] type */
     if (type_p->kind == AST_pointer_k
         && type_p->type_structure.pointer->pointee_type->cs_char_type != NULL
         && fattr_p != NULL
         && (fattr_p->max_is_vec != NULL || fattr_p->size_is_vec != NULL))
-        CHECKER_error(field_p, NIDL_CSARRSYN);
+        CHECKER_error_0(TO_ASTP_NODE(field_p), NIDL_CSARRSYN);
 
     /* Arrays of [cs_char] can only use the [size_is] and [length_is] attrs */
     if (type_p->kind == AST_array_k
@@ -309,7 +303,7 @@ void CHK_field_cs
                     || fattr_p->max_is_vec != NULL
                     || fattr_p->first_is_vec != NULL
                     || fattr_p->last_is_vec != NULL))))
-        CHECKER_error(field_p, NIDL_ARRTYPATTR, "cs_char");
+        CHECKER_error_1(TO_ASTP_NODE(field_p), NIDL_ARRTYPATTR, "cs_char");
 }
 
 
@@ -337,7 +331,7 @@ void CHK_pipe_base_type_cs
     /* The base type of a pipe cannot be or contain a [cs_char] type */
     if (type_p->cs_char_type != NULL
         || FE_TEST(type_p->fe_info->flags, FE_CT_CS_CHAR))
-        CHECKER_error(type_p, NIDL_PIPECTYPE, "cs_char");
+        CHECKER_error_1(TO_ASTP_NODE(type_p), NIDL_PIPECTYPE, "cs_char");
 }
 
 
@@ -367,18 +361,18 @@ void CHK_type_cs
     /* Types with the [cs_char] attribute cannot be nested */
     if (type_p->cs_char_type != NULL
         && FE_TEST(type_p->fe_info->flags, FE_CT_CS_CHAR))
-        CHECKER_acf_error(type_p, NIDL_TYPENEST, "cs_char");
+        CHECKER_acf_error(TO_ASTP_NODE(type_p), NIDL_TYPENEST, "cs_char", nullptr, nullptr, nullptr, nullptr);
 
     /* A [transmit_as] transmitted type cannot contain a [cs_char] type */
     if (type_p->cs_char_type != NULL
         && FE_TEST(type_p->fe_info->flags, FE_USED_IN_TRANSMITTED))
-        CHECKER_error(type_p, NIDL_XMITCTYPE, "cs_char");
+        CHECKER_error_1(TO_ASTP_NODE(type_p), NIDL_XMITCTYPE, "cs_char");
 
     /* Arrays of [cs_char] type cannot be multidimensional */
     if (type_p->kind == AST_array_k
         && type_p->type_structure.array->element_type->cs_char_type != NULL
         && type_p->type_structure.array->index_count > 1)
-        CHECKER_error(type_p, NIDL_ARRMULTID, "cs_char");
+        CHECKER_error_1(TO_ASTP_NODE(type_p), NIDL_ARRMULTID, "cs_char");
 
     /* Type with [cs_char] cannot be or contain type with [transmit_as] */
     if (top_type_p->cs_char_type != NULL
@@ -386,21 +380,20 @@ void CHK_type_cs
             || FE_TEST(top_type_p->fe_info->flags, FE_HAS_XMIT_AS)) )
     {
         ASTP_attr_flag_t attr2 = ASTP_TRANSMIT_AS;
-        CHECKER_error(top_type_p, NIDL_TYPECTYPE, "cs_char",
-            KEYWORDS_lookup_text(AST_attribute_to_token(&attr2)));
+        CHECKER_error_2(TO_ASTP_NODE(top_type_p), NIDL_TYPECTYPE, "cs_char", KEYWORDS_lookup_text(AST_attribute_to_token(&attr2)));
     }
 
     /* Type with [cs_char] cannot be or contain type with [transmit_as] */
     if (type_p->cs_char_type != NULL
         && (type_p->rep_as_type != NULL
             || FE_TEST(type_p->fe_info->flags, FE_HAS_REP_AS)) )
-        CHECKER_error(type_p, NIDL_TYPECTYPE, "cs_char", "represent_as");
+        CHECKER_error_2(TO_ASTP_NODE(type_p), NIDL_TYPECTYPE, "cs_char", "represent_as");
 
     if (type_p->cs_char_type != NULL
         && type_p->kind != AST_byte_k
         && !(type_p->kind == AST_structure_k
              && CHK_struct_is_all_byte_fields(type_p->type_structure.structure)))
-        CHECKER_error(type_p, NIDL_TYPEOFBYTES, "cs_char");
+        CHECKER_error_1(TO_ASTP_NODE(type_p), NIDL_TYPEOFBYTES, "cs_char");
 
     /* ACF 'include' statement advised for definition of type 'name' */
     if (int_p->includes == NULL
@@ -410,7 +403,7 @@ void CHK_type_cs
     {
         char const *id_name;
         NAMETABLE_id_to_string(type_p->cs_char_type->type_name, &id_name);
-        CHECKER_acf_warning(type_p, NIDL_INCLTYPE, id_name);
+        CHECKER_acf_warning(TO_ASTP_NODE(type_p), NIDL_INCLTYPE, id_name, nullptr, nullptr, nullptr, nullptr);
     }
 
     /* Maximum identifier length for [cs_char] type is 'n' characters */
@@ -421,12 +414,11 @@ void CHK_type_cs
         type_len = strlen(type_name);
         max_len = MAX_ID - strlen("_from_netcs");
         if (type_len > max_len)
-            CHECKER_error(type_p, NIDL_MAXIDTYPE, "cs_char", max_len);
+            CHECKER_error_2(TO_ASTP_NODE(type_p), NIDL_MAXIDTYPE, "cs_char", TO_CHARZ_PTR(max_len));
     }
 
     /* Use of [cs_char] attribute requires -standard extended */
     if (type_p->cs_char_type != NULL
         && (*(int *)CMD_vals[opt_standard] < opt_standard_dce_1_1))
-        CHECKER_acf_warning(type_p, NIDL_NOPORTATTR, "cs_char",
-                            OPT_STD_EXTENDED);
+        CHECKER_acf_warning(TO_ASTP_NODE(type_p), NIDL_NOPORTATTR, "cs_char", OPT_STD_EXTENDED, nullptr, nullptr, nullptr);
 }
