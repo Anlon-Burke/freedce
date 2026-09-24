@@ -1,3 +1,4 @@
+// vim: ts=4 sw=4:
 /*
  *
  * (c) Copyright 1993 OPEN SOFTWARE FOUNDATION, INC.

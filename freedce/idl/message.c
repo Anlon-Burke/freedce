@@ -1,3 +1,4 @@
+// vim: ts=4 sw=4:
 /*
  * 
  * (c) Copyright 1993 OPEN SOFTWARE FOUNDATION, INC.
@@ -125,15 +126,10 @@ static char     msg_prefix[PATH_MAX+3];
  */
 
 void message_open
-#ifdef PROTO
 (
-    char *image_name __attribute__((unused))
+	[[maybe_unused]]
+	char const *image_name
 )
-#else
-(image_name)
-      char    *image_name;
-#endif
-
 #ifdef VMS
                     /* m e s s a g e _ o p e n  (VMS) */
 {

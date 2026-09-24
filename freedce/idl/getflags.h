@@ -1,5 +1,6 @@
+// vim: ts=4 sw=4:
 /*
- * 
+ *
  * (c) Copyright 1989 OPEN SOFTWARE FOUNDATION, INC.
  * (c) Copyright 1989 HEWLETT-PACKARD COMPANY
  * (c) Copyright 1989 DIGITAL EQUIPMENT CORPORATION
@@ -16,7 +17,7 @@
  * Packard Company, nor Digital Equipment Corporation makes any
  * representations about the suitability of this software for any
  * purpose.
- * 
+ *
  */
 /*
 **
@@ -104,44 +105,32 @@ typedef struct options
 
 
 void printflags (
-#ifdef PROTO
     OPTIONS table[]
-#endif
 );
 
 void getflags (
-#ifdef PROTO
     int argc,
     char **argv,
     OPTIONS table[]
-#endif
 );
 
 void flags_incr_count (
-#ifdef PROTO
     OPTIONS table[],
     char *option,
     int delta
-#endif
 );
 
 int flags_option_count (
-#ifdef PROTO
     OPTIONS table[],
     char *option
-#endif
 );
 
 int flags_other_count (
-#ifdef PROTO
     void
-#endif
 );
 
 char *flags_other (
-#ifdef PROTO
     int index
-#endif
 );
 
 

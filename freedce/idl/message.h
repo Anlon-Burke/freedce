@@ -1,3 +1,4 @@
+// vim: ts=4 sw=4:
 /*
  * 
  * (c) Copyright 1989 OPEN SOFTWARE FOUNDATION, INC.
@@ -36,20 +37,8 @@
 **
 */
 
-void message_print(
-#ifdef __STDC__
-    long msgid, ...
-#endif
-);
+void message_print(long msgid, ...);
 
-void message_open(
-#ifdef PROTO
-    char *image_name
-#endif
-);
+void message_open(char const *image_name);
 
-void message_close(
-#ifdef PROTO
-    void
-#endif
-);
+void message_close(void);

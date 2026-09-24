@@ -1,3 +1,4 @@
+ // vim: ts=4 sw=4:
 /*
  *
  * (c) Copyright 1989 OPEN SOFTWARE FOUNDATION, INC.
@@ -1721,9 +1722,9 @@ void ASTP_parse_port
     char protocol_buf[256];
     char endpoint_buf[256];
     char const *protocol_start;
-    char *protocol_end;
-    char *endpoint_start;
-    char *endpoint_end;
+    char const *protocol_end;
+    char const *endpoint_start;
+    char const *endpoint_end;
     int  i;                     /* loop through previous port names */
     boolean found = false;      /* An entry for this protocol already exists */
 

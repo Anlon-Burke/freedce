@@ -1,5 +1,6 @@
+// vim: ts=4 sw=4:
 /*
- * 
+ *
  * (c) Copyright 1989 OPEN SOFTWARE FOUNDATION, INC.
  * (c) Copyright 1989 HEWLETT-PACKARD COMPANY
  * (c) Copyright 1989 DIGITAL EQUIPMENT CORPORATION
@@ -16,7 +17,7 @@
  * Packard Company, nor Digital Equipment Corporation makes any
  * representations about the suitability of this software for any
  * purpose.
- * 
+ *
  */
 /*
 **
@@ -55,16 +56,10 @@ char *last_string;           /* Last string parsed, for disambiguating */
  *  flags_option_count: Returns #occurences of option on command line.
  */
 int flags_option_count
-#ifdef PROTO
 (
-    OPTIONS table[],
-    char *option
+    OPTIONS table[],   /* Table of command options */
+    char    *option    /* Name of option */
 )
-#else
-(table, option)
-    OPTIONS table[];    /* Table of command options */
-    char    *option;    /* Name of option */
-#endif
 {
     int o;
 
@@ -83,18 +78,11 @@ int flags_option_count
  *  flags_incr_count: Increments command option count by specified amount.
  */
 void flags_incr_count
-#ifdef PROTO
 (
-    OPTIONS table[],
-    char *option,
-    int delta
+    OPTIONS table[],    /* Table of command options */
+    char    *option,    /* Name of option */
+    int     delta       /* Amount to increment option count by */
 )
-#else
-(table, option, delta)
-    OPTIONS table[];    /* Table of command options */
-    char    *option;    /* Name of option */
-    int     delta;      /* Amount to increment option count by */
-#endif
 {
     int o;
 
@@ -117,13 +105,9 @@ void flags_incr_count
  *                     part of command line options.
  */
 int flags_other_count
-#ifdef PROTO
 (
     void
 )
-#else
-()
-#endif
 {
     return(other_count);
 }
@@ -133,14 +117,9 @@ int flags_other_count
  *  flags_other: Returns the Nth command line parameter that is not an option.
  */
 char *flags_other
-#ifdef PROTO
 (
-    int index
+    int index      /* Index of parameter to get */
 )
-#else
-(index)
-    int index;      /* Index of parameter to get */
-#endif
 {
     if (0 <= index && index < other_count)
         return(other_flags[index]);
@@ -154,15 +133,9 @@ char *flags_other
  */
 
 boolean is_number
-#ifdef PROTO
 (
-    char *str
+    char const *str      /* String to test, assumed to be non-null */
 )
-#else
-(str)
-    char *str;      /* String to test, assumed to be non-null */
-#endif
-
 {
     if (*str == '+' || *str == '-')
         str++;
@@ -178,18 +151,11 @@ boolean is_number
  *  getflags: Parses command parameters and options.
  */
 void getflags
-#ifdef PROTO
 (
-    int ac,
-    char **av,
-    OPTIONS table[]
+    int     ac,         /* Argument count */
+    char    **av,       /* Argument vector - one per space-delimited cmd arg */
+    OPTIONS table[]    /* Table of command options */
 )
-#else
-(ac, av, table)
-    int     ac;         /* Argument count */
-    char    **av;       /* Argument vector - one per space-delimited cmd arg */
-    OPTIONS table[];    /* Table of command options */
-#endif
 {
     int             o;
     int             optlen;
@@ -232,6 +198,7 @@ void getflags
                 {
                 default:
                     INTERNAL_ERROR("Illegal option type");
+					break;
 
                 case INTARG:
                     pint = (int *)table[o].dest;
@@ -465,14 +432,9 @@ void getflags
 #define no_yes(x) (x? "No" : "Yes")
 
 void printflags
-#ifdef PROTO
 (
     OPTIONS table[]
 )
-#else
-(table)
-    OPTIONS table[];    /* Table of command options */
-#endif
 {
     register int    o;
     register int    nflags;

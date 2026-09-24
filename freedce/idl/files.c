@@ -1,3 +1,4 @@
+// vim: ts=4 sw=4:
 /*
  *
  * (c) Copyright 1989 OPEN SOFTWARE FOUNDATION, INC.
@@ -50,7 +51,6 @@
 #include <unistd.h>
 #include "message.h"
 
-extern char *getcwd();
 
 /*
 **  Default filespec; only good for one call to FILE_parse.
@@ -823,7 +823,10 @@ boolean FILE_is_cwd
     {
         /* Not current working directory; be sure to chdir back to original! */
         result = FALSE;
-        chdir(cwd);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-result"
+        (void)chdir(cwd);
+#pragma GCC diagnostic pop
     }
 
     /* Free storage malloc'ed by getcwd(). */

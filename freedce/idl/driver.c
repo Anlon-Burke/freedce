@@ -1,3 +1,4 @@
+// vim: ts=4 sw=4:
 /*
  * 
  * (c) Copyright 1989 OPEN SOFTWARE FOUNDATION, INC.
@@ -102,7 +103,7 @@ void
 ** such that we cannot get into an infinite loop.
 */
 #ifndef HAVE_OS_WIN32
-static long attempt_to_print_errors()
+static void attempt_to_print_errors(int)
 {
 #if !defined(vms)
 #ifndef _MSDOS
@@ -117,7 +118,6 @@ static long attempt_to_print_errors()
      * attempted before, this call will just return.
      */
     print_errors();
-    return 0;
 }
 #endif
 
@@ -544,11 +544,11 @@ boolean DRIVER_main
 #else
 #ifndef HAVE_OS_WIN32
 #ifndef _MSDOS
-    signal(SIGBUS, (void (*)())attempt_to_print_errors);
+    signal(SIGBUS, attempt_to_print_errors);
 #endif
-    signal(SIGSEGV, (void (*)())attempt_to_print_errors);
-    signal(SIGFPE, (void (*)())attempt_to_print_errors);
-    signal(SIGILL, (void (*)())attempt_to_print_errors);
+    signal(SIGSEGV, attempt_to_print_errors);
+    signal(SIGFPE,  attempt_to_print_errors);
+    signal(SIGILL,  attempt_to_print_errors);
 #endif
 #endif
 

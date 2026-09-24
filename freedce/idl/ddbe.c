@@ -1,3 +1,4 @@
+// vim: ts=4 sw=4:
 /*
  *
  * (c) Copyright 1992 OPEN SOFTWARE FOUNDATION, INC.
@@ -688,6 +689,7 @@ static void DDBE_scalar_vec_entry
 {
     DDBE_vec_rep_t  *new_p;         /* Ptr to new vector entry */
     char const      *type_name;     /* Scalar type name, if any */
+	[[maybe_unused]]
     char const      *comment;       /* Comment string */
     char            comment_buf[DDBE_MAX_COMMENT];
 
@@ -3576,6 +3578,7 @@ static DDBE_vec_rep_t *DDBE_gen_param_reps
     char const      *name;          /* Variable name */
     char const      *oper_name;     /* Operation name */
     IR_tup_n_t      *tup_p;         /* Intermediate rep tuple pointer */
+	[[maybe_unused]]
     IR_tup_n_t      *prev_tup_p;    /* Previous tuple pointer */
     DDBE_vec_rep_t  *first_entry;   /* Ptr to first type vec entry for param */
     char comment[DDBE_MAX_COMMENT]; /* Comment buffer */

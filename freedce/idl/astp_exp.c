@@ -1,3 +1,4 @@
+// vim: ts=4 sw=4:
 #include <nidl.h>
 #include <nametbl.h>
 #include <errors.h>
