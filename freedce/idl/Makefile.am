@@ -10,6 +10,7 @@ include $(top_srcdir)/include.mk
 LIBS:=$(subst -ldcethread,,$(LIBS))
 
 AM_CFLAGS+=-DMIA -DDEFAULT_IDIR=\"$(includedir)\" -DCATALOG_DIR=\"$(pkgdatadir)\"
+AM_CPPFLAGS+=-I$(top_builddir)/include -I$(top_srcdir)/include
 
 bin_PROGRAMS = dceidl
 
