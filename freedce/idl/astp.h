@@ -252,6 +252,7 @@ typedef struct ASTP_attributes_t
  * when present.
  */
 
+// FIXME conflicting declaration of be_info
 typedef struct ASTP_node_t
 {
     fe_info_t           *fe_info;

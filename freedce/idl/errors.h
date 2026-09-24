@@ -43,6 +43,7 @@
 #include <stdint.h>
 
 #define TO_ASTP_NODE(p) ((ASTP_node_t *)p)
+//#define TO_ASTP_NODE(p) (&(p)->astp_node)
 #define TO_CHARZ_PTR(x) ((char const *)((intptr_t)x))
 
 #include <errno.h>
@@ -70,7 +71,6 @@ void error_z(long, char const *);
 
 [[gnu::nonnull (2)]]
 void error_zi(long, char const *, int);
-
 
 [[gnu::nonnull (2, 3, 4, 5, 6)]]
 void warning5 (long msg_id, char const *arg1, char const *arg2, char const *arg3, char const *arg4, char const *arg5);
