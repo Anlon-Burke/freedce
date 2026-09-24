@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 AC_INIT([freedce],[1.0.1])
 AC_CONFIG_SRCDIR(uuid/uuid.c)
 AC_CANONICAL_TARGET
-AC_CONFIG_HEADERS([include/dce/dce_config.h idl/sysdep.h])
+AC_CONFIG_HEADERS([include/dce/dce_config.h])
 AM_INIT_AUTOMAKE
 AC_PROG_CC
 AC_PREFIX_DEFAULT(/opt/dce)
@@ -200,6 +200,7 @@ sinclude(perf/config.m4)
 AC_CONFIG_FILES(Makefile)
 AC_CONFIG_FILES(dcelib/Makefile)
 AC_CONFIG_FILES(idl/Makefile)
+AC_CONFIG_FILES(idl/sysdep.h)
 AC_CONFIG_FILES(perf/Makefile)
 AC_CONFIG_FILES(uuid/Makefile)
 AC_CONFIG_FILES(include/dce/Makefile)
