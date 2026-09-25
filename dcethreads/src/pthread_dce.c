@@ -1867,7 +1867,7 @@ static int win32_gettimeofday(struct timeval *tp, void *unused)
  * 
  ****************************************************************************/
 
-#define NANOSECS_PER_SEC 1'000'000'000
+#define NANOSECS_PER_SEC 1000000000
 
 /*
  * pthd4_get_expiration_np

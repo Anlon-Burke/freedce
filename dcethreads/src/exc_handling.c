@@ -167,12 +167,12 @@ EXCEPTION pthread_unimp_e;
  **
  **/
 
-#define EXC_INT_FAIL_KEYCREATE      000'000'001
-#define EXC_INT_FAIL_GETKEY         000'000'002
-#define EXC_INT_FAIL_SETKEY         000'000'003
-#define EXC_INT_FAIL_UNHANDLEDEXC   000'000'004
-#define EXC_INT_FAIL_NULLEXC        000'000'005
-#define EXC_INT_FAIL_NOTRY          000'000'006
+#define EXC_INT_FAIL_KEYCREATE      1
+#define EXC_INT_FAIL_GETKEY         2
+#define EXC_INT_FAIL_SETKEY         3
+#define EXC_INT_FAIL_UNHANDLEDEXC   4
+#define EXC_INT_FAIL_NULLEXC        5
+#define EXC_INT_FAIL_NOTRY          6
 
 static char  *exc_lib_errmsgs[] =
 {
