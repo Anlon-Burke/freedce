@@ -66,8 +66,12 @@ INTERNAL epdb_handle_t    epdb_handle = NULL;
 
 /*
  * The current version of the persistent database file (the value in a file_hdr).
+ *
+ * The database records contain pointers, so their layout depends on the
+ * pointer size.  64-bit builds use their own version number; db_open()
+ * then discards a database written by a 32-bit build instead of misreading it.
  */
-#define epdb_c_file_version 8
+#define epdb_c_file_version (sizeof(void *) == 8 ? 9 : 8)
 
 
 INTERNAL void epdb_recreate_lists
