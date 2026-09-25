@@ -780,7 +780,7 @@ INTERNAL void init_once(void)
 	 * initialize (seed) the random number generator using the current
 	 * system time
 	 */
-	RPC_RANDOM_INIT(time ((int) NULL));
+	RPC_RANDOM_INIT(time (NULL));
 
 #ifndef NO_GETENV
 
