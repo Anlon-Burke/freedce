@@ -116,14 +116,14 @@
 **--
 **/
 
-static void dce_get_msg (status_to_convert, error_text, fname, cname, status)
-
-unsigned long           status_to_convert;
-unsigned char           *error_text;
-unsigned char           *fname;
-unsigned char           *cname;
-int                     *status;
-
+static void dce_get_msg
+(
+unsigned long           status_to_convert,
+char                    *error_text,
+char                    *fname,
+char                    *cname,
+int                     *status
+)
 {
     unsigned short  facility_code;
     unsigned short  component_code;
