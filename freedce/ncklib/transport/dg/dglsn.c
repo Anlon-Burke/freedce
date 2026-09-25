@@ -3349,13 +3349,16 @@ unsigned32 *st;
          */
         while (*rqe_list_len < n_pkts)
         {
-            rqe = rpc__dg_pkt_alloc_rqe(sp->ccall);
-            rqe->more_data = *rqe_list;
-            *rqe_list = rqe;
+            rpc_dg_recvq_elt_p_t new_rqe;
+
+            new_rqe = rpc__dg_pkt_alloc_rqe(sp->ccall);
+            if (new_rqe == NULL)
+                break;
+            new_rqe->more_data = *rqe_list;
+            *rqe_list = new_rqe;
             (*rqe_list_len)++;
         }
-        
-        assert(rqe == *rqe_list); 
+        rqe = *rqe_list;
         
         /*
          * There should always be an available rqe thanks to rationing AND
