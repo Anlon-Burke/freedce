@@ -12,14 +12,27 @@
  * netbios can be emulated, userspace too, etc. blah blah,
  * and yippee ncalrpc using shared memory or something,
  * but with a socket interface.
+ *
+ * The table is indexed by the socket descriptor, so every index must
+ * be checked against its size.  Descriptors that do not fit cannot be
+ * used with select() either.
  */
-static rpc_socket_epv_p_t epvs[256];
+#ifdef HAVE_OS_WIN32
+#define RPC_C_SOCKET_EPV_TABLE_SIZE 256
+#else
+#include <sys/select.h>
+#define RPC_C_SOCKET_EPV_TABLE_SIZE FD_SETSIZE
+#endif
+static rpc_socket_epv_p_t epvs[RPC_C_SOCKET_EPV_TABLE_SIZE];
+
+#define SOCKET_IN_EPV_TABLE(sock) \
+	((sock) >= 0 && (sock) < RPC_C_SOCKET_EPV_TABLE_SIZE)
 
 extern void rpc__socket_bsd_init (rpc_socket_epv_p_t *epv);
 
 #define SCKEPV(sock) \
 	rpc_socket_epv_p_t epv; \
-	if (sock == -1) \
+	if (! SOCKET_IN_EPV_TABLE(sock)) \
 		return rpc_s_socket_failure; \
 	epv = epvs[sock]; \
 	if (epv == NULL) \
@@ -53,6 +66,12 @@ rpc_socket_error_t rpc__socket_open (
         if (err != rpc_s_ok)
 		return err;
 
+	if (! SOCKET_IN_EPV_TABLE(*sock))
+	{
+		epv->sock_close(*sock);
+		*sock = -1;
+		return RPC_C_SOCKET_ENOSPC;
+	}
 	epvs[*sock] = epv;
 
         return err;
@@ -90,6 +109,12 @@ rpc_socket_error_t rpc__socket_open_basic (
         if (err != rpc_s_ok)
 		return err;
 
+	if (! SOCKET_IN_EPV_TABLE(*sock))
+	{
+		epv->sock_close(*sock);
+		*sock = -1;
+		return RPC_C_SOCKET_ENOSPC;
+	}
 	epvs[*sock] = epv;
 
         return err;
@@ -121,6 +146,12 @@ extern rpc_socket_error_t rpc__socket_accept (
 
         if (err != rpc_s_ok)
 		return err;
+	if (! SOCKET_IN_EPV_TABLE(*newsock))
+	{
+		epv->sock_close(*newsock);
+		*newsock = -1;
+		return RPC_C_SOCKET_ENOSPC;
+	}
 	epvs[*newsock] = epvs[sock];
         return err;
 }
