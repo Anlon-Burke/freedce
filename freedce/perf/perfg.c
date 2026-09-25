@@ -43,11 +43,12 @@
 
 /***************************************************************************/
 
-void foo_perfg_op1 (h, n, x)
-
-handle_t                h __attribute__((unused));
-unsigned long           n;
-unsigned long           *x;
+void foo_perfg_op1
+(
+    handle_t                h __attribute__((unused)),
+    unsigned32              n,
+    unsigned32              *x
+)
 
 {
     *x = 2 * n;
@@ -56,11 +57,12 @@ unsigned long           *x;
 
 /***************************************************************************/
 
-void foo_perfg_op2 (h, n, x)
-
-handle_t                h __attribute__((unused));
-unsigned long           n;
-unsigned long           *x;
+void foo_perfg_op2
+(
+    handle_t                h __attribute__((unused)),
+    unsigned32              n,
+    unsigned32              *x
+)
 
 {
     *x = 3 * n;
@@ -77,11 +79,12 @@ perfg_v1_0_epv_t foo_perfg_epv =
 
 /***************************************************************************/
 
-void bar_perfg_op1 (h, n, x)
-
-handle_t                h __attribute__((unused));
-unsigned long           n;
-unsigned long           *x;
+void bar_perfg_op1
+(
+    handle_t                h __attribute__((unused)),
+    unsigned32              n,
+    unsigned32              *x
+)
 
 {
     *x = 4 * n;
@@ -90,11 +93,12 @@ unsigned long           *x;
 
 /***************************************************************************/
 
-void bar_perfg_op2 (h, n, x)
-
-handle_t                h __attribute__((unused));
-unsigned long           n;
-unsigned long           *x;
+void bar_perfg_op2
+(
+    handle_t                h __attribute__((unused)),
+    unsigned32              n,
+    unsigned32              *x
+)
 
 {
     *x = 5 * n;
