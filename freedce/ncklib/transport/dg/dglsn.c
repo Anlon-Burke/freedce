@@ -822,7 +822,7 @@ rpc_dg_recvq_elt_p_t rqe1;
      */
     if (hdrp->if_vers != ((rpc_if_rep_p_t) conv_v3_0_c_ifspec)->vers
 /*        || hdrp->opnum < 0	 ??? */
-        || hdrp->opnum > 5
+        || hdrp->opnum >= sizeof(conv_stubs) / sizeof(conv_stubs[0])
         || hdrp->len < CONV_MIN_REQUEST_LEN)
     {
         RPC_DBG_GPRINTF((
