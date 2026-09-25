@@ -710,6 +710,26 @@ void rpc_ss_ctx_client_ref_count_d_2
 }
 
 #ifdef CTXEETEST
+/*
+ * Print a UUID in its usual string form (no newline).
+ */
+static void show_context_uuid
+#ifdef IDL_PROTOTYPES
+(
+    uuid_t *p_uuid
+)
+#else
+( p_uuid )
+    uuid_t *p_uuid;
+#endif
+{
+    printf("%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+            p_uuid->time_low, p_uuid->time_mid, p_uuid->time_hi_and_version,
+            p_uuid->clock_seq_hi_and_reserved, p_uuid->clock_seq_low,
+            p_uuid->node[0], p_uuid->node[1], p_uuid->node[2],
+            p_uuid->node[3], p_uuid->node[4], p_uuid->node[5]);
+}
+
 void show_client_context_chain
 #ifdef IDL_PROTOTYPES
 (
@@ -726,9 +746,9 @@ void show_client_context_chain
     printf("\t\tForward context chain\n");
     while (this_context != NULL)
     {
-        printf("\t\t\t %s %p\n",
-                &this_context->uuid,
-                this_context->user_context);
+        printf("\t\t\t ");
+        show_context_uuid(&this_context->uuid);
+        printf(" %p\n", this_context->user_context);
         this_context = this_context->next_in_client;
     }
 
@@ -736,9 +756,9 @@ void show_client_context_chain
     printf("\t\tBackward context chain\n");
     while (this_context != NULL)
     {
-        printf("\t\t\t %s %p\n",
-                &this_context->uuid,
-                this_context->user_context);
+        printf("\t\t\t ");
+        show_context_uuid(&this_context->uuid);
+        printf(" %p\n", this_context->user_context);
         this_context = this_context->prev_in_client;
     }
 
