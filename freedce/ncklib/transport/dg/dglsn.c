@@ -650,7 +650,7 @@ PRIVATE void rpc__dg_conv_fork_handler
     rpc_fork_stage_id_t stage;
 #endif
 {
-    error_status_t st;
+    pthread_addr_t st;     /* thread exit status from join */
     rpc_dg_recvq_elt_p_t rqe;
     
     switch((int)stage) 

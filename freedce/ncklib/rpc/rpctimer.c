@@ -250,7 +250,7 @@ PRIVATE void rpc__timer_fork_handler
 rpc_fork_stage_id_t stage;
 #endif
 {  
-    unsigned32 st;
+    pthread_addr_t st;     /* thread exit status from join */
     int successful = false;
     DO_NOT_CLOBBER(successful);
 

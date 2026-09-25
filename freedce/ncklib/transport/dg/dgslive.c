@@ -610,7 +610,7 @@ rpc_fork_stage_id_t stage;
 #endif
 {                           
     unsigned32 i;
-    unsigned32 st;
+    pthread_addr_t st;     /* thread exit status from join */
 
     switch ((int)stage)
     {

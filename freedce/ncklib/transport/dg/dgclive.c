@@ -393,7 +393,7 @@ PRIVATE void rpc__dg_maintain_fork_handler
 rpc_fork_stage_id_t stage;
 #endif
 {                           
-    unsigned32 st;
+    pthread_addr_t st;     /* thread exit status from join */
 
     switch ((int)stage)
     {
