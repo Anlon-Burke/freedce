@@ -51,7 +51,7 @@
     if ((assoc_grp)->grp_flags & RPC_C_CN_ASSOC_GRP_CLIENT)\
     {\
         RPC_DBG_PRINTF (rpc_e_dbg_cn_state, RPC_C_CN_DBG_ASSOC_GRP_SM_TRACE, \
-                        ("STATE CLIENT GRP:    %x state->%s event->%s\n",\
+                        ("STATE CLIENT GRP:    %p state->%s event->%s\n",\
                          assoc_grp,\
                          rpc_g_cn_grp_client_states[(assoc_grp)->grp_state.cur_state-RPC_C_CN_STATEBASE],\
                          rpc_g_cn_grp_client_events[event_id-RPC_C_CN_STATEBASE]));\
@@ -59,7 +59,7 @@
     else\
     {\
         RPC_DBG_PRINTF (rpc_e_dbg_cn_state, RPC_C_CN_DBG_ASSOC_GRP_SM_TRACE, \
-                        ("STATE SERVER GRP:    %x state->%s event->%s\n",\
+                        ("STATE SERVER GRP:    %p state->%s event->%s\n",\
                          assoc_grp,\
                          rpc_g_cn_grp_server_states[(assoc_grp)->grp_state.cur_state-RPC_C_CN_STATEBASE],\
                          rpc_g_cn_grp_server_events[event_id-RPC_C_CN_STATEBASE]));\
@@ -80,14 +80,14 @@
     if ((assoc_grp)->grp_flags & RPC_C_CN_ASSOC_GRP_CLIENT)\
     {\
         RPC_DBG_PRINTF (rpc_e_dbg_cn_state, RPC_C_CN_DBG_ASSOC_GRP_SM_TRACE, \
-                        ("STATE CLIENT GRP:    %x new state->%s\n",\
+                        ("STATE CLIENT GRP:    %lx new state->%s\n",\
                          assoc_grp->grp_remid.all,\
                          rpc_g_cn_grp_client_states[(assoc_grp)->grp_state.cur_state-RPC_C_CN_STATEBASE])); \
     }\
     else\
     {\
         RPC_DBG_PRINTF (rpc_e_dbg_cn_state, RPC_C_CN_DBG_ASSOC_GRP_SM_TRACE, \
-                        ("STATE SERVER GRP:    %x new state->%s\n",\
+                        ("STATE SERVER GRP:    %lx new state->%s\n",\
                          assoc_grp->grp_id.all,\
                          rpc_g_cn_grp_server_states[(assoc_grp)->grp_state.cur_state-RPC_C_CN_STATEBASE])); \
     }\

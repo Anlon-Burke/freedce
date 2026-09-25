@@ -123,7 +123,7 @@ PRIVATE void rpc__noauth_bnd_set_auth
     }
                                     
     RPC_DBG_PRINTF(rpc_e_dbg_auth, 1, (
-            "(rpc__noauth_bnd_set_auth) %x created (now %d active)\n", 
+            "(rpc__noauth_bnd_set_auth) %p created (now %d active)\n", 
             noauth_info, rpc_g_noauth_alloc_count - rpc_g_noauth_free_count));
     
     memset (noauth_info, 0, sizeof(*noauth_info));

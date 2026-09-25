@@ -157,7 +157,7 @@ PRIVATE unsigned32 rpc__dg_fwd_pkt (
     if (st != rpc_s_ok)
     {
         RPC_DBG_GPRINTF(
-            ("(rpc__dg_fwd_pkt) fwd map function returned error (st=%08lx, ptype=%s) [%s]\n", 
+            ("(rpc__dg_fwd_pkt) fwd map function returned error (st=%08x, ptype=%s) [%s]\n", 
             st,
             rpc__dg_pkt_name(RPC_DG_HDR_INQ_PTYPE(hdrp)), 
             rpc__dg_act_seq_string(hdrp)));

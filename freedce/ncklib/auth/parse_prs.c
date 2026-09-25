@@ -357,12 +357,12 @@ BOOL prs_realloc_data(prs_struct *buf, size_t new_size)
 	else if (buf->data_size >= new_size)
 	{
 		RPC_DBG_ADD_PRINTF(rpc_e_dbg_auth, 3, ("prs_realloc_data: warning - "
-			  "could not realloc to %d\n", new_size));
+			  "could not realloc to %lu\n", (unsigned long) new_size));
 	}
 	else
 	{
 		RPC_DBG_ADD_PRINTF(rpc_e_dbg_auth, 3, ("prs_realloc_data: error - "
-			  "could not realloc to %d\n", new_size));
+			  "could not realloc to %lu\n", (unsigned long) new_size));
 
 		prs_free_data(buf);
 		buf->error = True;
@@ -400,8 +400,8 @@ BOOL prs_grow_data(prs_struct *buf, BOOL io, int new_size, BOOL force_grow)
 			 * reading, there is just not that much
 			 * data in the buffer
 			 */
-			RPC_DBG_ADD_PRINTF(rpc_e_dbg_auth, 1, ("prs_grow_data: %d > %d\n",
-				  new_size, buf->data_size));
+			RPC_DBG_ADD_PRINTF(rpc_e_dbg_auth, 1, ("prs_grow_data: %d > %lu\n",
+				  new_size, (unsigned long) buf->data_size));
 			return False;
 		}
 	}
@@ -563,8 +563,8 @@ BOOL prs_add_data(prs_struct *ps, const char *data, int len)
 	}
 	if ((int)ps->data_size != new_size)
 	{
-		RPC_DBG_ADD_PRINTF(rpc_e_dbg_auth, 10, ("prs_add_data: ERROR: data used %d new_size %d\n",
-			   ps->data_size, new_size));
+		RPC_DBG_ADD_PRINTF(rpc_e_dbg_auth, 10, ("prs_add_data: ERROR: data used %lu new_size %d\n",
+			   (unsigned long) ps->data_size, new_size));
 		return False;
 	}
 	memcpy(to, data, len);

@@ -93,8 +93,8 @@ int ntlmssp_sign_seal(ntlmssp_sec_state_p_t sec_info,
 	auth_seal = IS_BITS_SET_ALL(sec_info->neg_flags,
 					 NTLMSSP_NEGOTIATE_SEAL);
 
-	RPC_DBG_ADD_PRINTF(rpc_e_dbg_auth, 5, ("srv_ntlmssp_sign_seal: sign: %s seal: %s data %d\n",
-		  BOOLSTR(auth_verify), BOOLSTR(auth_seal), data_len));
+	RPC_DBG_ADD_PRINTF(rpc_e_dbg_auth, 5, ("srv_ntlmssp_sign_seal: sign: %s seal: %s data %lu\n",
+		  BOOLSTR(auth_verify), BOOLSTR(auth_seal), (unsigned long) data_len));
 
 	prs_create(&rverf, auth_data, auth_data_len, 4, MARSHALL);
 
@@ -299,7 +299,7 @@ static int srv_ntlmssp(ntlmssp_sec_state_p_t sec_info, prs_struct *data_i,
 				return False;
 			}
 			*/
-			RPC_DBG_ADD_PRINTF(rpc_e_dbg_auth, 10, ("ntlmssp neg: myname %s domain %s neg_flags %lx\n",
+			RPC_DBG_ADD_PRINTF(rpc_e_dbg_auth, 10, ("ntlmssp neg: myname %s domain %s neg_flags %x\n",
 				   ntlmssp_neg.myname, ntlmssp_neg.domain,
 				   ntlmssp_neg.neg_flgs));
 			sec_info->neg_flags = ntlmssp_neg.neg_flgs;
@@ -417,8 +417,8 @@ int ntlmssp_unsign_unseal(ntlmssp_sec_state_p_t sec_info,
 	auth_seal   = IS_BITS_SET_ALL(sec_info->neg_flags,
 	                              NTLMSSP_NEGOTIATE_SEAL);
 
-	RPC_DBG_ADD_PRINTF(rpc_e_dbg_auth, 5,("decode_ntlmssp_pdu: len: %d auth_len: %d verify %s seal %s\n",
-	          data_len, auth_len, BOOLSTR(auth_verify), BOOLSTR(auth_seal)));
+	RPC_DBG_ADD_PRINTF(rpc_e_dbg_auth, 5,("decode_ntlmssp_pdu: len: %lu auth_len: %lu verify %s seal %s\n",
+	          (unsigned long) data_len, (unsigned long) auth_len, BOOLSTR(auth_verify), BOOLSTR(auth_seal)));
 
 	if ((auth_verify || auth_seal) && auth_len != 16)
 	{

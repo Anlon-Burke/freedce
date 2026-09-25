@@ -362,7 +362,7 @@ void rpc_ss_ndr_marsh_struct
     offset_vec_ptr = struct_offset_vec_ptr + 1;
                                         /* Skip over size at start of offsets */
 
-	RPC_DBG_NDR(("rpc_ss_ndr_marsh_struct: %s %lx\n",
+	RPC_DBG_NDR(("rpc_ss_ndr_marsh_struct: %s %x\n",
 			rpc_dbg_ndr_struct_type(struct_type), offset_index));
 
     if ( (struct_type == IDL_DT_CONF_STRUCT)

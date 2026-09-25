@@ -1150,9 +1150,9 @@ static void rpc_ss_register_node_by_num
 
 
 #ifdef HASH_STATS
-    printf ("Hash value: %03d Hash chain:", (((long)ptr>>5) & 0xff));
+    printf ("Hash value: %03ld Hash chain:", (((long)ptr>>5) & 0xff));
     for (temp = get_hash_chain_head (str, ptr); temp; temp=temp->next)
-        printf (" %lx", temp->ptr);
+        printf (" %p", temp->ptr);
     printf ("\n");
 #endif
 
@@ -2178,81 +2178,81 @@ printf ("Correct results are in parentheses.\n\n");
 
 has_been_marshalled = 0;
 node=rpc_ss_register_node (str, (char*)10, 1, &has_been_marshalled);
-printf ("%d (1)", node);
+printf ("%ld (1)", node);
 if (has_been_marshalled) printf ("  Erroneously flagged as marshalled!");
 printf ("\n");
 
 has_been_marshalled = 0;
 node=rpc_ss_register_node (str, (char*)40, 1, &has_been_marshalled);
-printf ("%d (2)", node);
+printf ("%ld (2)", node);
 if (has_been_marshalled) printf ("  Erroneously flagged as marshalled!");
 printf ("\n");
 
 has_been_marshalled = 0;
 node=rpc_ss_register_node (str, (char*)10, 1, &has_been_marshalled);
-printf ("%d (1)", node);
+printf ("%ld (1)", node);
 if (!has_been_marshalled) printf ("  Erroneously flagged as not marshalled!");
 printf ("\n");
 
 has_been_marshalled = 0;
 node=rpc_ss_register_node (str, (char*)20, 0, &has_been_marshalled);
-printf ("%d (3)", node);
+printf ("%ld (3)", node);
 if (has_been_marshalled) printf ("  Erroneously flagged as marshalled!");
 printf ("\n");
 
 node=rpc_ss_register_node (str, (char*)30, 0, 0);
-printf ("%d (4)\n", node);
+printf ("%ld (4)\n", node);
 
 rpc_ss_register_node_by_num (str, 17, 50);
 
 node=rpc_ss_register_node (str, (char*)1064, 0, 0);
-printf ("%d (18)\n", node);
+printf ("%ld (18)\n", node);
 
 
 
 node=rpc_ss_lookup_node_by_ptr (str, (char*)50);
-printf ("%d (17)\n", node);
+printf ("%ld (17)\n", node);
 node=rpc_ss_lookup_node_by_ptr (str, (char*)10);
-printf ("%d (1)\n", node);
+printf ("%ld (1)\n", node);
 node=rpc_ss_lookup_node_by_ptr (str, (char*)30);
-printf ("%d (4)\n", node);
+printf ("%ld (4)\n", node);
 node=rpc_ss_lookup_node_by_ptr (str, (char*)20);
-printf ("%d (3)\n", node);
+printf ("%ld (3)\n", node);
 node=rpc_ss_lookup_node_by_ptr (str, (char*)1064);
-printf ("%d (18)\n", node);
+printf ("%ld (18)\n", node);
 node=rpc_ss_lookup_node_by_ptr (str, (char*)40);
-printf ("%d (2)\n", node);
+printf ("%ld (2)\n", node);
 
 ptr=rpc_ss_lookup_node_by_num(str, 1);
-printf ("%d (10)\n", ptr);
+printf ("%p (10)\n", ptr);
 ptr=rpc_ss_lookup_node_by_num(str, 2);
-printf ("%d (40)\n", ptr);
+printf ("%p (40)\n", ptr);
 ptr=rpc_ss_lookup_node_by_num(str, 3);
-printf ("%d (20)\n", ptr);
+printf ("%p (20)\n", ptr);
 ptr=rpc_ss_lookup_node_by_num(str, 4);
-printf ("%d (30)\n", ptr);
+printf ("%p (30)\n", ptr);
 ptr=rpc_ss_lookup_node_by_num(str, 17);
-printf ("%d (50)\n", ptr);
+printf ("%p (50)\n", ptr);
 ptr=rpc_ss_lookup_node_by_num(str, 18);
-printf ("%d (1064)\n", ptr);
+printf ("%p (1064)\n", ptr);
 ptr=rpc_ss_lookup_node_by_num(str, 99);
-printf ("%d (0)\n", ptr);
+printf ("%p (0)\n", ptr);
 ptr=rpc_ss_lookup_node_by_num(str, 0);
-printf ("%d (0)\n", ptr);
+printf ("%p (0)\n", ptr);
 
 ptr = rpc_ss_return_pointer_to_node (str, 2, 3, 0, &has_been_marshalled,
                                      (long *)NULL);
-printf ("%d (40)", ptr);
+printf ("%p (40)", ptr);
 if (has_been_marshalled) printf ("  Erroneously flagged as unmarshalled!");
 printf ("\n");
 ptr = rpc_ss_return_pointer_to_node (str, 2, 3, 0, &has_been_marshalled,
                                      (long *)NULL);
-printf ("%d (40)", ptr);
+printf ("%p (40)", ptr);
 if (!has_been_marshalled) printf ("  Erroneously flagged as not unmarshalled!");
 printf ("\n");
 ptr = rpc_ss_return_pointer_to_node (str, 12, 3, 0, &has_been_marshalled,
                                      (long *)NULL);
-printf ("%08X (some reasonable heap pointer value)", ptr);
+printf ("%p (some reasonable heap pointer value)", ptr);
 if (has_been_marshalled) printf ("  Erroneously flagged as marshalled!");
 printf ("\n");
 

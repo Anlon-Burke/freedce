@@ -107,7 +107,7 @@ byte_p_t rpc_ss_mem_alloc
     new = (header *)malloc(sizeof(header) + GAP + 7 + bytes);
 
 #ifdef DEBUG_VERBOSE
-    printf("Allocated %d bytes at %lx\n", sizeof(header) + GAP + 7 + bytes,
+    printf("Allocated %lu bytes at %p\n", (unsigned long) (sizeof(header) + GAP + 7 + bytes),
            new);
 #endif
 
@@ -132,7 +132,7 @@ byte_p_t rpc_ss_mem_alloc
     *((header **)((char *)data_addr - GAP)) = new;
 
 #ifdef DEBUG_VERBOSE
-    printf("Returning %lx\n", data_addr);
+    printf("Returning %p\n", data_addr);
 #endif
 
 #ifdef PERFMON
@@ -176,7 +176,7 @@ byte_p_t rpc_sm_mem_alloc
     new = (header *)malloc(sizeof(header) + GAP + 7 + bytes);
 
 #ifdef DEBUG_VERBOSE
-    printf("Allocated %d bytes at %lx\n", sizeof(header) + GAP + 7 + bytes,
+    printf("Allocated %lu bytes at %p\n", (unsigned long) (sizeof(header) + GAP + 7 + bytes),
            new);
 #endif
 
@@ -206,7 +206,7 @@ byte_p_t rpc_sm_mem_alloc
     *((header **)((char *)data_addr - GAP)) = new;
 
 #ifdef DEBUG_VERBOSE
-    printf("Returning %lx\n", data_addr);
+    printf("Returning %p\n", data_addr);
 #endif
 
 #ifdef PERFMON
@@ -238,7 +238,7 @@ void rpc_ss_mem_free
         handle->memory = (rpc_void_p_t)((header *)handle->memory)->next;
 
 #ifdef DEBUG_VERBOSE
-        printf("Freeing %lx\n", tmp);
+        printf("Freeing %p\n", tmp);
 #endif
 
         free((byte_p_t)tmp);
@@ -271,7 +271,7 @@ void rpc_ss_mem_release
 #endif
 
 #ifdef DEBUG_VERBOSE
-    printf("Releasing %lx\n", this);
+    printf("Releasing %p\n", this);
 #endif
 
     if (this->next) this->next->prev = this->prev;
@@ -312,7 +312,7 @@ void rpc_ss_mem_item_free
 #endif
 
 #ifdef DEBUG_VERBOSE
-    printf("Releasing %lx\n", this);
+    printf("Releasing %p\n", this);
 #endif
 
     if (this->next) this->next->prev = this->prev;

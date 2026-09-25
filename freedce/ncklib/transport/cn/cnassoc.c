@@ -841,7 +841,7 @@ unsigned32              *st;
                                RPC_C_ASSOC_MAX_WAIT_INTERVAL);
         timespec.tv_nsec = 0;
         RPC_DBG_PRINTF (rpc_e_dbg_general, RPC_C_CN_DBG_GENERAL,
-                        ("CN: call_rep->%x assoc->%x desc->%x backing off %d seconds before retrying ...\n",
+                        ("CN: call_rep->%p assoc->%p desc->%x backing off %ld seconds before retrying ...\n",
                          call_r,
                          NULL,
                          0,
@@ -872,7 +872,7 @@ unsigned32              *st;
                                            &retry_op,
                                            st);
                 RPC_DBG_PRINTF (rpc_e_dbg_cancel, RPC_C_CN_DBG_CANCEL,
-                                ("(rpc__cn_assoc_request) call_rep->%x assoc->%x desc->%x cancel caught before association setup\n", 
+                                ("(rpc__cn_assoc_request) call_rep->%p assoc->%p desc->%x cancel caught before association setup\n", 
                                  call_r,
                                  NULL,
                                  0));
@@ -911,7 +911,7 @@ unsigned32              *st;
                                            &retry_op, 
                                            st);
                 RPC_DBG_PRINTF (rpc_e_dbg_cancel, RPC_C_CN_DBG_CANCEL,
-                                ("(rpc__cn_assoc_request) call_rep->%x cancel caught before association setup\n", 
+                                ("(rpc__cn_assoc_request) call_rep->%p cancel caught before association setup\n", 
                                  call_r,
                                  NULL,
                                  0));
@@ -1042,7 +1042,7 @@ unsigned32              *st;
     else
     {
         RPC_DBG_PRINTF (rpc_e_dbg_threads, RPC_C_CN_DBG_THREADS,
-	    ( "####### assoc->%x We're not signalling here\n", assoc ));
+	    ( "####### assoc->%p We're not signalling here\n", assoc ));
     }
     *st = rpc_s_ok;
     RPC_LOG_CN_ASSOC_LIS_XIT;
@@ -4671,7 +4671,7 @@ rpc_cn_assoc_p_t        assoc;
      * Create the receiver thread.
      */
     RPC_DBG_PRINTF (rpc_e_dbg_threads, RPC_C_CN_DBG_THREADS,
-        ( "####### assoc->%x Created receiver thread\n", assoc ));
+        ( "####### assoc->%p Created receiver thread\n", assoc ));
 
     while(!successful) {
         TRY {

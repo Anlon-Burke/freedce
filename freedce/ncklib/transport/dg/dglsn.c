@@ -607,7 +607,7 @@ INTERNAL void convq_loop(void)
 	    i.tv_sec = rpc_g_dbg_switches[rpc_es_dbg_conv_thread] - 100;
 	    i.tv_nsec = 0;
 	    RPC_DBG_PRINTF(rpc_e_dbg_conv_thread, 1,
-		("(convq_loop) sleeping for %d sec\n", i.tv_sec));
+		("(convq_loop) sleeping for %ld sec\n", i.tv_sec));
 #ifdef HAVE_OS_WIN32
 	    _sleep(i.tv_sec * 1000);
 #else
@@ -2243,7 +2243,7 @@ unsigned32 *window_incr, *rexmit_cnt, curr_serial;
     }                                    
              
     RPC_DBG_PRINTF(rpc_e_dbg_recv, 6, (
-        "(do_fack_body) <-- ws %lu (KB), max_tsdu %lu, max_frag_size %lu\n", 
+        "(do_fack_body) <-- ws %u (KB), max_tsdu %u, max_frag_size %u\n", 
         call->xq.window_size, max_tsdu, max_frag_size));
 
     /*
@@ -2313,7 +2313,7 @@ unsigned32 *window_incr, *rexmit_cnt, curr_serial;
     }
 
     RPC_DBG_PRINTF(rpc_e_dbg_recv, 6, (
-        "(do_fack_body) <-- our snd_tsdu %lu, max fs %lu, snd fs %lu\n", 
+        "(do_fack_body) <-- our snd_tsdu %u, max fs %u, snd fs %u\n", 
        call->xq.max_snd_tsdu, call->xq.max_frag_size, call->xq.snd_frag_size));
 
 #ifdef DEBUG
@@ -2326,7 +2326,7 @@ unsigned32 *window_incr, *rexmit_cnt, curr_serial;
         {
             call->xq.window_size = window_size;
             RPC_DBG_PRINTF(rpc_e_dbg_recv, 6,
-                           ("(do_fack_body) <-- ws dropped to %lu (KB)\n",
+                           ("(do_fack_body) <-- ws dropped to %u (KB)\n",
                             call->xq.window_size));
         }
     }
@@ -2341,7 +2341,7 @@ unsigned32 *window_incr, *rexmit_cnt, curr_serial;
                                    / call->xq.snd_frag_size;
 
     RPC_DBG_PRINTF(rpc_e_dbg_recv, 6,
-                   ("(do_fack_body) <-- adjusted ws %lu (fragments)\n",
+                   ("(do_fack_body) <-- adjusted ws %u (fragments)\n",
                     call->xq.window_size));
 #else
 
@@ -2713,7 +2713,7 @@ boolean *sent_data;
             xq->max_blast_size -= 2;
             xq->xq_timer_throttle = MIN(++xq->xq_timer_throttle, 1000);
             RPC_DBG_PRINTF(rpc_e_dbg_recv, 5, (
-                "(do_fack) Lowering blast size %lu\n", xq->max_blast_size));
+                "(do_fack) Lowering blast size %u\n", xq->max_blast_size));
         }
         xq->xq_timer = xq->xq_timer_throttle * RPC_C_DG_INITIAL_XQ_TIMER;
         xq->high_cwindow = 0;
@@ -2729,7 +2729,7 @@ boolean *sent_data;
             xq->max_blast_size = MIN(xq->max_blast_size + 2, RPC_C_DG_MAX_BLAST_SIZE);
             xq->xq_timer = xq->xq_timer_throttle * RPC_C_DG_INITIAL_XQ_TIMER;
             RPC_DBG_PRINTF(rpc_e_dbg_recv, 5, (
-                "(do_fack) Raising blast size %lu\n", xq->max_blast_size));
+                "(do_fack) Raising blast size %u\n", xq->max_blast_size));
         } 
         else
         {
@@ -2763,7 +2763,7 @@ boolean *sent_data;
 
 
     RPC_DBG_PRINTF(rpc_e_dbg_recv, 5, (
-        "(do_fack%s%s) frag %lu, cws %lu, bs %lu, fo %lu\n", 
+        "(do_fack%s%s) frag %u, cws %u, bs %u, fo %u\n", 
         ready_to_go < (unsigned32)blast_size ? "-slow-q" : "",
         rexmit_cnt > 0 ? "-loss" : "",
         rqe->hdrp->fragnum, xq->cwindow_size, xq->blast_size, 

@@ -148,7 +148,7 @@ PRIVATE void rpc__gssauth_bnd_set_auth
     }
                                     
     RPC_DBG_PRINTF(rpc_e_dbg_auth, 1, (
-            "(rpc__gssauth_bnd_set_auth) %x created (now %d active)\n", 
+            "(rpc__gssauth_bnd_set_auth) %p created (now %d active)\n", 
             gssauth_info, rpc_g_gssauth_alloc_count - rpc_g_gssauth_free_count));
     
     memset (gssauth_info, 0, sizeof(*gssauth_info));

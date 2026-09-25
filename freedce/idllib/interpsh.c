@@ -1054,7 +1054,7 @@ void rpc_ss_build_range_list
                 RAISE( rpc_x_invalid_bound );
         }
 #ifdef DEBUG_INTERP
-		printf("range upr: %ld lwr: %ld func: %d\n", range_list[i].upper,
+		printf("range upr: %d lwr: %d func: %d\n", range_list[i].upper,
 			range_list[i].lower, func_code);
 #endif
         /* Inside out limits mean "transmit no elements" */

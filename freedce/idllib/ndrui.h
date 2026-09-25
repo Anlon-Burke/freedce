@@ -83,7 +83,7 @@
     rpc_ss_ndr_unmar_check_buffer( IDL_msp ); \
     marshalling_macro( IDL_msp->IDL_drep, ndr_g_local_drep, \
                         IDL_msp->IDL_mp, *(type *)(param_addr)); \
-    RPC_DBG_NDR(("IDL_UNMAR_1_BYTE_SCALAR, %010p %010p %d %02d\n", \
+    RPC_DBG_NDR(("IDL_UNMAR_1_BYTE_SCALAR, %10p %10p %d %02d\n", \
 		param_addr, \
                 IDL_msp->IDL_mp, IDL_msp->IDL_left_in_buff, \
 		*(unsigned char *)(param_addr) ));\
@@ -108,7 +108,7 @@
     rpc_ss_ndr_unmar_check_buffer( IDL_msp ); \
     marshalling_macro( IDL_msp->IDL_drep, ndr_g_local_drep, \
                         IDL_msp->IDL_mp, *(type *)(param_addr)); \
-    RPC_DBG_NDR_ADD(("IDL_UNMAR_ALIGNED_SCALAR, %010p %010p %d %-9s ", \
+    RPC_DBG_NDR_ADD(("IDL_UNMAR_ALIGNED_SCALAR, %10p %10p %d %-9s ", \
 		param_addr, \
                 IDL_msp->IDL_mp, IDL_msp->IDL_left_in_buff,  \
 		type_str));\
@@ -167,7 +167,7 @@
     rpc_ss_ndr_unmar_check_buffer( IDL_msp ); \
     rpc_convert_ulong_int( IDL_msp->IDL_drep, ndr_g_local_drep, \
                         IDL_msp->IDL_mp, *(idl_ulong_int *)(param_addr)); \
-    RPC_DBG_NDR(("IDL_UNMAR_ERROR_STATUS, %010p %d %d %02d\n", \
+    RPC_DBG_NDR(("IDL_UNMAR_ERROR_STATUS, %10p %p %d %02d\n", \
 		param_addr, \
                 IDL_msp->IDL_mp, IDL_msp->IDL_left_in_buff, \
 		*(idl_ulong_int*)(param_addr) ));\
@@ -182,7 +182,7 @@
     rpc_ss_ndr_unmar_check_buffer( IDL_msp ); \
     rpc_convert_ulong_int( IDL_msp->IDL_drep, ndr_g_local_drep, \
                         IDL_msp->IDL_mp, *(idl_ulong_int *)(param_addr)); \
-    RPC_DBG_NDR(("IDL_UNMAR_ERROR_STATUS, %010p %d %d %02d\n", \
+    RPC_DBG_NDR(("IDL_UNMAR_ERROR_STATUS, %10p %p %d %02d\n", \
 		param_addr, \
                 IDL_msp->IDL_mp, IDL_msp->IDL_left_in_buff, \
 		*(idl_ulong_int*)(param_addr) ));\

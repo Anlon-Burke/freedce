@@ -75,7 +75,7 @@ PRIVATE void rpc__ntlmauth_bnd_set_auth
         server_name = rpc_stralloc(server_name);
     }
     RPC_DBG_PRINTF(rpc_e_dbg_auth, 1, (
-            "(rpc__ntlmauth_bnd_set_auth) %x created (now %d active)\n", 
+            "(rpc__ntlmauth_bnd_set_auth) %p created (now %d active)\n", 
             ntlmauth_info, rpc_g_ntlmauth_alloc_count - rpc_g_ntlmauth_free_count));
     
     memset (ntlmauth_info, 0, sizeof(*ntlmauth_info));

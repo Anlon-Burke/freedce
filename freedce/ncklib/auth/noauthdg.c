@@ -195,7 +195,7 @@ PRIVATE void rpc__noauth_dg_way_handler
         
     *out_len = 0;
     
-    RPC_DBG_PRINTF(rpc_e_dbg_auth, 2, ("(rpc__noauth_dg_way_handler) %x called back\n", info));
+    RPC_DBG_PRINTF(rpc_e_dbg_auth, 2, ("(rpc__noauth_dg_way_handler) %p called back\n", info));
     
     if (noauth_info->status != rpc_s_ok)
     {
@@ -267,7 +267,7 @@ PRIVATE void rpc__noauth_dg_who_are_you
     int st;
 
     /* XXX set up exception handler here around remote call? */
-    RPC_DBG_PRINTF(rpc_e_dbg_auth, 2, ("(rpc__noauth_dg_way) %x doing callback\n", info));
+    RPC_DBG_PRINTF(rpc_e_dbg_auth, 2, ("(rpc__noauth_dg_way) %p doing callback\n", info));
     
     /* do call */
     (*conv_v3_0_c_epv.conv_who_are_you_auth)
@@ -316,7 +316,7 @@ PRIVATE rpc_auth_info_p_t rpc__noauth_dg_create
 
     rpc_g_noauth_alloc_count++;
     RPC_DBG_PRINTF(rpc_e_dbg_auth, 1,
-        ("(rpc__noauth_dg_create) %x created (now %d active)\n", noauth_info,
+        ("(rpc__noauth_dg_create) %p created (now %d active)\n", noauth_info,
             rpc_g_noauth_alloc_count - rpc_g_noauth_free_count));
 
     memset (noauth_info, '\0', sizeof(*noauth_info));

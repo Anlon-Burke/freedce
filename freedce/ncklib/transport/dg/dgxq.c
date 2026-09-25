@@ -116,7 +116,7 @@ unsigned32 com_timeout_knob;
         && com_timeout_knob != rpc_c_binding_infinite_timeout)
     {
         RPC_DBG_GPRINTF(
-            ("(rpc__dg_xmitq_awaiting_ack_tmo) timeout (timestamp=%lu, wait_time=%lu, now=%lu) [%s]\n", 
+            ("(rpc__dg_xmitq_awaiting_ack_tmo) timeout (timestamp=%u, wait_time=%u, now=%u) [%s]\n", 
             timestamp, wait_time, rpc__clock_stamp(),
             rpc__dg_act_seq_string(&xq->hdr)));
         return (true);
@@ -388,7 +388,7 @@ boolean32 block;
     xqe->frag_len = xq->hdr.len = sendcc - RPC_C_DG_RAW_PKT_HDR_SIZE;
                            
     RPC_DBG_PRINTF(rpc_e_dbg_xmit, 5, 
-        ("(rpc__dg_xmitq_elt_xmit) %s %lu.%u.%u len=%lu %s\n", 
+        ("(rpc__dg_xmitq_elt_xmit) %s %u.%u.%u len=%u %s\n", 
         rpc__dg_pkt_name(RPC_DG_HDR_INQ_PTYPE(&call->xq.hdr)), 
         call->xq.hdr.seq, xqe->fragnum, 
         xqe->serial_num, xq->hdr.len, 
@@ -435,7 +435,7 @@ boolean32 block;
         sendcc += overhead;
     }
     RPC_DBG_PRINTF(rpc_e_dbg_xmit, 5,
-        ("(rpc__dg_xmitq_elt_xmit) iovlen %lu, sendcc %lu\n",
+        ("(rpc__dg_xmitq_elt_xmit) iovlen %u, sendcc %u\n",
          iovlen, sendcc));
     
     /*

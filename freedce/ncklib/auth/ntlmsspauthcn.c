@@ -303,7 +303,7 @@ unsigned32                      *st;
                     ("(rpc__ntlmsspauth_cn_context_valid)\n"));
 
     RPC_DBG_PRINTF (rpc_e_dbg_auth, RPC_C_CN_DBG_AUTH_GENERAL,
-                    ("(rpc__ntlmsspauth_cn_context_valid) time->%x\n", time));
+                    ("(rpc__ntlmsspauth_cn_context_valid) time->%p\n", time));
 
     RPC_DBG_PRINTF (rpc_e_dbg_auth, RPC_C_CN_DBG_AUTH_PKT,
                     ("(rpc__ntlmsspauth_cn_context_valid) prot->%x level->%x key_id->%x\n",
@@ -692,7 +692,7 @@ unsigned32                      *st;
 
     CODING_ERROR (st);
     RPC_DBG_PRINTF (rpc_e_dbg_auth, RPC_C_CN_DBG_AUTH_ROUTINE_TRACE,
-                    ("(rpc__ntlmsspauth_cn_fmt_client_req) flags: 0x%x old_srv: %ld\n",
+                    ("(rpc__ntlmsspauth_cn_fmt_client_req) flags: 0x%x old_srv: %d\n",
 		     usr->ntlmssp_flags, old_server));
 
     RPC_DBG_PRINTF (rpc_e_dbg_auth, RPC_C_CN_DBG_AUTH_PKT,
@@ -864,7 +864,7 @@ unsigned32                      *auth_value_len;
     assert (verify_st == rpc_s_ok);
 
     RPC_DBG_PRINTF (rpc_e_dbg_auth, RPC_C_CN_DBG_AUTH_ROUTINE_TRACE,
-                    ("(rpc__ntlmsspauth_cn_fmt_srvr_resp) neg_flags %08lx\n",
+                    ("(rpc__ntlmsspauth_cn_fmt_srvr_resp) neg_flags %08x\n",
 		     ntlmssp->neg_flags));
 
     ntlmssp_auth_gen(ntlmssp, auth_value, (size_t*)auth_value_len);
@@ -1612,7 +1612,7 @@ unsigned8               *packed_drep;
     RPC_DBG_PRINTF (rpc_e_dbg_auth, RPC_C_CN_DBG_AUTH_ROUTINE_TRACE,
                     ("(rpc__ntlmsspauth_cn_tlr_unpack)\n"));
     RPC_DBG_PRINTF (rpc_e_dbg_auth, RPC_C_CN_DBG_AUTH_PKT,
-                    ("(rpc__ntlmsspauth_cn_tlr_unpack), pkt->%d auth_value_len->%ld packed_drep->%p\n",
+                    ("(rpc__ntlmsspauth_cn_tlr_unpack), pkt->%p auth_value_len->%d packed_drep->%p\n",
 		     pkt_p, auth_value_len, packed_drep));
 }
 
@@ -1701,7 +1701,7 @@ unsigned32                      *st;
                     assoc_sec->assoc_next_rcv_seq));
 
     RPC_DBG_PRINTF (rpc_e_dbg_auth, RPC_C_CN_DBG_AUTH_PKT,
-                    ("(rpc__ntlmsspauth_cn_vfy_client_req) auth_value->%p auth_value_len->%lx, old_client->%lx\n",
+                    ("(rpc__ntlmsspauth_cn_vfy_client_req) auth_value->%p auth_value_len->%x, old_client->%x\n",
                     auth_value, auth_value_len, old_client));
 
     dump_data(RPC_C_CN_DBG_AUTH_PKT, auth_value, auth_value_len);
@@ -1723,7 +1723,7 @@ unsigned32                      *st;
 	*st = RPC_S_CN_DBG_AUTH_FAILURE;
 
     RPC_DBG_PRINTF (rpc_e_dbg_auth, RPC_C_CN_DBG_AUTH_PKT,
-                    ("(rpc__ntlmsspauth_cn_vfy_client_req) status->%lx neg_flgs->%lx\n",
+                    ("(rpc__ntlmsspauth_cn_vfy_client_req) status->%x neg_flgs->%x\n",
 		     	*st, ntlmssp->neg_flags));
 }
 
@@ -1813,7 +1813,7 @@ unsigned32                      *st;
                     assoc_sec->assoc_next_rcv_seq));
 
     RPC_DBG_PRINTF (rpc_e_dbg_auth, RPC_C_CN_DBG_AUTH_PKT,
-                    ("(rpc__ntlmsspauth_cn_vfy_server_resp) auth_value->%p auth_value_len->%lx\n",
+                    ("(rpc__ntlmsspauth_cn_vfy_server_resp) auth_value->%p auth_value_len->%x\n",
                     auth_value, auth_value_len));
 
 #ifdef DEBUG

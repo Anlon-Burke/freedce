@@ -361,7 +361,7 @@ rpc_auth_info_p_t   auth_info;
     char *info_type = auth_info->is_server?"server":"client";
 #endif
 
-    RPC_DBG_PRINTF(rpc_e_dbg_auth, 3, ("(rpc__auth_info_reference) %x: bumping %s refcount (was %d, now %d)\n",
+    RPC_DBG_PRINTF(rpc_e_dbg_auth, 3, ("(rpc__auth_info_reference) %p: bumping %s refcount (was %d, now %d)\n",
         auth_info,
         info_type, auth_info->refcount,
         auth_info->refcount + 1));
@@ -467,7 +467,7 @@ rpc_auth_info_p_t       *info;
     }
 
     info_type = auth_info->is_server?"server":"client";
-    RPC_DBG_PRINTF(rpc_e_dbg_auth, 3, ("(rpc__auth_info_release) %x: dropping %s refcount (was %d, now %d)\n",
+    RPC_DBG_PRINTF(rpc_e_dbg_auth, 3, ("(rpc__auth_info_release) %p: dropping %s refcount (was %d, now %d)\n",
         auth_info,
         info_type,
         auth_info->refcount,
@@ -552,7 +552,7 @@ PRIVATE void rpc__key_info_reference
 rpc_key_info_p_t   key_info;
 #endif
 {
-    RPC_DBG_PRINTF(rpc_e_dbg_auth, 3, ("(rpc__key_info_reference) %x: bumping %s refcnt (was %d, now %d)\n",
+    RPC_DBG_PRINTF(rpc_e_dbg_auth, 3, ("(rpc__key_info_reference) %p: bumping %s refcnt (was %d, now %d)\n",
         key_info,
         (key_info->is_server?"server":"client"),
         key_info->refcnt,
@@ -612,7 +612,7 @@ rpc_key_info_p_t       *info;
     *info = NULL;
     
     RPC_DBG_PRINTF(rpc_e_dbg_auth, 3,
-        ("(rpc__key_info_release) %x: dropping %s refcnt (was %d, now %d)\n",
+        ("(rpc__key_info_release) %p: dropping %s refcnt (was %d, now %d)\n",
             key_info,
             key_info->is_server?"server":"client",
             key_info->refcnt,
@@ -1704,7 +1704,7 @@ rpc_auth_info_p_t       auth_info;
     {
         RPC_LIST_REMOVE (auth_info_cache, auth_info);
         info_type = auth_info->is_server?"server":"client";
-        RPC_DBG_PRINTF(rpc_e_dbg_auth, 3, ("(rpc__auth_info_release) %x: dropping %s refcount (was %d, now %d)\n",
+        RPC_DBG_PRINTF(rpc_e_dbg_auth, 3, ("(rpc__auth_info_release) %p: dropping %s refcount (was %d, now %d)\n",
                                            auth_info,
                                            info_type,
                                            auth_info->refcount,

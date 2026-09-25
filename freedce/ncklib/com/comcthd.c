@@ -548,7 +548,7 @@ cthread_elt_p_t cthread;
 	    if (!skip_startup) 
 	    {
 		RPC_DBG_PRINTF (rpc_e_dbg_general, 15,
-		    ("(cthread_call_executor) pool %x cthread %x executing call_rep %x\n",
+		    ("(cthread_call_executor) pool %p cthread %p executing call_rep %p\n",
 			p, cthread, call_rep));
 
 
@@ -618,7 +618,7 @@ cthread_elt_p_t cthread;
     }
 
     RPC_DBG_PRINTF (rpc_e_dbg_general, 5,
-        ("(cthread_call_executor) pool %x cthread %x stopped\n",
+        ("(cthread_call_executor) pool %p cthread %p stopped\n",
         p, cthread));
 
     /*
@@ -710,7 +710,7 @@ pointer_t   unused_arg;
 
 
         RPC_DBG_PRINTF (rpc_e_dbg_general, 5,
-            ("(cthread_reaper) freeing pool %x\n", p));
+            ("(cthread_reaper) freeing pool %p\n", p));
 
         /*
          * Remove the pool from the reaper's queue (pool free really
@@ -1091,7 +1091,7 @@ unsigned32  *status;
     if (p->ctbl != NULL)
     {
         RPC_DBG_GPRINTF (
-            ("(cthread_pool_start) pool %x orphaning ctbl\n", p));
+            ("(cthread_pool_start) pool %p orphaning ctbl\n", p));
     }
 
     /*
@@ -1129,7 +1129,7 @@ unsigned32  *status;
         if (*status != rpc_s_ok)
         {
             RPC_DBG_GPRINTF (
-                ("(cthread_pool_start) pool %x couldn't create thread %d\n", p, i));
+                ("(cthread_pool_start) pool %p couldn't create thread %d\n", p, i));
             goto CLEANUP;
         }
     }
@@ -1170,7 +1170,7 @@ unsigned32  *status;
     }
 
     RPC_DBG_PRINTF (rpc_e_dbg_general, 5, 
-        ("(cthread_pool_start) pool %x (%d threads)\n", p, p->n_threads));
+        ("(cthread_pool_start) pool %p (%d threads)\n", p, p->n_threads));
 
     /*
      * Tell the pool's threads to start.
@@ -1268,7 +1268,7 @@ unsigned32  *status;
     }
 
     RPC_DBG_PRINTF (rpc_e_dbg_general, 5,
-            ("(cthread_pool_stop) pool %x (%d threads) stopping\n", 
+            ("(cthread_pool_stop) pool %p (%d threads) stopping\n", 
             p, p->n_threads));
 
     /*
@@ -1327,7 +1327,7 @@ unsigned32  *status;
     sys_pthread_setcancel(cs);
 
     RPC_DBG_PRINTF (rpc_e_dbg_general, 5,
-            ("(cthread_pool_stop) pool %x (%d threads) stopped\n", 
+            ("(cthread_pool_stop) pool %p (%d threads) stopped\n", 
             p, p->n_threads));
 
     /*
@@ -1503,7 +1503,7 @@ unsigned32              *status;
     if (CTHREAD_POOL_IS_QUEUE_FULL (p))
     {
         RPC_DBG_GPRINTF ((
-            "(cthread_pool_queue_call) pool %x full call_rep %x\n", p, call_rep));
+            "(cthread_pool_queue_call) pool %p full call_rep %p\n", p, call_rep));
         *status = rpc_s_cthread_not_found;
         return;
     }
@@ -1545,7 +1545,7 @@ unsigned32              *status;
     } 
 
     RPC_DBG_PRINTF (rpc_e_dbg_general, 5,
-        ("(cthread_pool_queue_call) pool %x (now %d) call_rep %x\n", 
+        ("(cthread_pool_queue_call) pool %p (now %d) call_rep %p\n", 
             p, p->n_queued, call_rep));
 
     *status = rpc_s_ok;
@@ -1740,7 +1740,7 @@ rpc_call_rep_p_t        call_rep;
     pvt->qelt = NULL;
 
     RPC_DBG_PRINTF (rpc_e_dbg_general, 5,
-        ("(cthread_call_dequeue) pool %x (%d remain) call_rep %x\n", 
+        ("(cthread_call_dequeue) pool %p (%d remain) call_rep %p\n", 
         p, p->n_queued, call_rep));
 
     return true;

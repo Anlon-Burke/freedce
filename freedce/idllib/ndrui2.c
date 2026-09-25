@@ -309,7 +309,7 @@ void rpc_ss_ndr_unmar_pointee
         if (p_node == NULL)
             RAISE( rpc_x_no_memory );
         *p_pointer = p_node;
-	RPC_DBG_NDR(("rpc_ss_ndr_unmar_pointee: %10p already unmarshalled: %d\n",
+	RPC_DBG_NDR(("rpc_ss_ndr_unmar_pointee: %10p already unmarshalled: %ld\n",
 				p_node,
 				already_unmarshalled));
         if ( already_unmarshalled )
@@ -329,7 +329,7 @@ void rpc_ss_ndr_unmar_pointee
         p_node = *p_pointer;
     }
 
-    RPC_DBG_NDR(("rpc_ss_ndr_unmar_pointee: ptr: %10p new: %d already_unmar: %d\n",
+    RPC_DBG_NDR(("rpc_ss_ndr_unmar_pointee: ptr: %10p new: %ld already_unmar: %ld\n",
 				    p_node, new_node, already_unmarshalled));
     if ( new_node )
     {

@@ -1665,7 +1665,7 @@ pointer_t       sm;
          * at least spit out what happened.
          */
         RPC_DBG_PRINTF (rpc_e_dbg_general, RPC_C_CN_DBG_ERRORS,
-                        ("CN: call_rep->%x assoc->%x desc->%x error %x while processing alter context PDU \n",
+                        ("CN: call_rep->%p assoc->%p desc->%x error %x while processing alter context PDU \n",
                          assoc->call_rep,
                          assoc,
                          assoc->cn_ctlblk.cn_sock,
@@ -2809,7 +2809,7 @@ pointer_t       sm;
         if (rpc__cthread_dequeue((rpc_call_rep_t *) assoc->call_rep))
         {
             RPC_DBG_PRINTF(rpc_e_dbg_orphan, RPC_C_CN_DBG_ORPHAN,
-                           ("(cancel_calls_action_rtn) call_rep->%x queued call ... dequeued call id = %x\n",
+                           ("(cancel_calls_action_rtn) call_rep->%p queued call ... dequeued call id = %x\n",
                             assoc->call_rep,
                             RPC_CN_PKT_CALL_ID ((rpc_cn_packet_p_t) RPC_CN_CREP_SEND_HDR(assoc->call_rep))));
             binding_r = (rpc_binding_rep_t *) assoc->call_rep->binding_rep;
@@ -2828,7 +2828,7 @@ pointer_t       sm;
              * and needs to be woken up.
              */
             RPC_DBG_PRINTF(rpc_e_dbg_orphan, RPC_C_CN_DBG_ORPHAN,
-                           ("(cancel_calls_action_rtn) call_rep->%x running call ... cancelling\n",
+                           ("(cancel_calls_action_rtn) call_rep->%p running call ... cancelling\n",
                             assoc->call_rep));
             RPC_CN_ASSOC_CANCEL_AND_WAKEUP (assoc);
         }
@@ -2836,7 +2836,7 @@ pointer_t       sm;
     else
     {
         RPC_DBG_PRINTF(rpc_e_dbg_orphan, RPC_C_CN_DBG_ORPHAN,
-                       ("(cancel_calls_action_rtn) call_rep->%x assoc->%x no call ... do nothing\n",
+                       ("(cancel_calls_action_rtn) call_rep->%p assoc->%p no call ... do nothing\n",
                         assoc->call_rep,
                         assoc));
     }
@@ -3960,7 +3960,7 @@ unsigned32              *st;
     if (assoc->security.auth_buffer_info.auth_buffer)
     {
         RPC_DBG_PRINTF (rpc_e_dbg_auth, RPC_C_CN_DBG_AUTH_BIG_PAC,
-                 ("(rpc__cn_assoc_process_auth_tlr) Free'd auth_buffer: %x\n",
+                 ("(rpc__cn_assoc_process_auth_tlr) Free'd auth_buffer: %p\n",
                  assoc->security.auth_buffer_info.auth_buffer));
 
         RPC_MEM_FREE(assoc->security.auth_buffer_info.auth_buffer, 
@@ -4027,7 +4027,7 @@ unsigned32              *st;
 	    error_text ));
 
         RPC_DBG_PRINTF (rpc_e_dbg_general, RPC_C_CN_DBG_SECURITY_ERRORS,
-                        ("CN: call_rep->%x assoc->%x desc->%x client verification failed security_context->%x auth_type->%x auth_level->%x auth_len->%x st->%x\n",
+                        ("CN: call_rep->%p assoc->%p desc->%x client verification failed security_context->%p auth_type->%x auth_level->%x auth_len->%x st->%x\n",
                          assoc->call_rep,
                          assoc,
                          assoc->cn_ctlblk.cn_sock,
@@ -4227,7 +4227,7 @@ rpc_cn_packet_p_t       header;
 #endif
 
         RPC_DBG_PRINTF (rpc_e_dbg_auth, RPC_C_CN_DBG_AUTH_BIG_PAC,
-             ("(send_frag_resp_pdu) Freeing KRB message: 0x%x\n",
+             ("(send_frag_resp_pdu) Freeing KRB message: %p\n",
               krb_message_ptr));
     }
 }
@@ -4309,7 +4309,7 @@ rpc_cn_packet_p_t	header;
                       RPC_C_MEM_WAITOK);
 
         RPC_DBG_PRINTF (rpc_e_dbg_auth, RPC_C_CN_DBG_AUTH_BIG_PAC,
-  ("(save_sec_fragment) Alloc'd auth_buffer: %x, auth_buffer_max = %d\n",
+  ("(save_sec_fragment) Alloc'd auth_buffer: %p, auth_buffer_max = %d\n",
                         auth_buffer,
                         auth_buffer_max));
     }
@@ -4324,7 +4324,7 @@ rpc_cn_packet_p_t	header;
                         RPC_C_MEM_WAITOK);
 
         RPC_DBG_PRINTF (rpc_e_dbg_auth, RPC_C_CN_DBG_AUTH_BIG_PAC,
-("(save_sec_fragment) Realloc'd auth_buffer: %x, auth_buffer_max = %d\n",
+("(save_sec_fragment) Realloc'd auth_buffer: %p, auth_buffer_max = %d\n",
                         auth_buffer,
                         auth_buffer_max));
     }
@@ -4361,7 +4361,7 @@ rpc_cn_packet_p_t	header;
     }
 
     RPC_DBG_PRINTF (rpc_e_dbg_auth, RPC_C_CN_DBG_AUTH_BIG_PAC,
-    ("(save_sec_fragment) Copied to auth_buffer: %x, auth_buffer_len=%d, auth_value_len=%d, auth_buffer_max=%d\n", 
+    ("(save_sec_fragment) Copied to auth_buffer: %p, auth_buffer_len=%d, auth_value_len=%d, auth_buffer_max=%d\n", 
     auth_buffer, auth_buffer_len, auth_value_len, auth_buffer_max));
 
     auth_buffer_len += auth_value_len;
@@ -4467,8 +4467,8 @@ pointer_t       sm;
 	pkt_len = RPC_CN_PKT_FRAG_LEN(req_header);
 
 	RPC_DBG_PRINTF (rpc_e_dbg_auth, RPC_C_CN_DBG_AUTH_BIG_PAC,
-             ("(do_assoc_inherit_ctx_rtn) pktlen: 0x%x ver: 0x%x cmd: 0x%x\n",
-			  pkt_len,
+             ("(do_assoc_inherit_ctx_rtn) pktlen: 0x%lx ver: 0x%x cmd: 0x%x\n",
+			  (unsigned long) pkt_len,
               RPC_CN_PKT_INHCTX_VER(req_header),
 			  RPC_CN_PKT_INHCTX_CMD(req_header)));
 

@@ -3447,7 +3447,7 @@ pointer_t       sm;
         if (assoc->security.auth_buffer_info.auth_buffer)
         {
             RPC_DBG_PRINTF (rpc_e_dbg_auth, RPC_C_CN_DBG_AUTH_BIG_PAC,
-                 ("(mark_syntax_and_sec_action_rtn) Free'd auth_buffer: %x\n",
+                 ("(mark_syntax_and_sec_action_rtn) Free'd auth_buffer: %p\n",
                  assoc->security.auth_buffer_info.auth_buffer));
 
             RPC_MEM_FREE(assoc->security.auth_buffer_info.auth_buffer, 
@@ -3466,7 +3466,7 @@ pointer_t       sm;
             {
                         RPC_DBG_PRINTF (rpc_e_dbg_general,
                                         RPC_C_CN_DBG_GENERAL,
-                                ("CN: auth_info %x\n", assoc->call_rep->binding_rep->auth_info));
+                                ("CN: auth_info %p\n", assoc->call_rep->binding_rep->auth_info));
                         RPC_DBG_PRINTF (rpc_e_dbg_general, RPC_C_CN_DBG_GENERAL,
                                 ("CN: should not continue further with this PDU\n"));
                         assoc->assoc_status = rpc_s_authn_level_mismatch;
@@ -4370,7 +4370,7 @@ pointer_t       sm;
                       RPC_C_MEM_WAITOK);
 
         RPC_DBG_PRINTF (rpc_e_dbg_auth, RPC_C_CN_DBG_AUTH_BIG_PAC,
-  ("(process_frag_action_rtn) Alloc'd auth_buffer: %x, auth_buffer_max = %d\n",
+  ("(process_frag_action_rtn) Alloc'd auth_buffer: %p, auth_buffer_max = %d\n",
                         auth_buffer,
                         auth_buffer_max));
     }
@@ -4385,7 +4385,7 @@ pointer_t       sm;
                         RPC_C_MEM_WAITOK);
 
         RPC_DBG_PRINTF (rpc_e_dbg_auth, RPC_C_CN_DBG_AUTH_BIG_PAC,
-("(process_frag_action_rtn) Realloc'd auth_buffer: %x, auth_buffer_max = %d\n",
+("(process_frag_action_rtn) Realloc'd auth_buffer: %p, auth_buffer_max = %d\n",
                         auth_buffer,
                         auth_buffer_max));
     }
@@ -4422,7 +4422,7 @@ pointer_t       sm;
     }
 
     RPC_DBG_PRINTF (rpc_e_dbg_auth, RPC_C_CN_DBG_AUTH_BIG_PAC,
-    ("(process_frag_action_rtn) Copied to auth_buffer: %x, auth_buffer_len=%d, auth_value_len=%d, auth_buffer_max=%d\n", 
+    ("(process_frag_action_rtn) Copied to auth_buffer: %p, auth_buffer_len=%d, auth_value_len=%d, auth_buffer_max=%d\n", 
     auth_buffer, auth_buffer_len, auth_value_len, auth_buffer_max));
 
     auth_buffer_len += auth_value_len;
@@ -4542,7 +4542,7 @@ pointer_t       sm;
     }
 
     RPC_DBG_PRINTF(rpc_e_dbg_general, RPC_C_CN_DBG_GENERAL,
-                   ("CN: assoc->%x Falling back to version 5.0 protocol\n",
+                   ("CN: assoc->%p Falling back to version 5.0 protocol\n",
                    assoc));
 
     /*

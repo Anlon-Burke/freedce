@@ -207,10 +207,10 @@ rpc_cn_assoc_p_t        assoc;
     RPC_CN_DBG_RTN_PRINTF (rpc__cn_network_receiver);
 
     RPC_DBG_PRINTF (rpc_e_dbg_threads, RPC_C_CN_DBG_THREADS,
-        ("####### assoc->%x Entered receiver thread \n", assoc));
+        ("####### assoc->%p Entered receiver thread \n", assoc));
 
     RPC_DBG_PRINTF (rpc_e_dbg_general, RPC_C_CN_DBG_GENERAL,
-                    ("CN: assoc->%x call_rep->none Receiver thread starting...\n",
+                    ("CN: assoc->%p call_rep->none Receiver thread starting...\n",
                      assoc));
 
     /*
@@ -219,7 +219,7 @@ rpc_cn_assoc_p_t        assoc;
     while (!done && !assoc->cn_ctlblk.exit_rcvr)
     {
         RPC_DBG_PRINTF (rpc_e_dbg_general, RPC_C_CN_DBG_GENERAL,
-                        ("CN: assoc->%x call_rep->none Entering receive loop...\n",
+                        ("CN: assoc->%p call_rep->none Entering receive loop...\n",
                          assoc));
 
         /*
@@ -243,7 +243,7 @@ rpc_cn_assoc_p_t        assoc;
             {
                 assoc->cn_ctlblk.cn_rcvr_waiters++;
                 RPC_DBG_PRINTF (rpc_e_dbg_threads, RPC_C_CN_DBG_THREADS,
-                    ("####### assoc->%x Waiting for new connection \n", assoc));
+                    ("####### assoc->%p Waiting for new connection \n", assoc));
                 TRY 
                 {
                     RPC_COND_WAIT (assoc->cn_ctlblk.cn_rcvr_cond,
@@ -255,11 +255,11 @@ rpc_cn_assoc_p_t        assoc;
                 }
                 ENDTRY
                 RPC_DBG_PRINTF (rpc_e_dbg_threads, RPC_C_CN_DBG_THREADS,
-                    ("####### assoc->%x Got a new connection \n", assoc));
+                    ("####### assoc->%p Got a new connection \n", assoc));
             }
             
             RPC_DBG_PRINTF (rpc_e_dbg_general, RPC_C_CN_DBG_GENERAL,
-                            ("CN: assoc->%x call_rep->none Receiver awake ... Connection established\n",
+                            ("CN: assoc->%p call_rep->none Receiver awake ... Connection established\n",
                              assoc));
 
             /*
@@ -280,7 +280,7 @@ rpc_cn_assoc_p_t        assoc;
             CATCH(pthread_cancel_e)
             {
                 RPC_DBG_PRINTF (rpc_e_dbg_general, RPC_C_CN_DBG_GENERAL,
-("CN: call_rep->%x assoc->%x desc->%x receiver canceled, caught in rpc__cn_network_receiver()\n",
+("CN: call_rep->%p assoc->%p desc->%x receiver canceled, caught in rpc__cn_network_receiver()\n",
                                 assoc->call_rep,
                                 assoc,
                                 assoc->cn_ctlblk.cn_sock));
@@ -301,7 +301,7 @@ rpc_cn_assoc_p_t        assoc;
             ENDTRY
                 
             RPC_DBG_PRINTF (rpc_e_dbg_general, RPC_C_CN_DBG_GENERAL,
-                                ("CN: assoc->%x call_rep->none No longer receiving...Close socket\n",
+                                ("CN: assoc->%p call_rep->none No longer receiving...Close socket\n",
                                  assoc));
                 /*
                  * Either the connection was broken or another
@@ -318,7 +318,7 @@ rpc_cn_assoc_p_t        assoc;
                      * The socket close failed.
                      */
                     RPC_DBG_PRINTF (rpc_e_dbg_general, RPC_C_CN_DBG_ERRORS,
-("(rpc__cn_network_receiver) assoc->%x desc->%x rpc__socket_close failed, error = %d\n", 
+("(rpc__cn_network_receiver) assoc->%p desc->%x rpc__socket_close failed, error = %d\n", 
                                      assoc,
                                      assoc->cn_ctlblk.cn_sock,                                  
                                      RPC_SOCKET_ETOI(serr)));
@@ -338,7 +338,7 @@ rpc_cn_assoc_p_t        assoc;
                 CATCH_ALL
                 {
                     RPC_DBG_PRINTF (rpc_e_dbg_general, RPC_C_CN_DBG_GENERAL,
-                        ("CN: assoc->%x rcvr cancel found at acb_dealloc\n",
+                        ("CN: assoc->%p rcvr cancel found at acb_dealloc\n",
                         assoc));
                 }
                 ENDTRY
@@ -358,7 +358,7 @@ rpc_cn_assoc_p_t        assoc;
                 CATCH(pthread_cancel_e)
                 {    
                     RPC_DBG_PRINTF (rpc_e_dbg_general, RPC_C_CN_DBG_GENERAL,
-                        ("CN: assoc->%x rcvr free'ed by acb_dealloc\n",
+                        ("CN: assoc->%p rcvr free'ed by acb_dealloc\n",
                         assoc));
                     done = true;
                 }
@@ -389,7 +389,7 @@ rpc_cn_assoc_p_t        assoc;
     } /* end while (!assoc->cn_ctlblk.exit_rcvr) */
 
     RPC_DBG_PRINTF (rpc_e_dbg_general, RPC_C_CN_DBG_GENERAL,
-                    ("CN: assoc->%x call_rep->none Receiver thread exiting...\n",
+                    ("CN: assoc->%p call_rep->none Receiver thread exiting...\n",
                      assoc));
 }
 
@@ -490,7 +490,7 @@ rpc_cn_assoc_p_t        assoc;
         CATCH(pthread_cancel_e)
         {
             RPC_DBG_PRINTF (rpc_e_dbg_general, RPC_C_CN_DBG_GENERAL,
-("CN: call_rep->%x assoc->%x desc->%x receiver canceled, caught in receive_dispatch()\n",
+("CN: call_rep->%p assoc->%p desc->%x receiver canceled, caught in receive_dispatch()\n",
                             assoc->call_rep, 
                             assoc,
                             assoc->cn_ctlblk.cn_sock));
@@ -778,7 +778,7 @@ rpc_cn_assoc_p_t        assoc;
                (RPC_CN_AUTH_REQUIRED(assoc->call_rep->binding_rep->auth_info)))
             {
                 RPC_DBG_PRINTF (rpc_e_dbg_general, RPC_C_CN_DBG_GENERAL,
-                        ("CN: auth_info %x\n", assoc->call_rep->binding_rep->auth_info));
+                        ("CN: auth_info %p\n", assoc->call_rep->binding_rep->auth_info));
                 RPC_DBG_PRINTF (rpc_e_dbg_general, RPC_C_CN_DBG_GENERAL,
                         ("CN: should not continue further with this PDU\n"));
                 (*fragbuf_p->fragbuf_dealloc)(fragbuf_p);
@@ -992,7 +992,7 @@ rpc_cn_assoc_p_t        assoc;
                 if (st == rpc_s_call_queued)
                 {
                     RPC_DBG_PRINTF (rpc_e_dbg_general, RPC_C_CN_DBG_GENERAL,
-                                    ("CN: call_rep->%x assoc->%x desc->%x call queued\n",
+                                    ("CN: call_rep->%p assoc->%p desc->%x call queued\n",
                                      call_r,
                                      assoc,
                                      assoc->cn_ctlblk.cn_sock));
@@ -1277,7 +1277,7 @@ unsigned32              *st;
 	    sys_pthread_setasynccancel(CANCEL_OFF);
 #endif            
             RPC_DBG_PRINTF (rpc_e_dbg_general, RPC_C_CN_DBG_GENERAL,
-("CN: call_rep->%x assoc->%x desc->%x receiver canceled, caught in receive_packet()\n",
+("CN: call_rep->%p assoc->%p desc->%x receiver canceled, caught in receive_packet()\n",
                              assoc->call_rep, 
                              assoc,
                              assoc->cn_ctlblk.cn_sock));
@@ -1320,7 +1320,7 @@ unsigned32              *st;
         while (assoc->cn_ctlblk.in_sendmsg)
         {
             RPC_DBG_PRINTF (rpc_e_dbg_general, RPC_C_CN_DBG_GENERAL,
-                            ("CN: call_rep->%x assoc->%x desc->%x waiting for sendmsg to complete...\n", 
+                            ("CN: call_rep->%p assoc->%p desc->%x waiting for sendmsg to complete...\n", 
                              assoc->call_rep, 
                              assoc,
                              assoc->cn_ctlblk.cn_sock,
@@ -1329,7 +1329,7 @@ unsigned32              *st;
             RPC_COND_WAIT (assoc->cn_ctlblk.cn_rcvr_cond,
                            rpc_g_global_mutex);
             RPC_DBG_PRINTF (rpc_e_dbg_general, RPC_C_CN_DBG_GENERAL,
-                            ("CN: call_rep->%x assoc->%x desc->%x sendmsg complete\n", 
+                            ("CN: call_rep->%p assoc->%p desc->%x sendmsg complete\n", 
                              assoc->call_rep, 
                              assoc,
                              assoc->cn_ctlblk.cn_sock,
@@ -1358,7 +1358,7 @@ unsigned32              *st;
             if (rpc__naf_is_connect_closed (assoc->cn_ctlblk.cn_sock, st))
             {
                 RPC_DBG_PRINTF (rpc_e_dbg_general, RPC_C_CN_DBG_GENERAL,
-                                ("CN: call_rep->%x assoc->%x desc->%x connection closed recvmsg failed serr = %x, bytes_rcvd = %d\n",
+                                ("CN: call_rep->%p assoc->%p desc->%x connection closed recvmsg failed serr = %x, bytes_rcvd = %d\n",
                                  assoc->call_rep,
                                  assoc,
                                  assoc->cn_ctlblk.cn_sock, 
@@ -1376,7 +1376,7 @@ unsigned32              *st;
         }
 
         RPC_DBG_PRINTF (rpc_e_dbg_general, RPC_C_CN_DBG_GENERAL,
-                        ("CN: call_rep->%x assoc->%x desc->%x received %d bytes\n", 
+                        ("CN: call_rep->%p assoc->%p desc->%x received %d bytes\n", 
                          assoc->call_rep, 
                          assoc,
                          assoc->cn_ctlblk.cn_sock,

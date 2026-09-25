@@ -335,7 +335,7 @@ unsigned32 *st;
         "(use_protseq) desired_sndbuf %u, desired_rcvbuf %u\n",
         desired_sndbuf, desired_rcvbuf));
     RPC_DBG_PRINTF(rpc_e_dbg_general, 3, (
-        "(use_protseq) actual sndbuf %lu, actual rcvbuf %lu\n",
+        "(use_protseq) actual sndbuf %u, actual rcvbuf %u\n",
         sndbuf, rcvbuf));
       
     /*

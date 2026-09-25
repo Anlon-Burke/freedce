@@ -726,7 +726,7 @@ void show_client_context_chain
     printf("\t\tForward context chain\n");
     while (this_context != NULL)
     {
-        printf("\t\t\t %s %lx\n",
+        printf("\t\t\t %s %p\n",
                 &this_context->uuid,
                 this_context->user_context);
         this_context = this_context->next_in_client;
@@ -736,7 +736,7 @@ void show_client_context_chain
     printf("\t\tBackward context chain\n");
     while (this_context != NULL)
     {
-        printf("\t\t\t %s %lx\n",
+        printf("\t\t\t %s %p\n",
                 &this_context->uuid,
                 this_context->user_context);
         this_context = this_context->prev_in_client;
@@ -764,7 +764,7 @@ void dump_client_table(
             {
                 if (this_client->client != NULL)
                 {
-                    printf("\t %lx %d\n",this_client->client,this_client->count);
+                    printf("\t %p %ld\n",this_client->client,this_client->count);
                     show_client_context_chain(this_client);
                 }
                 if (this_client->next_h_client == NULL) break;
@@ -775,7 +775,7 @@ void dump_client_table(
             {
                 if (this_client->client != NULL)
                 {
-                    printf("\t %lx %d\n",this_client->client,this_client->count);
+                    printf("\t %p %ld\n",this_client->client,this_client->count);
                     show_client_context_chain(this_client);
                 }
                 if (this_client->prev_h_client == NULL) break;

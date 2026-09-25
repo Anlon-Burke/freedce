@@ -537,11 +537,11 @@ void dump_context_table()
             printf("Context chain for context_slot %d\n",i);
             while (this_link != NULL)
             {
-                printf("\t %s %lx ",
+                printf("\t %s %p ",
                         &this_link->uuid,
                         this_link->user_context);
                 this_client = this_link->p_client_entry;
-                printf("Client %lx %d\n",
+                printf("Client %p %ld\n",
                         this_client->client,
                         this_client->count);
                 this_link = this_link->next_context;
@@ -572,7 +572,7 @@ static int debug_context_lookup(uuid_p)
     for (j=0; j<sizeof(uuid_t); j++)
     {
         k = *uuid_p++;
-        fprintf(debug_fid, " %02x", k);
+        fprintf(debug_fid, " %02lx", k);
     }
     fprintf(debug_fid, "\n");
 }
@@ -624,10 +624,10 @@ static int debug_context_table()
                 for (j=0; j<sizeof(this_link->uuid); j++)
                 {
                     k = *uuid_p++;
-                    fprintf(debug_fid, " %02x", k);
+                    fprintf(debug_fid, " %02lx", k);
                 }
                 this_client = this_link->p_client_entry;
-                fprintf(debug_fid, " client %lx %d\n",
+                fprintf(debug_fid, " client %p %ld\n",
                         this_client->client,
                         this_client->count);
                 this_link = this_link->next_context;

@@ -98,7 +98,7 @@ INTERNAL void _post_fork_parent _DCE_PROTOTYPE_((
 INTERNAL void _pre_fork()
 {                      
     RPC_DBG_PRINTF(rpc_e_dbg_atfork, 1,
-               ("(_pre_fork) entering, pid %d, pre %d, post_p %d, post_c %d\n",
+               ("(_pre_fork) entering, pid %ld, pre %d, post_p %d, post_c %d\n",
                    rpc__atfork_user_data.pid,
                    rpc__atfork_user_data.pre,
                    rpc__atfork_user_data.post_p,
@@ -111,7 +111,7 @@ INTERNAL void _pre_fork()
         (*atfork_handler_ptr)(RPC_C_PREFORK);
 
     RPC_DBG_PRINTF(rpc_e_dbg_atfork, 1,
-              ("(_pre_fork) returning, pid %d, pre %d, post_p %d, post_c %d\n",
+              ("(_pre_fork) returning, pid %ld, pre %d, post_p %d, post_c %d\n",
                    rpc__atfork_user_data.pid,
                    rpc__atfork_user_data.pre,
                    rpc__atfork_user_data.post_p,
@@ -128,7 +128,7 @@ INTERNAL void _pre_fork()
 INTERNAL void _post_fork_child()
 {
     RPC_DBG_PRINTF(rpc_e_dbg_atfork, 1,
-        ("(_post_fork_child) entering, pid %d, pre %d, post_p %d, post_c %d\n",
+        ("(_post_fork_child) entering, pid %ld, pre %d, post_p %d, post_c %d\n",
                    rpc__atfork_user_data.pid,
                    rpc__atfork_user_data.pre,
                    rpc__atfork_user_data.post_p,
@@ -142,7 +142,7 @@ INTERNAL void _post_fork_child()
     atfork_in_progress = false;
 
     RPC_DBG_PRINTF(rpc_e_dbg_atfork, 1,
-       ("(_post_fork_child) returning, pid %d, pre %d, post_p %d, post_c %d\n",
+       ("(_post_fork_child) returning, pid %ld, pre %d, post_p %d, post_c %d\n",
                    rpc__atfork_user_data.pid,
                    rpc__atfork_user_data.pre,
                    rpc__atfork_user_data.post_p,
@@ -160,7 +160,7 @@ INTERNAL void _post_fork_child()
 INTERNAL void _post_fork_parent()
 {
     RPC_DBG_PRINTF(rpc_e_dbg_atfork, 1,
-       ("(_post_fork_parent) entering, pid %d, pre %d, post_p %d, post_c %d\n",
+       ("(_post_fork_parent) entering, pid %ld, pre %d, post_p %d, post_c %d\n",
                    rpc__atfork_user_data.pid,
                    rpc__atfork_user_data.pre,
                    rpc__atfork_user_data.post_p,
@@ -174,7 +174,7 @@ INTERNAL void _post_fork_parent()
     atfork_in_progress = false;
 
     RPC_DBG_PRINTF(rpc_e_dbg_atfork, 1,
-      ("(_post_fork_parent) returning, pid %d, pre %d, post_p %d, post_c %d\n",
+      ("(_post_fork_parent) returning, pid %ld, pre %d, post_p %d, post_c %d\n",
                    rpc__atfork_user_data.pid,
                    rpc__atfork_user_data.pre,
                    rpc__atfork_user_data.post_p,

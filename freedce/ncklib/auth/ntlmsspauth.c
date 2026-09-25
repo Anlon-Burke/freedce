@@ -140,7 +140,7 @@ PRIVATE void rpc__ntlmsspauth_bnd_set_auth
     }
                                     
     RPC_DBG_PRINTF(rpc_e_dbg_auth, 1, (
-            "(rpc__ntlmsspauth_bnd_set_auth) %x created (now %d active)\n", 
+            "(rpc__ntlmsspauth_bnd_set_auth) %p created (now %d active)\n", 
             ntlmsspauth_info, rpc_g_ntlmsspauth_alloc_count - rpc_g_ntlmsspauth_free_count));
     
     memset (ntlmsspauth_info, 0, sizeof(*ntlmsspauth_info));

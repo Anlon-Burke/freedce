@@ -302,7 +302,7 @@ static int debug_context_uuid(uuid_p, prefix)
     for (j=0; j<sizeof(uuid_t); j++)
     {
         k = *uuid_p++;
-        fprintf(debug_fid, " %02x", k);
+        fprintf(debug_fid, " %02lx", k);
     }
     fprintf(debug_fid, "\n");
 }

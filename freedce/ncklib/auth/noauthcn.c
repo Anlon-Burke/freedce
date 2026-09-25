@@ -354,7 +354,7 @@ unsigned32                      *st;
                     ("(rpc__noauth_cn_context_valid)\n"));
 
     RPC_DBG_PRINTF (rpc_e_dbg_auth, RPC_C_CN_DBG_AUTH_GENERAL,
-                    ("(rpc__noauth_cn_context_valid) time->%x\n", time));
+                    ("(rpc__noauth_cn_context_valid) time->%p\n", time));
 
     RPC_DBG_PRINTF (rpc_e_dbg_auth, RPC_C_CN_DBG_AUTH_PKT,
                     ("(rpc__noauth_cn_context_valid) prot->%x level->%x key_id->%x\n",

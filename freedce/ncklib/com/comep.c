@@ -2200,7 +2200,7 @@ unsigned32              *st;
                     if (temp_status != rpc_s_ok)
                     {
                         RPC_DBG_PRINTF (rpc_e_dbg_general, 1,
-                                        ("(ep_get_endpoint) call_rep->none binding_rep->%x ept_lookup_handle_free returned %x\n", 
+                                        ("(ep_get_endpoint) call_rep->none binding_rep->%p ept_lookup_handle_free returned %x\n", 
                                          binding_r, temp_status));
                     }
 #endif
@@ -2272,7 +2272,7 @@ unsigned32              *st;
 
 #ifdef DEBUG
         RPC_DBG_PRINTF (rpc_e_dbg_general, 1,
-                        ("(ep_get_endpoint) call_rep->none binding_rep->%x endpoint mapper returned %s\n", 
+                        ("(ep_get_endpoint) call_rep->none binding_rep->%p endpoint mapper returned %s\n", 
                          binding_r, endpoint));
 #endif        
 

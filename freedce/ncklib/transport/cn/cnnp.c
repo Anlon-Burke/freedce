@@ -696,7 +696,7 @@ unsigned32              *status;
                     ("(rpc__cn_namedpipe_init_desc) desc->%x desired_sndbuf %u, desired_rcvbuf %u\n",
                      *desc, rpc_g_np_socket_read_buffer, rpc_g_np_socket_write_buffer));
     RPC_DBG_PRINTF (rpc_e_dbg_general, RPC_C_CN_DBG_BUFFS,
-                    ("(rpc__cn_namedpipe_init_desc) desc->%x actual sndbuf %lu, actual rcvbuf %lu\n",
+                    ("(rpc__cn_namedpipe_init_desc) desc->%x actual sndbuf %u, actual rcvbuf %u\n",
                      *desc, ssize, rsize));
 
     if (rsize < RPC_C_ASSOC_MUST_RECV_FRAG_SIZE)
@@ -1087,7 +1087,7 @@ unsigned32              *st;
     if (RPC_SOCKET_IS_ERR(serr))
     {
         RPC_DBG_PRINTF (rpc_e_dbg_general, RPC_C_CN_DBG_ERRORS,
-                        ("(rpc__cn_namedpipe_req_connect) call_rep->%x assoc->%x desc->%x rpc__socket_open failed, error = %d\n",
+                        ("(rpc__cn_namedpipe_req_connect) call_rep->%p assoc->%p desc->%x rpc__socket_open failed, error = %d\n",
                          assoc->call_rep,
                          assoc,
                          assoc->cn_ctlblk.cn_sock,
@@ -1108,7 +1108,7 @@ unsigned32              *st;
         if (RPC_SOCKET_IS_ERR (serr))
         {
             RPC_DBG_PRINTF (rpc_e_dbg_general, RPC_C_CN_DBG_ERRORS,
-                            ("(rpc__cn_namedpipe_req_connect) call_rep->%x assoc->%x desc->%x Can't set socket bufs, error=%d\n",
+                            ("(rpc__cn_namedpipe_req_connect) call_rep->%p assoc->%p desc->%x Can't set socket bufs, error=%d\n",
                              assoc->call_rep,
                              assoc,
                              assoc->cn_ctlblk.cn_sock, 
@@ -1119,7 +1119,7 @@ unsigned32              *st;
                         ("(rpc__cn_namedpipe_req_connect) desc->%x desired_sndbuf %u, desired_rcvbuf %u\n",
                          assoc->cn_ctlblk.cn_sock, rpc_g_np_socket_read_buffer, rpc_g_np_socket_write_buffer));
         RPC_DBG_PRINTF (rpc_e_dbg_general, RPC_C_CN_DBG_BUFFS,
-                       ("(rpc__cn_namedpipe_req_connect) desc->%x actual sndbuf %lu, actual rcvbuf %lu\n",
+                       ("(rpc__cn_namedpipe_req_connect) desc->%x actual sndbuf %u, actual rcvbuf %u\n",
                         assoc->cn_ctlblk.cn_sock, ssize, rsize));
         
         if (rsize < RPC_C_ASSOC_MUST_RECV_FRAG_SIZE)
@@ -1271,7 +1271,7 @@ unsigned32              *st;
                                            &retry_op,
                                            st);
                 RPC_DBG_PRINTF (rpc_e_dbg_cancel, RPC_C_CN_DBG_CANCEL,
-                                ("(rpc__cn_namedpipe_req_connect) call_rep->%x assoc->%x desc->%x cancel caught before association setup\n", 
+                                ("(rpc__cn_namedpipe_req_connect) call_rep->%p assoc->%p desc->%x cancel caught before association setup\n", 
                                  assoc->call_rep,
                                  assoc,
                                  assoc->cn_ctlblk.cn_sock));

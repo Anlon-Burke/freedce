@@ -66,7 +66,7 @@
     for (acc_ = 0, k_ = 0; k_ < (iov)->num_elt; k_++)\
     {\
          RPC_DBG_PRINTF (rpc_e_dbg_cn_pkt, RPC_C_CN_DBG_PKT_DUMP,\
-                         ("PACKET: fragment->#%d addr->%x\n", k_, (iov)->elt[k_].data_addr));\
+                         ("PACKET: fragment->#%d addr->%p\n", k_, (iov)->elt[k_].data_addr));\
          RPC_CN_MEM_DUMP ((iov)->elt[k_].data_addr, (iov)->elt[k_].data_len, acc_);\
     }\
 }
