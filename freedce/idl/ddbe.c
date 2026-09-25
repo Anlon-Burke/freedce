@@ -59,11 +59,9 @@
 
 #ifdef DUMPERS
 static void DDBE_test_marsh_spellers(
-#ifdef PROTO
     AST_interface_n_t   *int_p,     /* [in] ptr to interface node */
     boolean             *cmd_opt,   /* [in] array of cmd option flags */
     void                **cmd_val   /* [in] array of cmd option values */
-#endif
 );
 #endif
 
@@ -231,18 +229,11 @@ static void DDBE_func_code_vec_entry(
  *  of specified kind returns TRUE, otherwise this case returns FALSE.
  */
 boolean DDBE_param_is_array_of_kind
-#ifdef PROTO
 (
     AST_parameter_n_t   *param_p,   /* [in] Ptr to AST parameter node */
     AST_type_k_t        elem_kind,  /* [in] Array element kind */
     boolean             a_of_a      /* [in] TRUE=>a of a of kind returns TRUE */
 )
-#else
-(param_p, elem_kind, a_of_a)
-    AST_parameter_n_t   *param_p;   /* [in] Ptr to AST parameter node */
-    AST_type_k_t        elem_kind;  /* [in] Array element kind */
-    boolean             a_of_a;     /* [in] TRUE=>a of a of kind returns TRUE */
-#endif
 {
     AST_type_n_t        *type_p;
 
@@ -274,16 +265,10 @@ boolean DDBE_param_is_array_of_kind
  *  Spells the Interpreter tag that corresponds to a scalar type.
  */
 void DDBE_spell_type_kind
-#ifdef PROTO
 (
     FILE                *fid,       /* [in] output file handle */
     DDBE_vec_rep_t      *vec_p      /* [in] ptr to vector entry */
 )
-#else
-(fid, vec_p)
-    FILE                *fid;       /* [in] output file handle */
-    DDBE_vec_rep_t      *vec_p;     /* [in] ptr to vector entry */
-#endif
 {
     NAMETABLE_id_t      nameid = 0;     /* Interpreter tag name ID */
     char const          *name;      /* Interpreter tag name string */
@@ -387,16 +372,10 @@ void DDBE_spell_type_kind
  *  Insert a tag vector entry into a vector list.
  */
 static void DDBE_tag_vec_entry
-#ifdef PROTO
 (
     DDBE_vec_rep_t  **p_defn_p,     /* [io] Ptr to vec entry to insert after */
     NAMETABLE_id_t  tag_name        /* [in] ID of symbolic name of tag */
 )
-#else
-(p_defn_p, tag_name)
-    DDBE_vec_rep_t  **p_defn_p;     /* [io] Ptr to vec entry to insert after */
-    NAMETABLE_id_t  tag_name;       /* [in] ID of symbolic name of tag */
-#endif
 {
     DDBE_vec_rep_t  *new_p;
 
@@ -411,20 +390,12 @@ static void DDBE_tag_vec_entry
  *  Insert a byte vector entry into a vector list.
  */
 static void DDBE_byte_vec_entry
-#ifdef PROTO
 (
     DDBE_vec_rep_t  **p_defn_p,     /* [io] Ptr to vec entry to insert after */
     DDBE_vec_kind_t entry_kind,     /* [in] Kind of byte value entry */
     byte            value,          /* [in] Byte value */
     char            *comment __attribute__((__unused__))        /* [in] Comment string for entry */
 )
-#else
-(p_defn_p, entry_kind, value, comment)
-    DDBE_vec_rep_t  **p_defn_p;     /* [io] Ptr to vec entry to insert after */
-    DDBE_vec_kind_t entry_kind;     /* [in] Kind of byte value entry */
-    byte            value;          /* [in] Byte value */
-    char            *comment;       /* [in] Comment string for entry */
-#endif
 {
     DDBE_vec_rep_t  *new_p;
 
@@ -438,20 +409,12 @@ static void DDBE_byte_vec_entry
  *  Insert a short vector entry into a vector list.
  */
 static void DDBE_short_vec_entry
-#ifdef PROTO
 (
     DDBE_vec_rep_t  **p_defn_p,     /* [io] Ptr to vec entry to insert after */
     DDBE_vec_kind_t entry_kind,     /* [in] Kind of short value entry */
     short           value,          /* [in] Short value */
     char            *comment  __attribute__((unused))      /* [in] Comment string for entry */
 )
-#else
-(p_defn_p, entry_kind, value, comment)
-    DDBE_vec_rep_t  **p_defn_p;     /* [io] Ptr to vec entry to insert after */
-    DDBE_vec_kind_t entry_kind;     /* [in] Kind of short value entry */
-    short           value;          /* [in] Short value */
-    char            *comment;       /* [in] Comment string for entry */
-#endif
 {
     DDBE_vec_rep_t  *new_p;
 
@@ -466,20 +429,12 @@ static void DDBE_short_vec_entry
  *  Insert a long vector entry into a vector list.
  */
 static void DDBE_long_vec_entry
-#ifdef PROTO
 (
     DDBE_vec_rep_t  **p_defn_p,     /* [io] Ptr to vec entry to insert after */
     DDBE_vec_kind_t entry_kind,     /* [in] Kind of long value entry */
     long            value,          /* [in] Long value */
     char            *comment __attribute__((__unused__))        /* [in] Comment string for entry */
 )
-#else
-(p_defn_p, entry_kind, value, comment)
-    DDBE_vec_rep_t  **p_defn_p;     /* [io] Ptr to vec entry to insert after */
-    DDBE_vec_kind_t entry_kind;     /* [in] Kind of long value entry */
-    long            value;          /* [in] Long value */
-    char            *comment;       /* [in] Comment string for entry */
-#endif
 {
     DDBE_vec_rep_t  *new_p;
 
@@ -495,16 +450,10 @@ static void DDBE_long_vec_entry
  *  contains only a comment and can be used to delimit major vector sections.
  */
 static void DDBE_comment_vec_entry
-#ifdef PROTO
 (
     DDBE_vec_rep_t  **p_defn_p,     /* [io] Ptr to vec entry to insert after */
     char            *comment __attribute__((__unused__))       /* [in] Comment string for entry */
 )
-#else
-(p_defn_p, comment)
-    DDBE_vec_rep_t  **p_defn_p;     /* [io] Ptr to vec entry to insert after */
-    char            *comment;       /* [in] Comment string for entry */
-#endif
 {
     DDBE_vec_rep_t  *new_p;
 
@@ -518,20 +467,13 @@ static void DDBE_comment_vec_entry
  *  Insert an expression vector entry into a vector list.
  */
 static void DDBE_expr_vec_entry
-#ifdef PROTO
 (
     DDBE_vec_rep_t  **p_defn_p,     /* [io] Ptr to vec entry to insert after */
     DDBE_vec_kind_t expr_kind,      /* [in] Kind of expression */
     STRTAB_str_t    expr,           /* [in] Expression */
-    char            *comment __attribute__((__unused__))       /* [in] Comment string for entry */
+	[[maybe_unused]]
+    char            *comment        /* [in] Comment string for entry */
 )
-#else
-(p_defn_p, expr_kind, expr, comment)
-    DDBE_vec_rep_t  **p_defn_p;     /* [io] Ptr to vec entry to insert after */
-    DDBE_vec_kind_t expr_kind;      /* [in] Kind of expression */
-    STRTAB_str_t    expr;           /* [in] Expression */
-    char            *comment;       /* [in] Comment string for entry */
-#endif
 {
     DDBE_vec_rep_t  *new_p;
 
@@ -546,20 +488,12 @@ static void DDBE_expr_vec_entry
  *  Insert a type information vector entry into a vector list.
  */
 static void DDBE_type_info_vec_entry
-#ifdef PROTO
 (
     DDBE_vec_kind_t kind,           /* [in] Type info entry kind */
     DDBE_vec_rep_t  **p_defn_p,     /* [io] Ptr to vec entry to insert after */
     AST_type_n_t    *type_p,        /* [in] Ptr to AST type node */
     char            *comment __attribute__((__unused__))       /* [in] Comment string for entry */
 )
-#else
-(kind, p_defn_p, type_p, comment)
-    DDBE_vec_kind_t kind;           /* [in] Type info entry kind */
-    DDBE_vec_rep_t  **p_defn_p;     /* [io] Ptr to vec entry to insert after */
-    AST_type_n_t    *type_p;        /* [in] Ptr to AST type node */
-    char            *comment;       /* [in] Comment string for entry */
-#endif
 {
     DDBE_vec_rep_t  *new_p;
 
@@ -574,18 +508,11 @@ static void DDBE_type_info_vec_entry
  *  Insert an name vector entry into a vector list.
  */
 static void DDBE_name_vec_entry
-#ifdef PROTO
 (
     DDBE_vec_rep_t  **p_defn_p,     /* [io] Ptr to vec entry to insert after */
     NAMETABLE_id_t  name,           /* [in] Name ID */
     char            *comment __attribute__((__unused__))       /* [in] Comment string for entry */
 )
-#else
-(p_defn_p, name, comment)
-    DDBE_vec_rep_t  **p_defn_p;     /* [io] Ptr to vec entry to insert after */
-    NAMETABLE_id_t  name;           /* [in] Name ID */
-    char            *comment;       /* [in] Comment string for entry */
-#endif
 {
     DDBE_vec_rep_t  *new_p;
 
@@ -632,16 +559,10 @@ static void DDBE_opt_name_vec_entry
  *  alignment at runtime.
  */
 static void DDBE_pad_vec_entry
-#ifdef PROTO
 (
     DDBE_vec_rep_t  **p_defn_p,     /* [io] Ptr to vec entry to insert after */
     byte            pad             /* [in] Number of pad bytes */
 )
-#else
-(p_defn_p, pad)
-    DDBE_vec_rep_t  **p_defn_p;     /* [io] Ptr to vec entry to insert after */
-    byte            pad;            /* [in] Number of pad bytes */
-#endif
 {
     DDBE_vec_rep_t  *new_p;
 
@@ -657,14 +578,9 @@ static void DDBE_pad_vec_entry
  *  Noop's are useful as sentinels or placeholders.
  */
 static void DDBE_noop_vec_entry
-#ifdef PROTO
 (
     DDBE_vec_rep_t  **p_defn_p      /* [io] Ptr to vec entry to insert after */
 )
-#else
-(p_defn_p)
-    DDBE_vec_rep_t  **p_defn_p;     /* [io] Ptr to vec entry to insert after */
-#endif
 {
     DDBE_vec_rep_t  *new_p;
 
@@ -726,18 +642,11 @@ static void DDBE_scalar_vec_entry
  *  Contrast with the DDBE_indirect_vec_entry routine below.
  */
 static void DDBE_reference_vec_entry
-#ifdef PROTO
 (
     DDBE_vec_rep_t  **p_defn_p,     /* [io] Ptr to vec entry to insert after */
     DDBE_vec_rep_t  *ref_p,         /* [in] Referenced vector entry */
     char            *comment __attribute__((__unused__))       /* [in] Comment string for entry */
 )
-#else
-(p_defn_p, ref_p, comment)
-    DDBE_vec_rep_t  **p_defn_p;     /* [io] Ptr to vec entry to insert after */
-    DDBE_vec_rep_t  *ref_p;         /* [in] Referenced vector entry */
-    char            *comment;       /* [in] Comment string for entry */
-#endif
 {
     DDBE_vec_rep_t  *new_p;
 
@@ -758,18 +667,11 @@ static void DDBE_reference_vec_entry
  *  eventually hold the indirect reference but does not yet.
  */
 static void DDBE_indirect_vec_entry
-#ifdef PROTO
 (
     DDBE_vec_rep_t  **p_defn_p,     /* [io] Ptr to vec entry to insert after */
     DDBE_vec_rep_t  **p_ref_p,      /* [in] Addr of referenced vector entry */
     char            *comment __attribute__((__unused__))        /* [in] Comment string for entry */
 )
-#else
-(p_defn_p, p_ref_p, comment)
-    DDBE_vec_rep_t  **p_defn_p;     /* [io] Ptr to vec entry to insert after */
-    DDBE_vec_rep_t  **p_ref_p;      /* [in] Addr of referenced vector entry */
-    char            *comment;       /* [in] Comment string for entry */
-#endif
 {
     DDBE_vec_rep_t  *new_p;
 
@@ -789,7 +691,6 @@ static void DDBE_indirect_vec_entry
  *  Returns the maximum (0-based) offset used, i.e. the size of the vector.
  */
 static unsigned long DDBE_compute_vec_offsets
-#ifdef PROTO
 (
     DDBE_vec_rep_t      *vec_p,     /* [in] ptr to vector entry list */
     unsigned long       align_req,  /* [in] size of a multi-byte entry */
@@ -797,14 +698,6 @@ static unsigned long DDBE_compute_vec_offsets
     unsigned long       start_index,/* [in] starting index for vector data */
     DDBE_vec_rep_t      **end_vec_p /* [io] != NULL => return last vec addr */
 )
-#else
-(vec_p, align_req, index_incr, start_index, end_vec_p)
-    DDBE_vec_rep_t      *vec_p;     /* [in] ptr to vector entry list */
-    unsigned long       align_req;  /* [in] size of a multi-byte entry */
-    unsigned long       index_incr; /* [in] index incr for multi-byte entry */
-    unsigned long       start_index;/* [in] starting index for vector data */
-    DDBE_vec_rep_t      **end_vec_p;/* [io] != NULL => return last vec addr */
-#endif
 {
     unsigned long   offset;         /* Offset to (index of) current entry */
     unsigned long   save_offset;    /* Saved offset value */
@@ -943,14 +836,9 @@ static unsigned long DDBE_compute_vec_offsets
  *  vector entry.
  */
 static void DDBE_patch_vec_refs
-#ifdef PROTO
 (
     DDBE_vec_rep_t      *vec_p      /* [in] ptr to vector entry list */
 )
-#else
-(vec_p)
-    DDBE_vec_rep_t      *vec_p;     /* [in] ptr to vector entry list */
-#endif
 {
     DDBE_vec_rep_t      *ref_vec_p = NULL; /* Referenced vector entry */
 
@@ -990,14 +878,9 @@ static void DDBE_patch_vec_refs
  *  type vector index for the parameter.
  */
 static void DDBE_patch_oper_info
-#ifdef PROTO
 (
     AST_interface_n_t   *int_p      /* [in] ptr to AST interface node */
 )
-#else
-(int_p)
-    AST_interface_n_t   *int_p;     /* [in] ptr to AST interface node */
-#endif
 {
     AST_export_n_t      *export_p;  /* Ptr to AST export node */
     AST_operation_n_t   *oper_p;    /* Ptr to AST operation node */
@@ -1046,16 +929,10 @@ static void DDBE_patch_oper_info
  *  structure.  This contains all the context needed by the Data Driven Backend.
  */
 static void DDBE_init_vectors
-#ifdef PROTO
 (
     AST_interface_n_t   *int_p,     /* [in] ptr to interface node */
     DDBE_vectors_t      **p_vip     /*[out] Vector information pointer */
 )
-#else
-(int_p, p_vip)
-    AST_interface_n_t   *int_p;     /* [in] ptr to interface node */
-    DDBE_vectors_t      **p_vip;    /*[out] Vector information pointer */
-#endif
 {
     DDBE_vectors_t      *vip;       /* Vector information pointer */
 
@@ -1086,12 +963,7 @@ static void DDBE_init_vectors
  *
  *  One-time initialization of the symbolic names for Interpreter tags.
  */
-static void DDBE_init_tags
-#ifdef PROTO
-(void)
-#else
-()
-#endif
+static void DDBE_init_tags(void)
 {
     DDBE_dt_allocate            = NAMETABLE_add_id("IDL_DT_ALLOCATE");
     DDBE_dt_allocate_ref        = NAMETABLE_add_id("IDL_DT_ALLOCATE_REF");
@@ -1171,16 +1043,10 @@ static void DDBE_init_tags
  *  Skip to specified tuple at same scoping level as current tuple.
  */
 static void DDBE_skip_to_tup
-#ifdef PROTO
 (
     IR_tup_n_t      **p_tup_p,      /* [io] ptr to intermediate rep tuple */
     IR_opcode_k_t   end_opcode      /* [in] matching opcode to skip to */
 )
-#else
-(p_tup_p, end_opcode)
-    IR_tup_n_t      **p_tup_p;      /* [io] ptr to intermediate rep tuple */
-    IR_opcode_k_t   end_opcode;     /* [in] matching opcode to skip to */
-#endif
 {
     IR_tup_n_t      *tup_p;         /* ptr to intermediate rep tuple */
     IR_opcode_k_t   begin_opcode;   /* starting opcode */
@@ -1218,14 +1084,9 @@ static void DDBE_skip_to_tup
  * routines below.
  */
 static void DDBE_push_indirection_scope
-#ifdef PROTO
 (
     DDBE_vectors_t  *vip            /* [io] vector information */
 )
-#else
-(vip)
-    DDBE_vectors_t  *vip;           /* [io] vector information */
-#endif
 {
     DDBE_ind_stack_t *new_p;        /* Ptr to new indirection stack entry */
 
@@ -1255,14 +1116,9 @@ static void DDBE_push_indirection_scope
 }
 
 static void DDBE_pop_indirection_scope
-#ifdef PROTO
 (
     DDBE_vectors_t  *vip            /* [io] vector information */
 )
-#else
-(vip)
-    DDBE_vectors_t  *vip;           /* [io] vector information */
-#endif
 {
     DDBE_ind_stack_t *top_p;        /* Ptr to top indirection stack entry */
 
@@ -1314,14 +1170,9 @@ static void DDBE_pop_indirection_scope
  *  DDBE parameter info node and hangs off parameter AST node.
  */
 static void DDBE_operation_info
-#ifdef PROTO
 (
     AST_operation_n_t   *oper_p     /* [in] ptr to AST operation node */
 )
-#else
-(oper_p)
-    AST_operation_n_t   *oper_p;    /* [in] ptr to AST operation node */
-#endif
 {
     AST_parameter_n_t   *param_p;
 
@@ -1339,16 +1190,10 @@ static void DDBE_operation_info
  *  Creates and initializes a DDBE type info node and hangs off the AST node.
  */
 static void DDBE_type_info
-#ifdef PROTO
 (
     AST_type_n_t    *type_p,        /* [in] ptr to AST type node */
     IR_flags_t      flags           /* [in] IREP type indirection flags */
 )
-#else
-(type_p, flags)
-    AST_type_n_t    *type_p;        /* [in] ptr to AST type node */
-    IR_flags_t      flags;          /* [in] IREP type indirection flags */
-#endif
 {
     DDBE_type_i_t   *type_i_p;      /* Ptr to backend type info node */
     char    inst_name[MAX_ID+1];    /* Instance name */
@@ -1383,16 +1228,10 @@ static void DDBE_type_info
  *  Similar situation for CS_CHAR flag.
  */
 static void DDBE_op_type_indirect
-#ifdef PROTO
 (
     IR_tup_n_t      **p_tup_p,      /* [io] ptr to intermediate rep tuple */
     DDBE_vectors_t  *vip            /* [io] vector information */
 )
-#else
-(p_tup_p, vip)
-    IR_tup_n_t      **p_tup_p;      /* [io] ptr to intermediate rep tuple */
-    DDBE_vectors_t  *vip;           /* [io] vector information */
-#endif
 {
     AST_type_n_t    *type_p;        /* Ptr to AST struct type node */
     DDBE_type_i_t   *type_i_p;      /* Ptr to backend type info node */
@@ -1452,16 +1291,10 @@ static void DDBE_op_type_indirect
  *  indirectly and have exactly one set of IREP tuples off the type node.
  */
 static void DDBE_type_indirect_end
-#ifdef PROTO
 (
     IR_tup_n_t      **p_tup_p,      /* [io] ptr to intermediate rep tuple */
     DDBE_vectors_t  *vip            /* [io] vector information */
 )
-#else
-(p_tup_p, vip)
-    IR_tup_n_t      **p_tup_p;      /* [io] ptr to intermediate rep tuple */
-    DDBE_vectors_t  *vip;           /* [io] vector information */
-#endif
 {
     DDBE_tup_stack_t *top_p;        /* Ptr to top tuple stack entry */
 
@@ -1493,16 +1326,10 @@ static void DDBE_type_indirect_end
  *  Generates a type vector entry to describe data type properties.
  */
 static void DDBE_properties_byte
-#ifdef PROTO
 (
     AST_type_n_t    *type_p,        /* [in] Type to generate properties for */
     DDBE_vec_rep_t  **p_vec_p       /* [io] Insertion point for vector entry */
 )
-#else
-(type_p, p_vec_p)
-    AST_type_n_t    *type_p;        /* [in] Type to generate properties for */
-    DDBE_vec_rep_t  **p_vec_p;      /* [io] Insertion point for vector entry */
-#endif
 {
     char properties[DDBE_MAX_EXPR]; /* Symbolic expression for properties */
     STRTAB_str_t    prop_expr;
@@ -1538,16 +1365,10 @@ static void DDBE_properties_byte
  *  Process IREP tuple to [un]marshall a scalar type.
  */
 static void DDBE_op_marshall
-#ifdef PROTO
 (
     IR_tup_n_t      *tup_p,         /* [in] ptr to intermediate rep tuple */
     DDBE_vectors_t  *vip            /* [io] vector information */
 )
-#else
-(tup_p, vip)
-    IR_tup_n_t      *tup_p;         /* [in] ptr to intermediate rep tuple */
-    DDBE_vectors_t  *vip;           /* [io] vector information */
-#endif
 {
     char const      *inst_name;     /* Instance name */
 
@@ -1603,16 +1424,10 @@ static void DDBE_op_marshall
  *  Process IREP tuple for beginning of a structure definition.
  */
 static void DDBE_op_struct_begin
-#ifdef PROTO
 (
     IR_tup_n_t      **p_tup_p,      /* [io] ptr to intermediate rep tuple */
     DDBE_vectors_t  *vip            /* [io] vector information */
 )
-#else
-(p_tup_p, vip)
-    IR_tup_n_t      **p_tup_p;      /* [io] ptr to intermediate rep tuple */
-    DDBE_vectors_t  *vip;           /* [io] vector information */
-#endif
 {
     IR_tup_n_t      *tup_p;         /* ptr to intermediate rep tuple */
     AST_type_n_t    *type_p;        /* Ptr to AST struct type node */
@@ -1762,16 +1577,10 @@ static void DDBE_op_struct_begin
  *  Process IREP tuple for end of a structure definition.
  */
 static void DDBE_op_struct_end
-#ifdef PROTO
 (
     IR_tup_n_t      **p_tup_p,      /* [io] ptr to intermediate rep tuple */
     DDBE_vectors_t  *vip            /* [io] vector information */
 )
-#else
-(p_tup_p, vip)
-    IR_tup_n_t      **p_tup_p;      /* [io] ptr to intermediate rep tuple */
-    DDBE_vectors_t  *vip;           /* [io] vector information */
-#endif
 {
     AST_type_n_t    *type_p;        /* Ptr to AST struct type node */
 
@@ -1827,16 +1636,10 @@ static void DDBE_op_struct_end
  *  Process IREP tuple for beginning of a discriminated union definition.
  */
 static void DDBE_op_disc_union_begin
-#ifdef PROTO
 (
     IR_tup_n_t      **p_tup_p,      /* [io] ptr to intermediate rep tuple */
     DDBE_vectors_t  *vip            /* [io] vector information */
 )
-#else
-(p_tup_p, vip)
-    IR_tup_n_t      **p_tup_p;      /* [io] ptr to intermediate rep tuple */
-    DDBE_vectors_t  *vip;           /* [io] vector information */
-#endif
 {
     IR_tup_n_t      *tup_p;         /* ptr to intermediate rep tuple */
     IR_tup_n_t      *sw_tup_p;      /* ptr to switch_enc_k tuple, encap union */
@@ -2021,16 +1824,10 @@ static void DDBE_op_disc_union_begin
  *  Process IREP tuple for end of a discriminated union definition.
  */
 static void DDBE_op_disc_union_end
-#ifdef PROTO
 (
     IR_tup_n_t      **p_tup_p,      /* [io] ptr to intermediate rep tuple */
     DDBE_vectors_t  *vip            /* [io] vector information */
 )
-#else
-(p_tup_p, vip)
-    IR_tup_n_t      **p_tup_p;      /* [io] ptr to intermediate rep tuple */
-    DDBE_vectors_t  *vip;           /* [io] vector information */
-#endif
 {
     AST_type_n_t    *type_p;        /* Ptr to AST union type node */
 
@@ -2056,16 +1853,10 @@ static void DDBE_op_disc_union_end
  *  Process IREP tuple for beginning of a pipe definition.
  */
 static void DDBE_op_pipe_begin
-#ifdef PROTO
 (
     IR_tup_n_t      **p_tup_p,      /* [io] ptr to intermediate rep tuple */
     DDBE_vectors_t  *vip            /* [io] vector information */
 )
-#else
-(p_tup_p, vip)
-    IR_tup_n_t      **p_tup_p;      /* [io] ptr to intermediate rep tuple */
-    DDBE_vectors_t  *vip;           /* [io] vector information */
-#endif
 {
     IR_tup_n_t      *tup_p;         /* ptr to intermediate rep tuple */
     AST_type_n_t    *type_p;        /* Ptr to AST pipe type node */
@@ -2132,16 +1923,10 @@ static void DDBE_op_pipe_begin
  *  Process IREP tuple for end of a pipe definition.
  */
 static void DDBE_op_pipe_end
-#ifdef PROTO
 (
     IR_tup_n_t      *tup_p,         /* [in] ptr to intermediate rep tuple */
     DDBE_vectors_t  *vip            /* [io] vector information */
 )
-#else
-(tup_p, vip)
-    IR_tup_n_t      *tup_p;         /* [in] ptr to intermediate rep tuple */
-    DDBE_vectors_t  *vip;           /* [io] vector information */
-#endif
 {
     AST_type_n_t    *type_p;        /* Ptr to AST union type node */
 
@@ -2166,16 +1951,10 @@ static void DDBE_op_pipe_end
  *  Process IREP tuple for beginning of an array definition.
  */
 static void DDBE_op_array
-#ifdef PROTO
 (
     IR_tup_n_t      *tup_p,         /* [in] ptr to intermediate rep tuple */
     DDBE_vectors_t  *vip            /* [io] vector information */
 )
-#else
-(tup_p, vip)
-    IR_tup_n_t      *tup_p;         /* [in] ptr to intermediate rep tuple */
-    DDBE_vectors_t  *vip;           /* [io] vector information */
-#endif
 {
     AST_type_n_t    *type_p;        /* Ptr to AST type node */
     AST_type_n_t    *base_type_p;   /* Array base type */
@@ -2265,16 +2044,10 @@ static void DDBE_op_array
  *  Process IREP tuple that describes the start of array bounds information.
  */
 static void DDBE_op_array_bounds
-#ifdef PROTO
 (
     IR_tup_n_t      *tup_p,         /* [in] ptr to intermediate rep tuple */
     DDBE_vectors_t  *vip            /* [io] vector information */
 )
-#else
-(tup_p, vip)
-    IR_tup_n_t      *tup_p;         /* [in] ptr to intermediate rep tuple */
-    DDBE_vectors_t  *vip;           /* [io] vector information */
-#endif
 {
     AST_type_n_t    *type_p;        /* Ptr to AST struct type node */
     char const      *type_name;     /* Type name */
@@ -2323,7 +2096,7 @@ static void DDBE_func_code_vec_entry(
 		case IR_EXP_FC_ALIGN_2:	name = "IDL_FC_ALIGN_2"; break;
 		case IR_EXP_FC_ALIGN_4:	name = "IDL_FC_ALIGN_4"; break;
 		case IR_EXP_FC_ALIGN_8:	name = "IDL_FC_ALIGN_8"; break;
-								
+
 		case IR_EXP_FC_CALLBACK:name = "IDL_FC_CALLBACK"; break;
 		default:
 			return;
@@ -2339,16 +2112,10 @@ static void DDBE_func_code_vec_entry(
  *  Process IREP tuple that describes a single bound of an array.
  */
 static void DDBE_op_bound
-#ifdef PROTO
 (
     IR_tup_n_t      *tup_p,         /* [in] ptr to intermediate rep tuple */
     DDBE_vectors_t  *vip            /* [io] vector information */
 )
-#else
-(tup_p, vip)
-    IR_tup_n_t      *tup_p;         /* [in] ptr to intermediate rep tuple */
-    DDBE_vectors_t  *vip;           /* [io] vector information */
-#endif
 {
     IR_bound_k_t        bound_kind;         /* Bound kind */
     char                *bound_text = NULL;        /* Bound attr text for comment */
@@ -2469,16 +2236,10 @@ static void DDBE_op_bound
  *  Process IREP tuple that describes a single data limit of an array.
  */
 static void DDBE_op_limit
-#ifdef PROTO
 (
     IR_tup_n_t      *tup_p,         /* [in] ptr to intermediate rep tuple */
     DDBE_vectors_t  *vip            /* [io] vector information */
 )
-#else
-(tup_p, vip)
-    IR_tup_n_t      *tup_p;         /* [in] ptr to intermediate rep tuple */
-    DDBE_vectors_t  *vip;           /* [io] vector information */
-#endif
 {
     IR_limit_k_t        limit_kind;         /* Data limit kind */
     char                *limit_text = NULL;        /* Limit attr text for comment */
@@ -2610,16 +2371,10 @@ static void DDBE_op_limit
  *  Process IREP tuple for end of an array definition.
  */
 static void DDBE_op_array_end
-#ifdef PROTO
 (
     IR_tup_n_t      **p_tup_p,      /* [io] ptr to intermediate rep tuple */
     DDBE_vectors_t  *vip            /* [io] vector information */
 )
-#else
-(p_tup_p, vip)
-    IR_tup_n_t      **p_tup_p;      /* [io] ptr to intermediate rep tuple */
-    DDBE_vectors_t  *vip;           /* [io] vector information */
-#endif
 {
     /*
      * If processing conformant struct header and type address on array_end
@@ -2655,16 +2410,10 @@ static void DDBE_op_array_end
  *  conformant array that occurs as the field of a structure.
  */
 static void DDBE_op_conformant_info
-#ifdef PROTO
 (
     IR_tup_n_t      **p_tup_p,      /* [io] ptr to intermediate rep tuple */
     DDBE_vectors_t  *vip            /* [io] vector information */
 )
-#else
-(p_tup_p, vip)
-    IR_tup_n_t      **p_tup_p;      /* [io] ptr to intermediate rep tuple */
-    DDBE_vectors_t  *vip;           /* [io] vector information */
-#endif
 {
     IR_tup_n_t      *tup_p;
 
@@ -2726,18 +2475,11 @@ static void DDBE_op_conformant_info
  *  Process IREP tuple for a pointer.
  */
 static void DDBE_op_pointer
-#ifdef PROTO
 (
     IR_tup_n_t      **p_tup_p,      /* [io] ptr to intermediate rep tuple */
     DDBE_vectors_t  *vip,           /* [io] vector information */
     NAMETABLE_id_t  pointer_tag     /* [in] pointer tag name */
 )
-#else
-(p_tup_p, vip, pointer_tag)
-    IR_tup_n_t      **p_tup_p;      /* [io] ptr to intermediate rep tuple */
-    DDBE_vectors_t  *vip;           /* [io] vector information */
-    NAMETABLE_id_t  pointer_tag;    /* [in] pointer tag name */
-#endif
 {
     IR_tup_n_t      *tup_p;         /* Ptr to intermediate rep tuple */
 
@@ -2824,16 +2566,10 @@ static void DDBE_op_pointer
  *  Process IREP tuple for end of a pointee definition.
  */
 static void DDBE_op_pointee_end
-#ifdef PROTO
 (
     IR_tup_n_t      *tup_p,         /* [in] ptr to intermediate rep tuple */
     DDBE_vectors_t  *vip            /* [io] vector information */
 )
-#else
-(tup_p, vip)
-    IR_tup_n_t      *tup_p;         /* [in] ptr to intermediate rep tuple */
-    DDBE_vectors_t  *vip;           /* [io] vector information */
-#endif
 {
     /* Pop pointee data scope */
     IR_process_tup(vip->ir_ctx_p, tup_p);
@@ -2855,16 +2591,10 @@ static void DDBE_op_pointee_end
  *  Process IREP tuple for beginning of a [transmit_as] definition.
  */
 static void DDBE_op_transmit_as
-#ifdef PROTO
 (
     IR_tup_n_t      **p_tup_p,      /* [io] ptr to intermediate rep tuple */
     DDBE_vectors_t  *vip            /* [io] vector information */
 )
-#else
-(p_tup_p, vip)
-    IR_tup_n_t      **p_tup_p;      /* [io] ptr to intermediate rep tuple */
-    DDBE_vectors_t  *vip;           /* [io] vector information */
-#endif
 {
     IR_tup_n_t      *tup_p;         /* Ptr to intermediate rep tuple */
     AST_type_n_t    *type_p;        /* Ptr to transmissible type AST node */
@@ -3053,16 +2783,10 @@ static void DDBE_op_transmit_as
  *  hang off the AST rep_as node rather than the AST type node.
  */
 static void DDBE_op_represent_as
-#ifdef PROTO
 (
     IR_tup_n_t      **p_tup_p,      /* [io] ptr to intermediate rep tuple */
     DDBE_vectors_t  *vip            /* [io] vector information */
 )
-#else
-(p_tup_p, vip)
-    IR_tup_n_t      **p_tup_p;      /* [io] ptr to intermediate rep tuple */
-    DDBE_vectors_t  *vip;           /* [io] vector information */
-#endif
 {
     IR_tup_n_t      *tup_p;         /* Ptr to intermediate rep tuple */
     AST_type_n_t    *type_p;        /* Ptr to network type AST node */
@@ -3254,16 +2978,10 @@ static void DDBE_op_represent_as
  *  hang off the AST cs_char node rather than the AST type node.
  */
 static void DDBE_op_cs_char
-#ifdef PROTO
 (
     IR_tup_n_t      **p_tup_p,      /* [io] ptr to intermediate rep tuple */
     DDBE_vectors_t  *vip            /* [io] vector information */
 )
-#else
-(p_tup_p, vip)
-    IR_tup_n_t      **p_tup_p;      /* [io] ptr to intermediate rep tuple */
-    DDBE_vectors_t  *vip;           /* [io] vector information */
-#endif
 {
     IR_tup_n_t      *tup_p;         /* Ptr to intermediate rep tuple */
     AST_type_n_t    *type_p;        /* Ptr to network type AST node */
@@ -3437,16 +3155,10 @@ static void DDBE_op_cs_char
  *  Process IREP tuple for an interface reference.
  */
 static void DDBE_op_interface
-#ifdef PROTO
 (
     IR_tup_n_t      *tup_p,         /* [in] ptr to intermediate rep tuple */
     DDBE_vectors_t  *vip            /* [io] vector information */
 )
-#else
-(tup_p, vip)
-    IR_tup_n_t      *tup_p;         /* [in] ptr to intermediate rep tuple */
-    DDBE_vectors_t  *vip;           /* [io] vector information */
-#endif
 {
 	AST_interface_n_t *int_p;       /* Ptr to interface node */
 	AST_type_n_t    *type_p;        /* Ptr to interface type node */
@@ -3555,7 +3267,6 @@ static void DDBE_op_interface
  *  This address is also stored in the DDBE private parameter info node.
  */
 static DDBE_vec_rep_t *DDBE_gen_param_reps
-#ifdef PROTO
 (
     AST_interface_n_t   *int_p __attribute__((__unused__)),     /* [in] ptr to interface node */
     AST_operation_n_t   *oper_p,    /* [in] ptr to operation node */
@@ -3564,15 +3275,6 @@ static DDBE_vec_rep_t *DDBE_gen_param_reps
     boolean             *cmd_opt __attribute__((__unused__)),   /* [in] array of cmd option flags */
     void                **cmd_val __attribute__((__unused__))  /* [in] array of cmd option values */
 )
-#else
-(int_p, oper_p, param_p, vip, cmd_opt, cmd_val)
-    AST_interface_n_t   *int_p;     /* [in] ptr to interface node */
-    AST_operation_n_t   *oper_p;    /* [in] ptr to operation node */
-    AST_parameter_n_t   *param_p;   /* [in] ptr to parameter node */
-    DDBE_vectors_t      *vip;       /* [in] vector information pointer */
-    boolean             *cmd_opt;   /* [in] array of cmd option flags */
-    void                **cmd_val;  /* [in] array of cmd option values */
-#endif
 {
     AST_type_n_t    *type_p;        /* Type node pointer */
     char const      *name;          /* Variable name */
@@ -4106,14 +3808,9 @@ static DDBE_vec_rep_t *DDBE_gen_param_reps
  *  Non-marshallable parameters are skipped, e.g. handle_t parameters.
  */
 static boolean DDBE_oper_in_out_opt
-#ifdef PROTO
 (
     AST_operation_n_t   *oper_p     /* [in] ptr to AST operation node */
 )
-#else
-(oper_p)
-    AST_operation_n_t   *oper_p;    /* [in] ptr to AST operation node */
-#endif
 {
     AST_parameter_n_t   *param_p;   /* Ptr to AST parameter node */
 
@@ -4276,20 +3973,12 @@ static boolean DDBE_oper_in_out_opt
  *  types into the vector information data structure.
  */
 static void DDBE_gen_vector_reps
-#ifdef PROTO
 (
     AST_interface_n_t   *int_p,     /* [in] ptr to interface node */
     DDBE_vectors_t      *vip,       /* [in] vector information pointer */
     boolean             *cmd_opt,   /* [in] array of cmd option flags */
     void                **cmd_val   /* [in] array of cmd option values */
 )
-#else
-(int_p, vip, cmd_opt, cmd_val)
-    AST_interface_n_t   *int_p;     /* [in] ptr to interface node */
-    DDBE_vectors_t      *vip;       /* [in] vector information pointer */
-    boolean             *cmd_opt;   /* [in] array of cmd option flags */
-    void                **cmd_val;  /* [in] array of cmd option values */
-#endif
 {
     /*
      * At this level we have both a definition vector and a type vector which
@@ -4706,20 +4395,12 @@ static void DDBE_gen_vector_reps
  *  and spell the corresponding vector data.
  */
 boolean DDBE_main
-#ifdef PROTO
 (
     boolean             *cmd_opt,   /* [in] array of cmd option flags */
     void                **cmd_val,  /* [in] array of cmd option values */
     AST_interface_n_t   *int_p,     /* [in] ptr to interface node */
     DDBE_vectors_t      **p_vip     /*[out] vector information pointer */
 )
-#else
-(cmd_opt, cmd_val, int_p, p_vip)
-    boolean             *cmd_opt;   /* [in] array of cmd option flags */
-    void                **cmd_val;  /* [in] array of cmd option values */
-    AST_interface_n_t   *int_p;     /* [in] ptr to interface node */
-    DDBE_vectors_t      **p_vip;    /*[out] vector information pointer */
-#endif
 {
     DDBE_vectors_t      *vip;       /* local copy of vector info pointer */
     long                endian = 1; /* integer to determine endianess */
@@ -4788,18 +4469,11 @@ boolean DDBE_main
  *  Test all the routines that spell marshalling code.
  */
 static void DDBE_test_marsh_spellers
-#ifdef PROTO
 (
     AST_interface_n_t   *int_p,     /* [in] ptr to interface node */
     boolean             *cmd_opt,   /* [in] array of cmd option flags */
     void                **cmd_val   /* [in] array of cmd option values */
 )
-#else
-(int_p, cmd_opt, cmd_val)
-    AST_interface_n_t   *int_p;     /* [in] ptr to interface node */
-    boolean             *cmd_opt;   /* [in] array of cmd option flags */
-    void                **cmd_val;  /* [in] array of cmd option values */
-#endif
 {
     AST_export_n_t      *export_p;  /* Ptr to AST export node */
     AST_operation_n_t   *oper_p;    /* Ptr to AST operation node */

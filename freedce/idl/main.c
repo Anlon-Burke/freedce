@@ -1,6 +1,6 @@
 // vim: ts=4 sw=4:
 /*
- * 
+ *
  * (c) Copyright 1989 OPEN SOFTWARE FOUNDATION, INC.
  * (c) Copyright 1989 HEWLETT-PACKARD COMPANY
  * (c) Copyright 1989 DIGITAL EQUIPMENT CORPORATION
@@ -17,7 +17,7 @@
  * Packard Company, nor Digital Equipment Corporation makes any
  * representations about the suitability of this software for any
  * purpose.
- * 
+ *
  */
 /*
 **
@@ -41,19 +41,15 @@
 #include <driver.h>             /* Main driver defs */
 
 int main
-#ifdef PROTO
 (
-    int  argc,
-    char **argv
+	int    argc,
+	char **argv
 )
-#else
-(argc, argv)
-    int  argc;
-    char **argv;
-#endif
 {
-    if (!DRIVER_main(argc, argv))
-        exit(pgm_error);
+	if (!DRIVER_main(argc, argv))
+	{
+		exit(pgm_error);
+	}
 
-    exit (pgm_ok);
+	exit (pgm_ok);
 }

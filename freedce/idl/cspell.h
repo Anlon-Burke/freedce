@@ -1,6 +1,6 @@
 // vim: ts=4 sw=4:
 /*
- * 
+ *
  * (c) Copyright 1993 OPEN SOFTWARE FOUNDATION, INC.
  * (c) Copyright 1993 HEWLETT-PACKARD COMPANY
  * (c) Copyright 1993 DIGITAL EQUIPMENT CORPORATION
@@ -17,7 +17,7 @@
  * Packard Company, nor Digital Equipment Corporation makes any
  * representations about the suitability of this software for any
  * purpose.
- * 
+ *
  */
 /*
 **
@@ -41,31 +41,24 @@
 #define CSPELL_H
 
 void CSPELL_std_include(
-#ifdef PROTO
     FILE *fid,
     char header_name[],
     BE_output_k_t filetype,
     int op_count
-#endif
 );
 
 void spell_name(
-#ifdef PROTO
     FILE *fid,
     NAMETABLE_id_t name
-#endif
 );
 
 void CSPELL_var_decl(
-#ifdef PROTO
     FILE *fid,
     AST_type_n_t *type,
     NAMETABLE_id_t name
-#endif
 );
 
 void CSPELL_typed_name(
-#ifdef PROTO
     FILE *fid,
     AST_type_n_t *type,
     NAMETABLE_id_t name,
@@ -73,61 +66,46 @@ void CSPELL_typed_name(
     boolean in_struct,
     boolean spell_tag,
     boolean encoding_services
-#endif
 );
 
 void CSPELL_function_def_header(
-#ifdef PROTO
     FILE *fid,
     AST_operation_n_t *oper,
     NAMETABLE_id_t name
-#endif
 );
 
 void CSPELL_cast_exp(
-#ifdef PROTO
     FILE *fid,
     AST_type_n_t *tp
-#endif
 );
 
 void CSPELL_ptr_cast_exp(
-#ifdef PROTO
     FILE *fid,
     AST_type_n_t *tp
-#endif
 );
 
 void CSPELL_type_exp_simple(
-#ifdef PROTO
     FILE *fid,
     AST_type_n_t *tp
-#endif
 );
 
 boolean CSPELL_scalar_type_suffix(
-#ifdef PROTO
     FILE *fid,
     AST_type_n_t *tp
-#endif
 );
 
 void CSPELL_pipe_struct_routine_decl
 (
-#ifdef PROTO
     FILE *fid,
     AST_type_n_t *p_pipe_type,
     BE_pipe_routine_k_t routine_kind,
     boolean cast
-#endif
 );
 
 void DDBE_spell_manager_param_cast
 (
-#ifdef PROTO
     FILE *fid,
     AST_type_n_t *tp
-#endif
 );
 
 #endif

@@ -1,6 +1,6 @@
 // vim: ts=4 sw=4:
 /*
- * 
+ *
  * (c) Copyright 1993 OPEN SOFTWARE FOUNDATION, INC.
  * (c) Copyright 1993 HEWLETT-PACKARD COMPANY
  * (c) Copyright 1993 DIGITAL EQUIPMENT CORPORATION
@@ -17,7 +17,7 @@
  * Packard Company, nor Digital Equipment Corporation makes any
  * representations about the suitability of this software for any
  * purpose.
- * 
+ *
  */
 /*
 **  NAME:
@@ -60,14 +60,9 @@ BE_handle_info_t BE_handle_info;
 /*                                                                            */
 /******************************************************************************/
 void CSPELL_test_status
-#ifdef PROTO
 (
     FILE *fid
 )
-#else
-    (fid)
-    FILE *fid;
-#endif
 {
     fprintf(fid,
              "if (IDL_ms.IDL_status != error_status_ok) goto IDL_closedown;\n");
@@ -79,14 +74,9 @@ void CSPELL_test_status
 /*                                                                            */
 /******************************************************************************/
 void CSPELL_test_transceive_status
-#ifdef PROTO
 (
     FILE *fid
 )
-#else
-    (fid)
-    FILE *fid;
-#endif
 {
     fprintf(fid, "if (IDL_ms.IDL_status != error_status_ok)\n{\n");
     fprintf(fid, "IDL_ms.IDL_elt_p = NULL;\n");
@@ -116,7 +106,7 @@ void CSPELL_csr_header
 	char op_internal_name[3 * MAX_ID];
 	NAMETABLE_id_t emitted_name;
 	AST_parameter_n_t * handle_param = NULL;
-	
+
 	if (use_internal_name) {
 		sprintf(op_internal_name, "op%d_csr", p_operation->op_number);
 		emitted_name = NAMETABLE_add_id(op_internal_name);
@@ -144,7 +134,7 @@ void CSPELL_csr_header
 	/* restore skipped handle params */
 	if (handle_param)
 		p_operation->parameters->next = handle_param;
-	
+
 }
 
 
@@ -174,7 +164,7 @@ static void CSPELL_client_stub_routine
     BE_get_comm_stat_info( p_operation, &comm_stat_info );
     BE_get_fault_stat_info( p_operation, &fault_stat_info );
 
-	 
+
     /* Routine header */
     CSPELL_csr_header(fid, p_interface_name, p_operation,
         use_internal_name);
@@ -238,7 +228,7 @@ static void CSPELL_client_stub_routine
     }
     else
     {
-	/* 
+	/*
 	 *  To support those platforms which do not allow both a CATCH and
 	 *  FINALLY clause on the same TRY, we generate one TRY block with a
 	 *  catch clause nested inside another TRY block with the FINALLY
@@ -297,7 +287,7 @@ static void CSPELL_client_stub_routine
                              &BE_handle_info, &cs_info, false);
 
 /* WEZ:setup the handle here ? */
-	 
+
 
     CSPELL_call_start(fid, &BE_handle_info, p_interface, p_operation, op_num,
                         &comm_stat_info, &fault_stat_info);
@@ -352,7 +342,7 @@ static void CSPELL_client_stub_routine
         fprintf(fid, "IDL_auto_binding_failure:;\n");
     }
     else {
-	/* 
+	/*
 	 *  Add the matching ENDTRY for the nested TRY/CATCH block, if
 	 *  necessary, as decribed above.
 	 */
@@ -457,8 +447,7 @@ void DDBE_spell_pickling_stub
 
 
     BE_setup_client_handle (fid, p_interface, p_operation, &BE_handle_info);
-    encode_decode = (AST_ENCODE_SET(p_operation) 
-                                            && AST_DECODE_SET(p_operation));
+    encode_decode = (AST_ENCODE_SET(p_operation) && AST_DECODE_SET(p_operation));
 
     CSPELL_csr_header(fid, p_interface_name, p_operation, use_internal_name);
 
@@ -595,7 +584,6 @@ void DDBE_spell_pickling_stub
 /*                                                                            */
 /******************************************************************************/
 void DDBE_gen_cstub
-#ifdef PROTO
 (
     FILE *fid,                      /* Handle for emitted C text */
     AST_interface_n_t *p_interface, /* Ptr to AST interface node */
@@ -605,16 +593,6 @@ void DDBE_gen_cstub
     void **cmd_val,
     DDBE_vectors_t *dd_vip    /* Data driven BE vector information ptr */
 )
-#else
-(fid, p_interface, language, header_name, cmd_opt, cmd_val, dd_vip)
-    FILE *fid;
-    AST_interface_n_t *p_interface;
-    language_k_t language;
-    char header_name[];
-    boolean *cmd_opt;
-    void **cmd_val;
-    DDBE_vectors_t *dd_vip;
-#endif
 {
     AST_export_n_t *p_export;
     AST_operation_n_t *p_operation;

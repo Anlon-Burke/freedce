@@ -182,17 +182,10 @@ static keyword_attrib_t keywords [] = {
 };
 
 
-void KEYWORDS_init
-#ifdef PROTO
-(
-    void
-)
-#else
-()
-#endif
+void KEYWORDS_init(void)
 {
-int hash_value;
-int i;
+	int hash_value;
+	int i;
 
     /*
      * Initialize the hash table to zeroes.
@@ -211,16 +204,10 @@ int i;
 }
 
 int KEYWORDS_screen
-#ifdef PROTO
 (
     char * identifier,
     NAMETABLE_id_t * id
 )
-#else
-(identifier, id)
-    char * identifier;
-    NAMETABLE_id_t * id;
-#endif
 {
     long hash_value;
     long i;
@@ -278,14 +265,9 @@ int KEYWORDS_screen
  *      ASCIZ string of token text
  */
 char *KEYWORDS_lookup_text
-#ifdef PROTO
 (
     long    token
 )
-#else
-(token)
-    long token;
-#endif
 {
     long i; /* index into keyword table */
 
@@ -303,14 +285,7 @@ char *KEYWORDS_lookup_text
 
 
 #ifdef DUMP_HASH_TABLE
-main
-#ifdef PROTO
-(
-    void
-)
-#else
-()
-#endif
+main(void)
 {
 int i, j;
 

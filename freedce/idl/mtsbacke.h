@@ -1,6 +1,6 @@
 // vim: ts=4 sw=4:
 /*
- * 
+ *
  * (c) Copyright 1993 OPEN SOFTWARE FOUNDATION, INC.
  * (c) Copyright 1993 HEWLETT-PACKARD COMPANY
  * (c) Copyright 1993 DIGITAL EQUIPMENT CORPORATION
@@ -17,7 +17,7 @@
  * Packard Company, nor Digital Equipment Corporation makes any
  * representations about the suitability of this software for any
  * purpose.
- * 
+ *
  */
 /*
 **  NAME:
@@ -40,15 +40,13 @@
 #include <marshall.h>
 #include <backend.h>
 
-extern boolean *BE_cmd_opt;
+extern boolean  *BE_cmd_opt;
 extern void    **BE_cmd_val;
 
 void CSPELL_mts_includes
 (
-#ifdef PROTO
     FILE *fid,
     char header_name[]
-#endif
 );
 
 

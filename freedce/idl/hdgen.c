@@ -1,6 +1,6 @@
 // vim: ts=4 sw=4:
 /*
- * 
+ *
  * (c) Copyright 1993 OPEN SOFTWARE FOUNDATION, INC.
  * (c) Copyright 1993 HEWLETT-PACKARD COMPANY
  * (c) Copyright 1993 DIGITAL EQUIPMENT CORPORATION
@@ -17,7 +17,7 @@
  * Packard Company, nor Digital Equipment Corporation makes any
  * representations about the suitability of this software for any
  * purpose.
- * 
+ *
  */
 /*
 **
@@ -58,16 +58,11 @@ extern int yylineno;
  * Maps a single character into a string suitable for emission
  */
 char *mapchar
-#ifdef PROTO
 (
-    AST_constant_n_t *cp,   /* Constant node with kind == AST_char_const_k */
-    boolean warning_flag __attribute__((__unused__))   /* unused */
+	AST_constant_n_t *cp,   /* Constant node with kind == AST_char_const_k */
+	[[maybe_unused]]
+	boolean warning_flag    /* unused */
 )
-#else
-(cp, warning_flag)
-    AST_constant_n_t *cp;   /* Constant node with kind == AST_char_const_k */
-    boolean warning_flag;   /* unused */
-#endif
 {
     char c = cp->value.char_val;
     static char buf[10];
@@ -94,18 +89,11 @@ char *mapchar
 }
 
 static void CSPELL_constant_def
-#ifdef PROTO
 (
     FILE *fid,
     AST_constant_n_t *cp,
     char *cast
 )
-#else
-(fid, cp, cast)
-    FILE *fid;
-    AST_constant_n_t *cp;
-    char *cast;
-#endif
 {
     char const *s;
 
@@ -145,16 +133,10 @@ static void CSPELL_constant_def
 
 
 static void CSPELL_operation_def
-#ifdef PROTO
 (
     FILE *fid,
     AST_operation_n_t *op
 )
-#else
-(fid, op)
-    FILE *fid;
-    AST_operation_n_t *op;
-#endif
 {
     AST_type_n_t       func_type_node;
 
@@ -169,18 +151,11 @@ static void CSPELL_operation_def
 
 
 void CSPELL_type_def
-#ifdef PROTO
 (
     FILE *fid,
     AST_type_n_t *tp,
     boolean spell_tag
 )
-#else
-(fid, tp, spell_tag)
-    FILE *fid;
-    AST_type_n_t *tp;
-    boolean spell_tag;
-#endif
 {
     fprintf (fid, "typedef ");
     CSPELL_typed_name (fid, tp, tp->name, tp, false, spell_tag, false);
@@ -206,16 +181,10 @@ void CSPELL_type_def
 
 
 static void CSPELL_exports
-#ifdef PROTO
 (
     FILE *fid,
     AST_export_n_t *ep
 )
-#else
-(fid, ep)
-    FILE           *fid;
-    AST_export_n_t *ep;
-#endif
 {
     for (; ep; ep = ep->next) {
         switch (ep->kind) {
@@ -238,16 +207,10 @@ static void CSPELL_exports
 }
 
 static void CSPELL_epv_field
-#ifdef PROTO
 (
     FILE *fid,
     AST_operation_n_t *op
 )
-#else
-(fid, op)
-    FILE   *fid;
-    AST_operation_n_t *op;
-#endif
 {
     AST_type_n_t       type_node_a, type_node_b;
     AST_pointer_n_t    pointer_node;
@@ -335,7 +298,7 @@ void BE_gen_orpc_defs(FILE * fid, AST_interface_n_t * ifp, enum orpc_class_def_t
 
 			if (handle_param != NULL)
 				op->parameters = handle_param;
-		
+
 			/* pure virtual */
 			if (deftype == class_def)
 				fprintf(fid, " = 0;\n");
@@ -349,7 +312,6 @@ void BE_gen_orpc_defs(FILE * fid, AST_interface_n_t * ifp, enum orpc_class_def_t
 }
 
 static void CSPELL_epv_type_and_var
-#ifdef PROTO
 (
     FILE *fid,
     NAMETABLE_id_t if_name,
@@ -357,14 +319,6 @@ static void CSPELL_epv_type_and_var
     AST_export_n_t *ep,
     boolean declare_cepv
 )
-#else
-(fid, if_name, if_version, ep, declare_cepv)
-    FILE *fid;
-    NAMETABLE_id_t if_name;
-    unsigned long int if_version;
-    AST_export_n_t *ep;
-    boolean declare_cepv;
-#endif
 {
 	AST_operation_n_t *op;
 
@@ -395,18 +349,11 @@ static void CSPELL_epv_type_and_var
 }
 
 static void CSPELL_if_spec_refs
-#ifdef PROTO
 (
     FILE *fid,
     NAMETABLE_id_t if_name,
     unsigned long int if_version
 )
-#else
-(fid, if_name, if_version)
-    FILE *fid;
-    NAMETABLE_id_t if_name;
-    unsigned long int if_version;
-#endif
 {
     fprintf (fid, "extern rpc_if_handle_t ");
     spell_name (fid, if_name);
@@ -418,16 +365,10 @@ static void CSPELL_if_spec_refs
 }
 
 static void CSPELL_user_prototypes
-#ifdef PROTO
 (
     FILE *fid,
     AST_interface_n_t *ifp
 )
-#else
-(fid, ifp)
-    FILE *fid;
-    AST_interface_n_t *ifp;
-#endif
 {
     AST_export_n_t *ep;
     AST_type_p_n_t *tpp;
@@ -555,16 +496,10 @@ static void CSPELL_user_prototypes
  *  Spell "extern" statements for user exceptions
  */
 void BE_spell_extern_user_excs
-#ifdef PROTO
 (
     FILE *fid,              /* Handle for emitted C text */
     AST_interface_n_t *ifp /* Ptr to AST interface node */
 )
-#else
-(fid, ifp)
-FILE                *fid;
-AST_interface_n_t   *ifp;
-#endif
 {
     AST_exception_n_t *p_exception;
 
@@ -595,16 +530,10 @@ AST_interface_n_t   *ifp;
  *  Spell prototypes for I-char machinery
  */
 static void BE_spell_ichar_prototypes
-#ifdef PROTO
 (
     FILE *fid,              /* Handle for emitted C text */
     AST_interface_n_t *ifp  /* Ptr to AST interface node */
 )
-#else
-(fid, ifp)
-FILE                *fid;
-AST_interface_n_t   *ifp;
-#endif
 {
     AST_type_p_n_t *cstpp; /* Pointer to chain of [cs_char] types */
     AST_type_n_t *cstp;     /* Pointer to [cs_char] type */
@@ -680,20 +609,13 @@ AST_interface_n_t   *ifp;
  *  Generate C header file
  */
 void BE_gen_c_header
-#ifdef PROTO
 (
-    FILE *fid,              /* Handle for emitted C text */
-    AST_interface_n_t *ifp, /* Ptr to AST interface node */
-    boolean bugs[] __attribute__((__unused__)),         /* List of backward compatibility "bugs" */
-    boolean cepv_opt        /* -cepv option present */
+	FILE *fid,              /* Handle for emitted C text */
+	AST_interface_n_t *ifp, /* Ptr to AST interface node */
+	[[maybe_unused]]
+	boolean bugs[],         /* List of backward compatibility "bugs" */
+	boolean cepv_opt        /* -cepv option present */
 )
-#else
-( fid, ifp, bugs, cepv_opt)
-FILE                *fid;
-AST_interface_n_t   *ifp;
-boolean             bugs[];
-boolean             cepv_opt;
-#endif
 {
     AST_import_n_t    *impp;
     AST_include_n_t   *incp;
@@ -701,7 +623,7 @@ boolean             cepv_opt;
     char const  *fn_str, *if_name;
 
 	the_interface = ifp;
-	 
+
     NAMETABLE_id_to_string(ifp->name, &if_name);
     sprintf (include_var_name, "%s_v%ld_%ld_included", if_name,
                                (ifp->version%65536), (ifp->version/65536));

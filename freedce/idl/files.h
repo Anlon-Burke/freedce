@@ -61,17 +61,13 @@ typedef enum                    /* Filespec kinds: */
 } FILE_k_t;
 
 extern boolean FILE_open(
-#ifdef PROTO
     char *filespec,
     FILE **fid
-#endif
 );
 
 extern boolean FILE_create(
-#ifdef PROTO
     char *filespec,
     FILE **fid
-#endif
 );
 
 extern boolean FILE_lookup(
@@ -108,9 +104,7 @@ extern boolean FILE_has_dir_info(
 );
 
 extern boolean FILE_is_cwd(
-#ifdef PROTO
     char *filespec
-#endif
 );
 
 extern boolean FILE_kind(
@@ -119,18 +113,14 @@ extern boolean FILE_kind(
 );
 
 extern int FILE_execute_cmd(
-#ifdef PROTO
     char        *cmd_string,
     char        *p1,
     char        *p2,
     long        msg_id
-#endif
 );
 
 extern void FILE_delete(
-#ifdef PROTO
     char        *filename
-#endif
 );
 
 #endif /* files_incl */

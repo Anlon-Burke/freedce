@@ -1,6 +1,6 @@
 // vim: ts=4 sw=4:
 /*
- * 
+ *
  * (c) Copyright 1989 OPEN SOFTWARE FOUNDATION, INC.
  * (c) Copyright 1989 HEWLETT-PACKARD COMPANY
  * (c) Copyright 1989 DIGITAL EQUIPMENT CORPORATION
@@ -17,7 +17,7 @@
  * Packard Company, nor Digital Equipment Corporation makes any
  * representations about the suitability of this software for any
  * purpose.
- * 
+ *
  */
 /*
 **
@@ -41,20 +41,16 @@
 #define IFSPEC_H
 
 extern void CSPELL_interface_def(
-#ifdef PROTO
     FILE *fid,
     AST_interface_n_t *ifp,
     BE_output_k_t kind,
     boolean generate_mepv
-#endif
 );
 
 void CSPELL_manager_epv
 (
-#ifdef PROTO
     FILE *fid,
     AST_interface_n_t *ifp
-#endif
 );
 
 #endif

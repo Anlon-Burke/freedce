@@ -1,6 +1,6 @@
 // vim: ts=4 sw=4:
 /*
- * 
+ *
  * (c) Copyright 1993 OPEN SOFTWARE FOUNDATION, INC.
  * (c) Copyright 1993 HEWLETT-PACKARD COMPANY
  * (c) Copyright 1993 DIGITAL EQUIPMENT CORPORATION
@@ -202,14 +202,7 @@ void message_open
  *  Function:   Closes message database.
  */
 
-void message_close
-#ifdef PROTO
-(
-    void
-)
-#else
-()
-#endif
+void message_close(void)
 
 #ifdef VMS
                     /* m e s s a g e _ c l o s e  (VMS) */
@@ -334,7 +327,6 @@ void message_print
  */
 
 void message_sprint
-#ifdef PROTO
 (
     char *str,
     long msgid,
@@ -344,13 +336,6 @@ void message_sprint
     char *arg4,
     char *arg5
 )
-#else
-(str, msgid, arg1, arg2, arg3, arg4, arg5)
-    char    *str;                   /* Formatted return string */
-    long    msgid;                  /* Message id */
-    char    *arg1, *arg2,           /* 0-5 directive arguments */
-            *arg3, *arg4, *arg5;
-#endif
 
 #ifdef VMS
                     /* m e s s a g e _ s p r i n t  (VMS) */
@@ -433,7 +418,6 @@ void message_sprint
  */
 
 void message_fprint
-#ifdef PROTO
 (
     FILE *fid,
     long msgid,
@@ -443,13 +427,6 @@ void message_fprint
     char *arg4,
     char *arg5
 )
-#else
-(fid, msgid, arg1, arg2, arg3, arg4, arg5)
-    FILE    *fid;                   /* File handle */
-    long    msgid;                  /* Message id */
-    char    *arg1, *arg2,           /* 0-5 directive arguments */
-            *arg3, *arg4, *arg5;
-#endif
 
 #ifdef VMS
                     /* m e s s a g e _ f p r i n t  (VMS) */

@@ -53,32 +53,24 @@ extern int nidl_yylineno;
  * Prototypes
  */
 char *KEYWORDS_lookup_text (
-#ifdef PROTO
     long    token
-#endif
 );
 
 static AST_type_n_t *AST_propagate_typedef (
-#ifdef PROTO
     AST_type_n_t *type_node_ptr,
     ASTP_declarator_n_t *declarator_ptr,
     ASTP_attributes_t   *attributes
-#endif
 );
 
 static AST_array_n_t *AST_propagate_array_type (
-#ifdef PROTO
     AST_type_n_t *type_node_ptr,
     AST_type_n_t *element_type_node_ptr,
     ASTP_declarator_op_n_t *declarator_op_ptr
-#endif
 );
 
 static void ASTP_verify_non_anonymous (
-#ifdef PROTO
     AST_type_n_t *type,
     ASTP_declarator_n_t *declarator_ptr
-#endif
 );
 
 
@@ -237,16 +229,10 @@ void ASTP_validate_forward_ref_scope
  *  nodes traversed.
  */
 AST_type_n_t *ASTP_chase_ptr_to_kind
-#ifdef PROTO
 (
     AST_type_n_t *type_node,
     AST_type_k_t kind
 )
-#else
-(type_node, kind)
-    AST_type_n_t *type_node;
-    AST_type_k_t kind;
-#endif
 {
     AST_type_n_t *tp;
     short int    pointer_count;
@@ -294,14 +280,9 @@ AST_type_n_t *ASTP_chase_ptr_to_kind
  *  traversed.
  */
 AST_type_n_t *ASTP_chase_ptr_to_type
-#ifdef PROTO
 (
     AST_type_n_t *type_node
 )
-#else
-(type_node)
-    AST_type_n_t *type_node;
-#endif
 {
     AST_type_n_t *tp;
     short int    pointer_count;
@@ -329,14 +310,9 @@ AST_type_n_t *ASTP_chase_ptr_to_type
  */
 
 AST_constant_n_t *AST_clone_constant
-#ifdef PROTO
 (
     AST_constant_n_t *constant_node_p
 )
-#else
-(constant_node_p)
-    AST_constant_n_t *constant_node_p;
-#endif
 {
     AST_constant_n_t *new_const_node_p;
 
@@ -400,16 +376,10 @@ AST_constant_n_t *AST_clone_constant
  */
 
 ASTP_node_t *AST_concat_element
-#ifdef PROTO
 (
     ASTP_node_t *list_head,
     ASTP_node_t *element
 )
-#else
-(list_head, element)
-    ASTP_node_t *list_head;
-    ASTP_node_t *element;
-#endif
 {
     /* Check for null element.  Grammer will sometimes call us this way */
     if (element == NULL)
@@ -477,19 +447,12 @@ ASTP_node_t *AST_concat_element
  */
 
 ASTP_node_t *ASTP_lookup_binding
-#ifdef PROTO
 (
     NAMETABLE_id_t      name,
     fe_node_k_t         node_kind,
     boolean             noforward_ref
 
 )
-#else
-(name, node_kind, noforward_ref)
-    NAMETABLE_id_t      name;
-    fe_node_k_t         node_kind;
-    boolean             noforward_ref;
-#endif
 {
     ASTP_node_t     *bound_node;
     char const      *identifier;
@@ -586,14 +549,9 @@ ASTP_node_t *ASTP_lookup_binding
  */
 
 AST_pointer_n_t * AST_pointer_node
-#ifdef PROTO
 (
     AST_type_n_t * pointee
 )
-#else
-(pointee)
-    AST_type_n_t * pointee;
-#endif
 {
     AST_pointer_n_t * pointer_node_ptr;
 
@@ -808,18 +766,11 @@ AST_type_p_n_t *AST_declarators_to_types
  */
 
 static AST_array_n_t *AST_propagate_array_type
-#ifdef PROTO
 (
     AST_type_n_t            *type_node_ptr,
     AST_type_n_t            *element_type_node_ptr,
     ASTP_declarator_op_n_t  *declarator_op_ptr
 )
-#else
-(type_node_ptr, element_type_node_ptr, declarator_op_ptr)
-    AST_type_n_t            *type_node_ptr;
-    AST_type_n_t            *element_type_node_ptr;
-    ASTP_declarator_op_n_t *declarator_op_ptr;
-#endif
 {
     AST_array_n_t        *array_node_ptr;
     ASTP_array_index_n_t *index_ptr;
@@ -913,20 +864,12 @@ static AST_array_n_t *AST_propagate_array_type
  */
 
 static AST_type_n_t *AST_propagate_type_attrs
-#ifdef PROTO
 (
     AST_type_n_t *type_node_ptr,
     ASTP_attributes_t *attributes,
     boolean needs_clone __attribute__((__unused__)),
     ASTP_node_t *parent_node
 )
-#else
-(type_node_ptr, attributes, needs_clone, parent_node)
-    AST_type_n_t *type_node_ptr;
-    ASTP_attributes_t *attributes;
-    boolean needs_clone;
-    ASTP_node_t *parent_node;
-#endif
 {
     AST_type_n_t *return_type;          /* type node to return */
     ASTP_attr_flag_t ptr_attrs = 0;
@@ -1191,18 +1134,11 @@ static AST_type_n_t *AST_propagate_type_attrs
  */
 
 static AST_type_n_t *AST_propagate_typedef
-#ifdef PROTO
 (
     AST_type_n_t *type_node_ptr,
     ASTP_declarator_n_t *declarator_ptr,
     ASTP_attributes_t   *attributes
 )
-#else
-(type_node_ptr, declarator_ptr, attributes)
-    AST_type_n_t *type_node_ptr;
-    ASTP_declarator_n_t *declarator_ptr;
-    ASTP_attributes_t   *attributes;
-#endif
 {
     AST_type_n_t *return_type;          /* type node to return */
     AST_type_n_t *current_type;         /* type node to return */
@@ -1398,20 +1334,12 @@ static AST_type_n_t *AST_propagate_typedef
  */
 
 AST_type_n_t *AST_propagate_type
-#ifdef PROTO
 (
     AST_type_n_t *type_node_ptr,
     ASTP_declarator_n_t *declarator_ptr,
     ASTP_attributes_t *attributes,
     ASTP_node_t *parent_node
 )
-#else
-(type_node_ptr, declarator_ptr, attributes, parent_node)
-    AST_type_n_t *type_node_ptr;
-    ASTP_declarator_n_t *declarator_ptr;
-    ASTP_attributes_t *attributes;
-    ASTP_node_t *parent_node;
-#endif
 {
     AST_type_n_t *return_type;          /* type node to return */
     AST_type_n_t *current_type;         /* type node to return */
@@ -1566,18 +1494,11 @@ AST_type_n_t *AST_propagate_type
  *
  */
 static void ASTP_save_field_ref_context
-#ifdef PROTO
 (
     NAMETABLE_id_t name,
     AST_field_ref_n_t *field_ref_addr,
     fe_info_t *fe_info
 )
-#else
-(name, field_ref_addr, fe_info)
-    NAMETABLE_id_t name;
-    AST_field_ref_n_t *field_ref_addr;
-    fe_info_t *fe_info;
-#endif
 {
     ASTP_field_ref_ctx_t *field_ref_ctx_ptr;
 
@@ -1608,22 +1529,17 @@ static void ASTP_save_field_ref_context
  */
 
 void ASTP_set_array_rep_type
-#ifdef PROTO
 (
     AST_type_n_t        *type_node_ptr,
     AST_type_n_t        *array_base_type,
     boolean             is_varying
 )
-#else
-(type_node_ptr, array_base_type, is_varying)
-    AST_type_n_t *type_node_ptr;
-    AST_type_n_t        *array_base_type;
-    boolean             is_varying;
-#endif
 {
-    char *identifier __attribute__((__unused__));
-    AST_type_p_n_t *tp_node __attribute__((__unused__));    /* type pointer node for interface's
-                                   linked list of transmit_as types */
+	[[maybe_unused]]
+	char *identifier;
+	[[maybe_unused]]
+	AST_type_p_n_t *tp_node;    /* type pointer node for interface's
+                                  linked list of transmit_as types */
 
     /* If the type is pointer, and no array_rep_type then create one */
     if (type_node_ptr->kind == AST_pointer_k)
@@ -1695,18 +1611,11 @@ void ASTP_set_array_rep_type
  */
 
 boolean AST_lookup_field_attr
-#ifdef PROTO
 (
     ASTP_attributes_t   *attributes,    /* [in] Attributes - bounds field is */
                                         /*      linked list of field attrs   */
     ASTP_attr_k_t       field_attr      /* [in] Field attribute to look up */
 )
-#else
-(attributes, field_attr)
-    ASTP_attributes_t   *attributes;    /* [in] Attributes - bounds field is */
-                                        /*      linked list of field attrs   */
-    ASTP_attr_k_t       field_attr;     /* [in] Field attribute to look up */
-#endif
 {
     ASTP_type_attr_n_t  *bound_p;
 
@@ -1756,18 +1665,11 @@ boolean AST_lookup_field_attr
  */
 
 AST_field_attr_n_t *AST_set_field_attrs
-#ifdef PROTO
 (
     ASTP_attributes_t  *attributes,
     ASTP_node_t     *parent_node,
     AST_type_n_t            *type_node
 )
-#else
-(attributes, parent_node, type_node)
-    ASTP_attributes_t  *attributes;
-    ASTP_node_t     *parent_node;
-    AST_type_n_t            *type_node;
-#endif
 {
     AST_field_attr_n_t
             *field_attr_node;   /* Pointer to field attribute node */
@@ -2216,16 +2118,10 @@ AST_field_attr_n_t *AST_set_field_attrs
  */
 
 AST_type_n_t *AST_set_type_attrs
-#ifdef PROTO
 (
     AST_type_n_t        *type_node_ptr,
     ASTP_attributes_t   *attributes
 )
-#else
-(type_node_ptr, attributes)
-    AST_type_n_t *type_node_ptr;
-    ASTP_attributes_t   *attributes;
-#endif
 {
     AST_type_p_n_t *tp_node;    /* type pointer node for interface's
                                    linked list of transmit_as types */
@@ -2308,15 +2204,9 @@ AST_type_n_t *AST_set_type_attrs
  */
 
 void ASTP_free_declarators
-#ifdef PROTO
 (
     ASTP_declarator_n_t *declarators_ptr
 )
-#else
-(declarators_ptr)
-    ASTP_declarator_n_t *declarators_ptr;
-#endif
-
 {
     ASTP_declarator_n_t
         *dp,                        /*  For traversing through declarators */
@@ -2379,14 +2269,9 @@ void ASTP_free_declarators
  */
 
 void ASTP_free_simple_list
-#ifdef PROTO
 (
     ASTP_node_t *list_ptr
 )
-#else
-(list_ptr)
-    ASTP_node_t *list_ptr;
-#endif
 {
     ASTP_node_t *lp,
                  *next_lp;
@@ -2423,12 +2308,7 @@ void ASTP_free_simple_list
  *  None.
  *
  */
-void ASTP_patch_field_reference
-#ifdef PROTO
-(void)
-#else
-()
-#endif
+void ASTP_patch_field_reference(void)
 {
     ASTP_field_ref_ctx_t *field_ref_ctx;
     AST_parameter_n_t    *parameter_node_ptr;
@@ -2527,18 +2407,11 @@ void ASTP_set_fe_info
  */
 
 void ASTP_save_tag_ref
-#ifdef PROTO
 (
     NAMETABLE_id_t      identifier,
     AST_type_k_t        kind,
     AST_type_n_t        *type_node_ptr
 )
-#else
-(identifier, kind, type_node_ptr)
-    NAMETABLE_id_t      identifier;
-    AST_type_k_t        kind;
-    AST_type_n_t        *type_node_ptr;
-#endif
 {
     ASTP_tag_ref_n_t    *tag_ref_node_ptr;      /* Tag reference node */
 
@@ -2582,14 +2455,9 @@ void ASTP_save_tag_ref
  */
 
 static void ASTP_process_context_type
-#ifdef PROTO
 (
     AST_type_n_t *type_node_ptr
 )
-#else
-(type_node_ptr)
-    AST_type_n_t *type_node_ptr;
-#endif
 {
     AST_SET_CONTEXT_RD(type_node_ptr);
 }
@@ -2611,18 +2479,11 @@ static void ASTP_process_context_type
  */
 
 void AST_set_flags
-#ifdef PROTO
 (
     AST_flags_t         *flags,
     ASTP_node_t         *node_ptr,
     ASTP_attributes_t   *attributes
 )
-#else
-(flags, node_ptr, attributes)
-    AST_flags_t         *flags;
-    ASTP_node_t         *node_ptr;
-    ASTP_attributes_t   *attributes;
-#endif
 {
 #define COPY_IF_LARGER(a,b) {if ((b) > (a)) (a) = (b);}
     ASTP_type_attr_n_t  *bp;                /* pointer to loop through bounds */
@@ -2860,14 +2721,9 @@ void AST_set_flags
  */
 
 long AST_attribute_to_token
-#ifdef PROTO
 (
     ASTP_attr_flag_t    *attribute
 )
-#else
-(attribute)
-    ASTP_attr_flag_t    *attribute;
-#endif
 {
     switch (*attribute)
     {
@@ -2925,16 +2781,10 @@ long AST_attribute_to_token
  */
 
 NAMETABLE_id_t AST_generate_name
-#ifdef PROTO
 (
       AST_interface_n_t   *int_p,
       char                *suffix
 )
-#else
-(int_p,suffix)
-      AST_interface_n_t   *int_p;
-      char                *suffix;
-#endif
 {
     char        gen_name[MAX_ID+1];  /* Buffer for generated tag name */
     char const  *int_name;      /* Interface name */
@@ -3011,16 +2861,10 @@ void ASTP_validate_integer
  */
 
 static void ASTP_verify_non_anonymous
-#ifdef PROTO
 (
     AST_type_n_t *type,
     ASTP_declarator_n_t *declarator_ptr
 )
-#else
-(type, declarator_ptr)
-    AST_type_n_t *type;
-    ASTP_declarator_n_t *declarator_ptr;
-#endif
 {
     /*
      *  Check that the base type is not an anonymous struct/union (has no name

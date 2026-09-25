@@ -1,6 +1,6 @@
 // vim: ts=4 sw=4:
 /*
- * 
+ *
  * (c) Copyright 1991 OPEN SOFTWARE FOUNDATION, INC.
  * (c) Copyright 1991 HEWLETT-PACKARD COMPANY
  * (c) Copyright 1991 DIGITAL EQUIPMENT CORPORATION
@@ -17,7 +17,7 @@
  * Packard Company, nor Digital Equipment Corporation makes any
  * representations about the suitability of this software for any
  * purpose.
- * 
+ *
  */
 /*
 **
@@ -52,25 +52,17 @@
 /*                                                                            */
 /******************************************************************************/
 void BE_cs_analyze_and_spell_vars
-#ifdef PROTO
 (
     FILE *fid,                      /* [in] Handle for emitted C text */
     AST_operation_n_t *p_operation, /* [in] Pointer to AST operation node */
     BE_side_t side,                 /* [in] client or server */
     BE_cs_info_t *p_cs_info         /* [out] Description of I-char machinery */
 )
-#else
-(fid, p_operation, side, p_cs_info)
-    FILE *fid;
-    BE_side_t side;
-    AST_operation_n_t *p_operation;
-    BE_cs_info_t *p_cs_info;
-#endif
 {
     AST_parameter_n_t *p_parameter;
 
     /* Look at the operation definition. If any of the parameters are [cs_*tag],
-        then I-char machinery is in use, and an IDL_cs_tags_t will be needed. 
+        then I-char machinery is in use, and an IDL_cs_tags_t will be needed.
         Remember the names of the tags for later use */
     p_cs_info->cs_machinery = false;
     p_cs_info->stag = NAMETABLE_NIL_ID;
@@ -195,20 +187,12 @@ void BE_cs_analyze_and_spell_vars
 /*                                                                            */
 /******************************************************************************/
 void BE_spell_cs_state
-#ifdef PROTO
 (
     FILE *fid,                      /* [in] Handle for emitted C text */
     char *state_access,             /* [in] "IDL_ms." or "IDL_msp->" */
     BE_side_t side,                 /* [in] client or server */
     BE_cs_info_t *p_cs_info         /* [in] Description of I-char machinery */
 )
-#else
-(fid, state_access, side, p_cs_info)
-    FILE *fid;
-    char *state_access;
-    BE_side_t side;
-    BE_cs_info_t *p_cs_info;
-#endif
 {
     if ( ! p_cs_info->cs_machinery )
         return;
@@ -256,7 +240,6 @@ void BE_spell_cs_state
 /*                                                                            */
 /******************************************************************************/
 void BE_spell_cs_tag_rtn_call
-#ifdef PROTO
 (
     FILE *fid,                      /* [in] Handle for emitted C text */
     char *state_access,             /* [in] "IDL_ms." or "IDL_msp->" */
@@ -266,16 +249,6 @@ void BE_spell_cs_tag_rtn_call
     BE_cs_info_t *p_cs_info,        /* [in] Description of I-char machinery */
     boolean pickling                /* [in] TRUE => called from pickling stub */
 )
-#else
-(fid, state_access, p_operation, side, p_handle_info, p_cs_info, pickling)
-    FILE *fid;
-    char *state_access;
-    AST_operation_n_t *p_operation;
-    BE_side_t side;
-    BE_handle_info_t *p_handle_info;
-    BE_cs_info_t *p_cs_info;
-    boolean pickling;
-#endif
 {
     if ((p_operation->cs_tag_rtn_name == NAMETABLE_NIL_ID)
         || ( ! p_cs_info->cs_machinery ) )

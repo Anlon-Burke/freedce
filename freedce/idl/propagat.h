@@ -1,6 +1,6 @@
 // vim: ts=4 sw=4:
 /*
- * 
+ *
  * (c) Copyright 1989 OPEN SOFTWARE FOUNDATION, INC.
  * (c) Copyright 1989 HEWLETT-PACKARD COMPANY
  * (c) Copyright 1989 DIGITAL EQUIPMENT CORPORATION
@@ -17,7 +17,7 @@
  * Packard Company, nor Digital Equipment Corporation makes any
  * representations about the suitability of this software for any
  * purpose.
- * 
+ *
  */
 /*
 **
@@ -53,20 +53,16 @@
 */
 
 extern boolean PROP_main(       /* Returns true on success */
-#ifdef PROTO
     boolean     *cmd_opt_arr,   /* [in] Array of command option flags */
     void        **cmd_val_arr,  /* [in] Array of command option values */
     AST_interface_n_t *int_p    /* [in] Ptr to AST interface node */
-#endif
 );
 
 #ifndef mips
 void PROP_set_type_attr
 (
-#ifdef PROTO
     AST_type_n_t *type_node_ptr,
     AST_flags_t  type_attr
-#endif
 );
 #endif
 

@@ -67,16 +67,10 @@ boolean BE_dump_debug, BE_dump_flat, BE_dump_mnode, BE_dump_mool,
  * Initialize the various backend globals
  */
 static void be_init
-#ifdef PROTO
 (
     boolean *cmd_opt,
     void **cmd_val
 )
-#else
-(cmd_opt, cmd_val)
-    boolean *cmd_opt;
-    void **cmd_val;
-#endif
 {
     boolean *bugs;
 
@@ -229,14 +223,7 @@ heap_mem *BE_ctx_malloc
 /*
 ** BE_push_malloc_ctx: Push a new context in which memory is allocated
 */
-void BE_push_malloc_ctx
-#ifdef PROTO
-(
-      void
-)
-#else
-()
-#endif
+void BE_push_malloc_ctx(void)
 {
       /*
        * Allocate a malloc context block to hang allocations made in this
@@ -255,14 +242,7 @@ void BE_push_malloc_ctx
 ** BE_pop_malloc_ctx: Pop the current context, freeing all memory allocated
 ** within this context (unless it was a permanent context).
 */
-void BE_pop_malloc_ctx
-#ifdef PROTO
-(
-    void
-)
-#else
-()
-#endif
+void BE_pop_malloc_ctx(void)
 {
       malloc_t *list,*curr;
       malloc_ctx_t *ctx;
@@ -291,28 +271,18 @@ void BE_pop_malloc_ctx
  *  BE_main
  */
 boolean BE_main              /* returns true on successful completion */
-#ifdef PROTO
 (
-    boolean             *cmd_opt,   /* [in] array of cmd option flags */
-    void                **cmd_val,  /* [in] array of cmd option values */
-    FILE                *h_fid,     /* [in] header file handle, or NULL */
-    FILE                *caux_fid __attribute__((__unused__)),  /* [in] client aux file handle, or NULL */
-    FILE                *saux_fid __attribute__((__unused__)),  /* [in] server aux file handle, or NULL */
-    FILE                *cstub_fid, /* [in] cstub file handle, or NULL */
-    FILE                *sstub_fid, /* [in] sstub file handle, or NULL */
-    AST_interface_n_t   *int_p      /* [in] ptr to interface node */
+	boolean             *cmd_opt,   /* [in] array of cmd option flags */
+	void                **cmd_val,  /* [in] array of cmd option values */
+	FILE                *h_fid,     /* [in] header file handle, or NULL */
+	[[maybe_unused]]
+	FILE                *caux_fid,  /* [in] client aux file handle, or NULL */
+	[[maybe_unused]]
+	FILE                *saux_fid,  /* [in] server aux file handle, or NULL */
+	FILE                *cstub_fid, /* [in] cstub file handle, or NULL */
+	FILE                *sstub_fid, /* [in] sstub file handle, or NULL */
+	AST_interface_n_t   *int_p      /* [in] ptr to interface node */
 )
-#else
-(cmd_opt, cmd_val, h_fid, caux_fid, saux_fid, cstub_fid, sstub_fid, int_p)
-    boolean *cmd_opt;
-    void **cmd_val;
-    FILE *h_fid;
-    FILE *caux_fid;
-    FILE *saux_fid;
-    FILE *cstub_fid;
-    FILE *sstub_fid;
-    AST_interface_n_t *int_p;
-#endif
 {
     DDBE_vectors_t      *dd_vip;    /* Data driven BE vector information ptr */
 
@@ -365,16 +335,10 @@ boolean BE_main              /* returns true on successful completion */
  * Output #includes needed at the start of MTS stubs
  */
 void CSPELL_mts_includes
-#ifdef PROTO
 (
     FILE *fid,
     char header_name[]
 )
-#else
-(fid, header_name)
-    FILE *fid;
-    char header_name[];
-#endif
 {
 
     fprintf (fid, USER_INCLUDE_TEMPLATE, header_name);
@@ -404,14 +368,9 @@ char const *BE_get_name
  * Allocates and returns a type node
  */
 AST_type_n_t *BE_get_type_node
-#ifdef PROTO
 (
     AST_type_k_t kind
 )
-#else
-(kind)
-    AST_type_k_t kind;
-#endif
 {
     AST_type_n_t *new_type = (AST_type_n_t *)BE_ctx_malloc(sizeof(AST_type_n_t));
 
@@ -434,16 +393,10 @@ AST_type_n_t *BE_get_type_node
 /*                                                                            */
 /******************************************************************************/
 void BE_gen_pipe_routine_decls
-#ifdef PROTO
 (
     FILE *fid __attribute__((__unused__)),
     AST_interface_n_t *p_interface __attribute__((__unused__))
 )
-#else
-( fid, p_interface )
-    FILE *fid;
-    AST_interface_n_t *p_interface;
-#endif
 {
 }
 

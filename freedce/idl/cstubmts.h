@@ -1,6 +1,6 @@
 // vim: ts=4 sw=4:
 /*
- * 
+ *
  * (c) Copyright 1992 OPEN SOFTWARE FOUNDATION, INC.
  * (c) Copyright 1992 HEWLETT-PACKARD COMPANY
  * (c) Copyright 1992 DIGITAL EQUIPMENT CORPORATION
@@ -17,7 +17,7 @@
  * Packard Company, nor Digital Equipment Corporation makes any
  * representations about the suitability of this software for any
  * purpose.
- * 
+ *
  */
 /*
 **  NAME:
@@ -35,21 +35,16 @@
 */
 void CSPELL_test_status
 (
-#ifdef PROTO
     FILE *fid
-#endif
 );
 
 void CSPELL_test_transceive_status
 (
-#ifdef PROTO
     FILE *fid
-#endif
 );
 
 void DDBE_gen_cstub
 (
-#ifdef PROTO
     FILE *fid,                      /* Handle for emitted C text */
     AST_interface_n_t *p_interface, /* Ptr to AST interface node */
     language_k_t language,          /* Language stub is to interface to */
@@ -57,7 +52,6 @@ void DDBE_gen_cstub
     boolean *cmd_opt,
     void **cmd_val,
     DDBE_vectors_t *dd_vip    /* Data driven BE vector information ptr */
-#endif
 );
 
 void CSPELL_csr_header

@@ -64,17 +64,10 @@ char const *FILE_def_filespec = NULL;
 */
 
 boolean FILE_open               /* Returns TRUE on success */
-#ifdef PROTO
 (
     char        *filespec,      /* [in] Filespec */
     FILE        **fid           /*[out] File handle; ==NULL on FALSE status */
 )
-#else
-(filespec, fid)
-    char        *filespec;      /* [in] Filespec */
-    FILE        **fid;          /*[out] File handle; ==NULL on FALSE status */
-#endif
-
 {
     if ((*fid = fopen(filespec, "r")) == NULL)
     {
@@ -96,17 +89,10 @@ boolean FILE_open               /* Returns TRUE on success */
 */
 
 boolean FILE_create             /* Returns TRUE on success */
-#ifdef PROTO
 (
     char        *filespec,      /* [in] Filespec */
     FILE        **fid           /*[out] File handle; ==NULL on FALSE status */
 )
-#else
-(filespec, fid)
-    char        *filespec;      /* [in] Filespec */
-    FILE        **fid;          /*[out] File handle; ==NULL on FALSE status */
-#endif
-
 {
 #ifndef VMS
 #define MODE_WRITE "w"
@@ -448,17 +434,10 @@ static char vms_filespec[NAM$C_MAXRSS];
 */
 
 static int process_vms_filespec
-#ifdef PROTO
 (
     char        *filespec,      /* [in] VMS filespec */
     int         flags           /* [in] Translation flags */
 )
-#else
-(filespec, flags)
-    char        *filespec;      /* [in] VMS filespec */
-    int         flags;          /* [in] Translation flags */
-#endif
-
 {
     strcpy(vms_filespec, filespec);
 
@@ -775,15 +754,9 @@ boolean FILE_has_dir_info
 */
 
 boolean FILE_is_cwd
-#ifdef PROTO
 (
     char        *filespec       /* [in] Filespec */
 )
-#else
-(filespec)
-    char        *filespec;      /* [in] Filespec */
-#endif
-
 {
     char    *cwd;       /* Current working directory */
     char    *twd;       /* Temp working directory = filespec argument */
@@ -878,15 +851,9 @@ boolean FILE_kind               /* Returns TRUE on success */
 
 boolean FILE_contains_ev_ref    /* Returns TRUE if filespec contains an */
                                 /* environment variable reference */
-#ifdef PROTO
 (
     STRTAB_str_t    fs_id       /* [in] Filespec stringtable ID */
 )
-#else
-(fs_id)
-    STRTAB_str_t    fs_id;      /* [in] Filespec stringtable ID */
-#endif
-
 {
     char const  *pn;
     unsigned int         i;
@@ -909,19 +876,12 @@ boolean FILE_contains_ev_ref    /* Returns TRUE if filespec contains an */
 */
 
 int FILE_execute_cmd
-#ifdef PROTO
 (
     char    *cmd_string,        /* command to execute */
     char    *p1,                /* parameter1 */
     char    *p2,                /* parameter2 */
     long    msg_id              /* Optional msg_id to output */
 )
-#else
-(cmd_string, p1, p2, msg_id)
-    char    *cmd_string, *p1, *p2;
-    long msg_id;
-#endif
-
 {
     char    *cmd;       /* Command derived from inputs */
     int     status;
@@ -982,15 +942,9 @@ int FILE_execute_cmd
 */
 
 void FILE_delete
-#ifdef PROTO
 (
     char    *filename
 )
-#else
-(filename)
-    char    *filename;
-#endif
-
 {
 #ifdef VMS
     remove (filename);

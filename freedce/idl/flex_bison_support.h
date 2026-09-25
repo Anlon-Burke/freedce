@@ -12,7 +12,7 @@
  * built with each parser and token generator. It is necessary
  * to define the helper functions directly in the .l and .y
  * files because the helper functions need to be able to access
- * and reference the static and global variables of the 
+ * and reference the static and global variables of the
  * parser/tokenizer state machines. This scheme allows us to
  * to manipulate the context of each state machine when we
  * need to save, activate a new instance, and then restore

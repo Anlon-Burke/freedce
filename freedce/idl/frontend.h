@@ -1,6 +1,6 @@
 // vim: ts=4 sw=4:
 /*
- * 
+ *
  * (c) Copyright 1989 OPEN SOFTWARE FOUNDATION, INC.
  * (c) Copyright 1989 HEWLETT-PACKARD COMPANY
  * (c) Copyright 1989 DIGITAL EQUIPMENT CORPORATION
@@ -17,7 +17,7 @@
  * Packard Company, nor Digital Equipment Corporation makes any
  * representations about the suitability of this software for any
  * purpose.
- * 
+ *
  */
 /*
 **
@@ -42,17 +42,13 @@
 #include <nametbl.h>            /* Nametable defs */
 
 boolean FE_main(
-#ifdef PROTO
     boolean             *cmd_opt,
     void                **cmd_val,
     STRTAB_str_t        idl_sid,
     AST_interface_n_t   **int_p
-#endif
 );
 
 
 AST_interface_n_t   *FE_parse_import(
-#ifdef PROTO
     STRTAB_str_t new_input
-#endif
 );

@@ -1,6 +1,6 @@
 // vim: ts=4 sw=4:
 /*
- * 
+ *
  * (c) Copyright 1991 OPEN SOFTWARE FOUNDATION, INC.
  * (c) Copyright 1991 HEWLETT-PACKARD COMPANY
  * (c) Copyright 1991 DIGITAL EQUIPMENT CORPORATION
@@ -17,7 +17,7 @@
  * Packard Company, nor Digital Equipment Corporation makes any
  * representations about the suitability of this software for any
  * purpose.
- * 
+ *
  */
 /*
 **
@@ -69,16 +69,13 @@ typedef struct {
 extern char assoc_handle_ptr[];
 
 void BE_setup_client_handle(
-#ifdef PROTO
     FILE *fid,
     AST_interface_n_t *p_interface,
     AST_operation_n_t *p_operation,
     BE_handle_info_t *p_handle_info
-#endif
 );
 
 void CSPELL_call_start(
-#ifdef PROTO
     FILE *fid,
     BE_handle_info_t *p_handle_info,
     AST_interface_n_t *p_interface,
@@ -86,31 +83,24 @@ void CSPELL_call_start(
     unsigned long op_num,            /* Number of current operation */
     BE_stat_info_t *p_comm_stat_info,
     BE_stat_info_t *p_fault_stat_info
-#endif
 );
 
 void CSPELL_auto_handle_statics
 (
-#ifdef PROTO
     FILE * fid
-#endif
 );
 
 void CSPELL_restart_logic
 (
-#ifdef PROTO
     FILE * fid,
     AST_operation_n_t *p_operation,
     boolean uses_packet
-#endif
 );
 
 void CSPELL_binding_free_if_needed
 (
-#ifdef PROTO
     FILE *fid,
     BE_handle_info_t *p_handle_info
-#endif
 );
 
 #endif

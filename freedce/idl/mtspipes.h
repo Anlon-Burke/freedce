@@ -1,6 +1,6 @@
 // vim: ts=4 sw=4:
 /*
- * 
+ *
  * (c) Copyright 1992 OPEN SOFTWARE FOUNDATION, INC.
  * (c) Copyright 1992 HEWLETT-PACKARD COMPANY
  * (c) Copyright 1992 DIGITAL EQUIPMENT CORPORATION
@@ -17,7 +17,7 @@
  * Packard Company, nor Digital Equipment Corporation makes any
  * representations about the suitability of this software for any
  * purpose.
- * 
+ *
  */
 /*
 **
@@ -44,11 +44,9 @@
 
 void DDBE_init_server_pipes
 (
-#ifdef PROTO
     FILE *fid,
     AST_operation_n_t *p_operation,
     long *p_first_pipe      /* ptr to index and direction of first pipe */
-#endif
 );
 
 #endif

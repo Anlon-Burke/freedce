@@ -83,18 +83,12 @@
 
 extern int yyparse(void);
 
-extern void acf_cleanup(
-#ifdef PROTO
-    void
-#endif
-);
+extern void acf_cleanup(void);
 
 extern void acf_init(
-#ifdef PROTO
     boolean     *cmd_opt_arr,   /* [in] Array of command option flags */
     void        **cmd_val_arr,  /* [in] Array of command option values */
     char        *acf_file       /* [in] ACF file name */
-#endif
 );
 
 
@@ -123,11 +117,7 @@ extern boolean ASTP_parsing_main_idl;
 **  Frontend-specific initialization.
 */
 
-#ifdef PROTO
 static void FE_init(void)
-#else
-static void FE_init()
-#endif
 {
     saved_cmd_opt = NULL;
     saved_cmd_val = NULL;
@@ -148,7 +138,6 @@ static void FE_init()
 
 #if defined(CPP)
 static void cpp
-#ifdef PROTO
 (
     char        *cpp_cmd,       /* [in] Base command to invoke cpp */
     char        *cpp_opt,       /* [in] Addtl command options for cpp */
@@ -159,19 +148,6 @@ static void cpp
     char        **idir_list,    /* [in] List of -I directories */
     FILE        **cpp_output    /*[out] File ID of cpp output */
 )
-#else
-(cpp_cmd, cpp_opt, file_name, dst_file_name, def_strings, undef_strings,
-idir_list, cpp_output)
-    char        *cpp_cmd;       /* [in] Command to invoke cpp */
-    char        *cpp_opt;       /* [in] Addtl command options for cpp */
-    char        *file_name;     /* [in] Source full filespec; "" => stdin */
-    char        *dst_file_name; /* [in] Target filespec (VMS) */
-    char        **def_strings;  /* [in] List of #define's for preprocessor */
-    char        **undef_strings;/* [in] List of #undefine's for preprocessor */
-    char        **idir_list;    /* [in] List of -I directories */
-    FILE        **cpp_output;   /*[out] File ID of cpp output */
-#endif
-
 {
 #ifdef VMS
     boolean     paren_flag;
@@ -336,19 +312,11 @@ idir_list, cpp_output)
 */
 
 static boolean parse_acf        /* Returns true on success */
-#ifdef PROTO
 (
     boolean     *cmd_opt,       /* [in] Array of command option flags */
     void        **cmd_val,      /* [in] Array of command option values */
     char        *acf_file       /* [in] ACF full file name */
 )
-#else
-(cmd_opt, cmd_val, acf_file)
-    boolean     *cmd_opt;       /* [in] Array of command option flags */
-    void        **cmd_val;      /* [in] Array of command option values */
-    char        *acf_file;      /* [in] ACF full file name */
-#endif
-
 {
     extern int acf_yyparse( void);
 
@@ -457,15 +425,9 @@ static boolean parse_acf        /* Returns true on success */
 */
 
 static boolean already_imported
-#ifdef PROTO
 (
     STRTAB_str_t import_path_id      /* The name to check */
 )
-#else
-(import_path_id)
-    STRTAB_str_t import_path_id;
-#endif
-
 {
     char                 new_import_full_fn[max_string_len];
     STRTAB_str_t         new_import_full_fn_id;
@@ -548,7 +510,6 @@ static boolean already_imported
 */
 
 static boolean parse
-#ifdef PROTO
 (
     boolean     *cmd_opt,       /* [in] Array of command option flags */
     void        **cmd_val,      /* [in] Array of command option values */
@@ -557,16 +518,6 @@ static boolean parse
     boolean     idir_valid,     /* [in] true => use import directory list */
     AST_interface_n_t **int_p   /*[out] Ptr to interface node */
 )
-#else
-(cmd_opt, cmd_val, idl_sid, idir_valid, int_p)
-    boolean     *cmd_opt;       /* [in] Array of command option flags */
-    void        **cmd_val;      /* [in] Array of command option values */
-    STRTAB_str_t idl_sid;       /* [in] IDL filespec stringtable ID */
-                                /*      STRTAB_NULL_STR => stdin */
-    boolean     idir_valid;     /* [in] true => use import directory list */
-    AST_interface_n_t **int_p;  /*[out] Ptr to interface node */
-#endif
-
 {
     extern FILE *nidl_yyin;
     extern int nidl_yynerrs;
@@ -781,15 +732,9 @@ static boolean parse
  */
 
 AST_interface_n_t *FE_parse_import
-#ifdef PROTO
 (
     STRTAB_str_t    new_input   /* [in] string table id of file to parse */
 )
-#else
-(new_input)
-    STRTAB_str_t    new_input;  /* [in] string table id of file to parse */
-#endif
-
 {
 
   /*
@@ -1001,7 +946,6 @@ AST_interface_n_t *FE_parse_import
 */
 
 static boolean parse_idl        /* Returns true on success */
-#ifdef PROTO
 (
     boolean     *cmd_opt,       /* [in] Array of command option flags */
     void        **cmd_val,      /* [in] Array of command option values */
@@ -1009,15 +953,6 @@ static boolean parse_idl        /* Returns true on success */
                                 /*      STRTAB_NULL_STR => stdin */
     AST_interface_n_t **int_p   /*[out] Ptr to interface node */
 )
-#else
-(cmd_opt, cmd_val, idl_sid, int_p)
-    boolean     *cmd_opt;       /* [in] Array of command option flags */
-    void        **cmd_val;      /* [in] Array of command option values */
-    STRTAB_str_t idl_sid;       /* [in] IDL filespec stringtable ID */
-                                /*      STRTAB_NULL_STR => stdin */
-    AST_interface_n_t **int_p;  /*[out] Ptr to interface node */
-#endif
-
 {
     boolean status;                     /* Status to return */
     FE_import_file_n_t *imported_file;  /* Main IDL file info */
@@ -1094,7 +1029,6 @@ static boolean parse_idl        /* Returns true on success */
 */
 
 boolean FE_main                 /* Returns true on success */
-#ifdef PROTO
 (
     boolean     *cmd_opt,       /* [in] Array of command option flags */
     void        **cmd_val,      /* [in] Array of command option values */
@@ -1102,15 +1036,6 @@ boolean FE_main                 /* Returns true on success */
                                 /*      STRTAB_NULL_STR => stdin */
     AST_interface_n_t **int_p   /*[out] Ptr to interface node */
 )
-#else
-(cmd_opt, cmd_val, idl_sid, int_p)
-    boolean     *cmd_opt;       /* [in] Array of command option flags */
-    void        **cmd_val;      /* [in] Array of command option values */
-    STRTAB_str_t idl_sid;       /* [in] IDL filespec stringtable ID */
-                                /*      STRTAB_NULL_STR => stdin */
-    AST_interface_n_t **int_p;  /*[out] Ptr to interface node */
-#endif
-
 {
     boolean status;
 
