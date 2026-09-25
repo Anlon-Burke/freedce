@@ -2928,7 +2928,7 @@ unsigned32              *st;
             }
             else
             {
-                if ((unsigned long)delta.tv_sec == (unsigned long)rpc_c_cancel_infinite_timeout)
+                if ((unsigned32)delta.tv_sec == (unsigned32)rpc_c_cancel_infinite_timeout)
                 {
                     ;   /* we never timeout */
                 }
