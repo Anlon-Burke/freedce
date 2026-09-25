@@ -464,9 +464,9 @@ idl_ulong_int rpc_ss_arm_switch_value
 #define IDL_MARSH_ALIGN_MP(IDL_msp, alignment)\
     if (IDL_msp->IDL_buff_addr == NULL)\
         rpc_ss_ndr_marsh_init_buffer(IDL_msp);\
-    IDL_msp->IDL_mp = (idl_byte *)\
-        (((IDL_msp->IDL_mp - (idl_byte *)0) + (alignment-1)) & ~(alignment-1));\
-    IDL_msp->IDL_left_in_buff = (IDL_msp->IDL_left_in_buff & ~(alignment-1))
+    IDL_msp->IDL_mp +=\
+        (-(IDL_msp->IDL_mp - (idl_byte *)0)) & ((alignment)-1);\
+    IDL_msp->IDL_left_in_buff = (IDL_msp->IDL_left_in_buff & ~((alignment)-1))
 
 /*
  *  Buffers delivered by the runtime are always 8-byte aligned multiples of
@@ -478,9 +478,8 @@ idl_ulong_int rpc_ss_arm_switch_value
 #define IDL_UNMAR_ALIGN_MP(IDL_msp, alignment)\
 { \
     int advance;\
-    advance = (idl_byte *)\
-        (((IDL_msp->IDL_mp - (idl_byte *)0) + (alignment-1)) & ~(alignment-1)) \
-            - IDL_msp->IDL_mp; \
+    advance = (int)\
+        ((-(IDL_msp->IDL_mp - (idl_byte *)0)) & ((alignment)-1)); \
     IDL_msp->IDL_mp += advance; \
     IDL_msp->IDL_left_in_buff -= advance;\
 }

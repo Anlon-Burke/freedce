@@ -70,7 +70,7 @@ void rpc_ss_marsh_change_buff
     RPC_SS_MARSH_CHANGE_BUFF_N;
 #endif
 
-    preserved_offset = ((int)msp->mp) % 8;
+    preserved_offset = (int)((msp->mp - (rpc_mp_t)0) & 7);
     /* If a current iovector and buffer exist */
     if (msp->p_iovec->elt[0].buff_addr != NULL)
     {

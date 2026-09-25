@@ -462,18 +462,17 @@ unsigned32 boundary;
 unsigned8 **ptr;
 #endif
 {
-    union
-    {
-    	unsigned8 **as_ptr;
-    	unsigned32 *as_int;
-    } anyptr;
+    unsigned32 misalignment;
 
-    anyptr.as_ptr = ptr;
-
-    if (*anyptr.as_int & (boundary-1))
+    /*
+     * Advance the pointer itself; do not modify its representation
+     * through a 32-bit integer (that would only change the low half
+     * of a 64-bit pointer).
+     */
+    misalignment = (unsigned32) ((*ptr - (unsigned8 *) 0) & (boundary-1));
+    if (misalignment != 0)
     {
-    	*anyptr.as_int += boundary;
-    	*anyptr.as_int &= ~(boundary-1);
+        *ptr += boundary - misalignment;
     }
 }
 

@@ -88,7 +88,7 @@ INTERNAL int rpc_g_dg_cct_timeout = CCTE_TIMEOUT_INTERVAL;
  */
 
 #define AUTH_INFO_HASH(auth_info) \
-    ((unsigned32) (auth_info))
+    ((unsigned32) ((unsigned long) (auth_info)))
 
 /* ========================================================================= */
 

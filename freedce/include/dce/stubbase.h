@@ -327,7 +327,7 @@ typedef ndr_ulong_int rpc_op_t;
     mp = (rpc_mp_t)bufp
 
 #define rpc_align_mp(mp, alignment)\
-    mp = (rpc_mp_t)(((mp - (rpc_mp_t)0) + (alignment-1)) & ~(alignment-1))
+    mp += (-(mp - (rpc_mp_t)0)) & ((alignment)-1)
 
 #define rpc_advance_mp(mp, delta)\
     mp += delta
