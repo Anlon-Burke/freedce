@@ -1058,6 +1058,17 @@ unsigned32              *status;
         }
     }
 
+    /*
+     * gethostbyname_r() returns 0 with result == NULL when the host
+     * was not found; he is not filled in then.
+     */
+    if (result == NULL || he.h_length != (int) sizeof(unsigned32))
+    {
+        sys_free(buf);
+        *status = rpc_s_inval_net_addr;
+        return;
+    }
+
     ip_addr->sa.sin_addr.s_addr = * (unsigned32 *) he.h_addr;
     sys_free(buf);
 
