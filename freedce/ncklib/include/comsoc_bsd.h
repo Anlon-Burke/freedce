@@ -300,11 +300,15 @@ inline static void RPC_SOCKET_RECVFROM
 recvfrom_again:
 	if ((from) != NULL) RPC_SOCKET_FIX_ADDRLEN(from);
 	RPC_LOG_SOCKET_RECVFROM_NTR;
-	*(ccp) = recvfrom ((int) sock, (char *) buf, (int) buflen, (int) 0,
-			(struct sockaddr *) (&(from)->sa), (unsigned int *) (&(from)->len));
+	if ((from) != NULL)
+		*(ccp) = recvfrom ((int) sock, (char *) buf, (int) buflen, (int) 0,
+				(struct sockaddr *) (&(from)->sa), (unsigned int *) (&(from)->len));
+	else
+		*(ccp) = recvfrom ((int) sock, (char *) buf, (int) buflen, (int) 0,
+				NULL, NULL);
 	*(serrp) = (*(ccp) == -1) ? errno : RPC_C_SOCKET_OK;
 	RPC_LOG_SOCKET_RECVFROM_XIT;
-	RPC_SOCKET_FIX_ADDRLEN(from);
+	if ((from) != NULL) RPC_SOCKET_FIX_ADDRLEN(from);
 	if (*(serrp) == EINTR)
 	{
 		goto recvfrom_again;
