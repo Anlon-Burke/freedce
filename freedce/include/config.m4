@@ -28,7 +28,6 @@ for header in $osdepheaders ; do
 		ln -sf $ac_abs_confdir/include/dce/$target_os/$header include/dce/$header
 	fi
 done;
-ls -al $ac_pwd/include/dce
 unset osdepheaders
 
 if test "x$target_cpu" = x; then

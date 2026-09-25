@@ -120,32 +120,34 @@ THREADS_DIRS="/opt/dce"
 fi
 
 AC_ARG_WITH(dcethreads-dir, [  --with-dcethreads-dir   Specify where you have installed dcethreads],
-[DCETHREADS_INST_DIR=$withval])
-#THREADS_DIRS="$withval $THREADS_DIRS"
+[THREADS_DIRS="$withval $THREADS_DIRS"])
 
-if test "$DCETHREADS_INST_DIR/lib" = "/lib"; then
-DCE_THREADS_INST_LIB_DIR=
-DCE_THREADS_INST_INC_DIR=
-else
-DCE_THREADS_INST_LIB_DIR=$DCETHREADS_INST_DIR/lib
-DCE_THREADS_INST_INC_DIR=$DCETHREADS_INST_DIR/include
-fi
+dnl the libraries and headers are searched in <dir>/lib and <dir>/include
+THREADS_LIB_DIRS=
+THREADS_INC_DIRS=
+for i in $THREADS_DIRS; do
+	THREADS_LIB_DIRS="$THREADS_LIB_DIRS $i/lib"
+	THREADS_INC_DIRS="$THREADS_INC_DIRS $i/include"
+done
 
 echo "enable_pthreads: " $ENABLE_PTHREADS
 
 if test "x$ENABLE_PTHREADS" != "xyes"; then
-RPC_CHECK_LIBDIR(pthd4exc_create, dcethreads, $DCE_THREADS_INST_LIB_DIR $THREADS_DIRS,,
-AC_MSG_ERROR([freedce requires A libdcethreads!]))
+RPC_CHECK_LIBDIR(pthd4exc_create, dcethreads, $THREADS_LIB_DIRS,,
+AC_MSG_ERROR([freedce requires libdcethreads!]))
 else
-RPC_CHECK_LIBDIR(dcethreads_exc_lib_init, dcethreads, $DCE_THREADS_INST_LIB_DIR $THREADS_DIRS,,
-AC_MSG_ERROR([freedce requires B libdcethreads!]))
+RPC_CHECK_LIBDIR(dcethreads_exc_lib_init, dcethreads, $THREADS_LIB_DIRS,,
+AC_MSG_ERROR([freedce requires libdcethreads!]))
 fi
 
 dnl Checks for header files.
 AC_CHECK_HEADERS(features.h sys/cdefs.h dlfcn.h)
-RPC_CHECK_INCDIR(dce/pthread_exc.h, dcethreads, $DCE_THREADS_INST_INC_DIR,,
+RPC_CHECK_INCDIR(dce/pthread_exc.h, dcethreads, $THREADS_INC_DIRS,,
 AC_MSG_ERROR([freedce requires dcethreads include files!]))
-DCETHREADINCLUDES="${rpc_incdir_dcethreads+-I$rpc_incdir_dcethreads}"
+DCETHREADINCLUDES=
+if test "x$rpc_cv_incdir_dcethreads" != "xnone required"; then
+	DCETHREADINCLUDES="-I$rpc_cv_incdir_dcethreads"
+fi
 AC_SUBST(DCETHREADINCLUDES)
 
 
