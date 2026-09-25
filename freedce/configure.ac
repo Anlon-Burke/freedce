@@ -81,7 +81,7 @@ AC_PROG_LN_S
 AC_PROG_LEX([noyywrap])
 AC_PROG_YACC
 
-# Prüfen, ob YACC auf einen leeren/ungültigen Befehl gesetzt wurde
+# Check whether YACC was set to an empty or invalid command
 if test "$YACC" = "yacc" || test "$YACC" = ":"; then
   AC_CHECK_PROG([YACC_CHECK], [yacc], [yes], [no])
   if test "$YACC_CHECK" = "no"; then
