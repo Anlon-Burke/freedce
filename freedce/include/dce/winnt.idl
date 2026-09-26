@@ -33,7 +33,7 @@
  pointer_default(ptr)]
 interface FreeDCEOWinNTTypes
 {
-import "wtypes.idl";
+import "dce/wtypes.idl";
 
 /*
  * NT status code
