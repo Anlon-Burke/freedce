@@ -452,7 +452,21 @@ pthd4__cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex,
         {
             return r;
         }
-        if (abstime != NULL && !timespec_before(&end, abstime))
+        if (abstime == NULL)
+        {
+            /*
+             * Only the slice has ended.  Do not wait again here: a
+             * signal that raced with the slice timeout may have been
+             * absorbed by this wait although it timed out, and the
+             * caller would never see its predicate change.  Report a
+             * spurious wakeup instead, so that the caller rechecks its
+             * predicate and waits again.  (A timed wait goes on to its
+             * own deadline: its callers often take any return as "time
+             * is up", and a lost signal delays them at most until then.)
+             */
+            return 0;
+        }
+        if (!timespec_before(&end, abstime))
         {
             return ETIMEDOUT;
         }
