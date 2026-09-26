@@ -1522,10 +1522,18 @@ unsigned32              *st;
 
     RPC_CN_DBG_RTN_PRINTF (rpc__cn_network_mon);
     CODING_ERROR(st);
-    
+
+    /*
+     * This is called by the context handle code in a call thread.  The
+     * association group table and the groups are changed by the receiver
+     * threads under the CN lock (and the table may be reallocated), so
+     * take it too.
+     */
+    RPC_CN_LOCK ();
+
     /*
      * Get the association group using the group id provided as a
-     * client handle. 
+     * client handle.
      */
     grp_id.all = (unsigned32) (unsigned long) client_h;
     grp_id = rpc__cn_assoc_grp_lkup_by_id (grp_id,
@@ -1547,6 +1555,7 @@ unsigned32              *st;
         assoc_grp->grp_refcnt++;
         *st = rpc_s_ok;
     }
+    RPC_CN_UNLOCK ();
 }
 
 
@@ -1609,6 +1618,8 @@ unsigned32              *st;
     CODING_ERROR(st);
     RPC_CN_DBG_RTN_PRINTF (rpc__cn_network_stop_mon);
     
+    RPC_CN_LOCK ();     /* see rpc__cn_network_mon */
+
     /*
      * Get the association group using the group id provided as a
      * client handle. 
@@ -1631,6 +1642,7 @@ unsigned32              *st;
         assoc_grp->grp_refcnt--;
         *st = rpc_s_ok;
     }
+    RPC_CN_UNLOCK ();
 }
 
 
@@ -1692,6 +1704,8 @@ unsigned32              *st;
     CODING_ERROR(st);
     RPC_CN_DBG_RTN_PRINTF (rpc__cn_network_maint);
     
+    RPC_CN_LOCK ();     /* see rpc__cn_network_mon */
+
     /*
      * Get the association group using the group id contained in the
      * binding handle.
@@ -1715,6 +1729,7 @@ unsigned32              *st;
         assoc_grp->grp_refcnt++;
         *st = rpc_s_ok;
     }
+    RPC_CN_UNLOCK ();
 }
 
 
@@ -1773,6 +1788,8 @@ unsigned32              *st;
     CODING_ERROR(st);
     RPC_CN_DBG_RTN_PRINTF (rpc__cn_network_stop_maint);
     
+    RPC_CN_LOCK ();     /* see rpc__cn_network_mon */
+
     /*
      * Get the association group using the group id contained in the
      * binding handle.
@@ -1796,6 +1813,7 @@ unsigned32              *st;
         assoc_grp->grp_refcnt--;
         *st = rpc_s_ok;
     }
+    RPC_CN_UNLOCK ();
 }
 
 /***********************************************************************/
