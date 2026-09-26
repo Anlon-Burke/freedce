@@ -867,7 +867,9 @@ AST_interface_n_t *FE_parse_import
 
     parse(saved_cmd_opt, saved_cmd_val, new_input, true, &int_p);
 
-	 if (saved_interface && saved_interface->inherited_interface_name == the_interface->name)	{
+	 /* the_interface is NULL if the import file could not be parsed */
+	 if (saved_interface && the_interface
+	     && saved_interface->inherited_interface_name == the_interface->name)	{
 		  AST_export_n_t * ep = the_interface->exports;
 		  AST_export_n_t * op;
 
