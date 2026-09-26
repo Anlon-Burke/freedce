@@ -1,0 +1,15 @@
+/*
+ * Symbol versions of libdcerpc.  Versioned symbols let libdcerpc and the
+ * util-linux libuuid live in one process: both define uuid_compare (with
+ * different arguments), and each reference binds to the version it was
+ * linked against.  The helpers of the UUID code stay internal.
+ */
+DCERPC_1.1 {
+  global:
+    *;
+  local:
+    uuid__get_os_address;
+    uuid__get_os_pid;
+    uuid__get_os_time;
+    uuid__uemul;
+};

@@ -11,4 +11,9 @@ libdcerpc_la_SOURCES=dummyfuncs.c
 
 libdcerpc_la_LIBADD=../ncklib/libnck.la ../idllib/libidl.la ../uuid/libdceuuid.la
 
-
+# Symbol versions (see libdcerpc.map)
+EXTRA_DIST=libdcerpc.map
+if !TARGET_OS_WIN32
+libdcerpc_la_LDFLAGS += -Wl,--version-script=$(srcdir)/libdcerpc.map
+libdcerpc_la_DEPENDENCIES = $(libdcerpc_la_LIBADD) libdcerpc.map
+endif

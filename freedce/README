@@ -83,7 +83,9 @@ How to build your own programs that use DCE RPC
 CFLAGS+=-D_REENTRANT -D_GNU_SOURCE
 LDFLAGS+= -ldcerpc -ldcethreads -lpthread
 The UUID functions (uuid_create etc.) are part of libdcerpc; do not link
--luuid (that is the unrelated util-linux library).
+-luuid (that is the unrelated util-linux library). A program that uses the
+util-linux libuuid itself must call it from a separate shared library: both
+libraries define uuid_compare, with different arguments.
 
 ----------------------
 
