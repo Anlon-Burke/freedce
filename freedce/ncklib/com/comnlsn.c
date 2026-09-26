@@ -57,6 +57,9 @@
 #include <com.h>
 #include <comp.h>
 #include <comnetp.h>
+#ifndef HAVE_OS_WIN32
+#include <poll.h>
+#endif
 
 /*
 *****************************************************************************
@@ -107,6 +110,7 @@ INTERNAL boolean                    listener_should_handle_cancels = false;
 
 INTERNAL rpc_listener_state_t       listener_state_copy;
 
+#ifdef HAVE_OS_WIN32
 INTERNAL RPC_SELECT_FD_SET_T        listener_readfds;
 INTERNAL int                        listener_nfds = 0;
 
@@ -116,6 +120,23 @@ INTERNAL int                        listener_nfds = 0;
  * at least keep this off the stack.
  */
 INTERNAL RPC_SELECT_FD_SET_T        readfds_copy;
+#else
+/*
+ * The listener waits with poll() instead of select(): a server with many
+ * connections has descriptors >= FD_SETSIZE, which an fd_set cannot hold.
+ * Entry i belongs to listener_state_copy.socks[i].
+ */
+INTERNAL struct pollfd              listener_pollfds[RPC_C_SERVER_MAX_SOCKETS];
+
+/*
+ * Set while the listener does not poll a socket whose connection could
+ * not be accepted (see lthread_loop); such an entry has a negative fd,
+ * which poll() ignores, until the next poll() returns.
+ */
+INTERNAL boolean                    listener_paused = false;
+
+#define RPC_C_LISTENER_PAUSE_MS     100
+#endif
 
 
 
@@ -323,12 +344,16 @@ rpc_listener_state_p_t  lstate;
      * means that the listen loop can run without taking and releasing
      * locks.  Descriptors are presumably added/deleted infrequently
      * enough that this strategy is a net win.  We also compute the
-     * "nfds" and "readfds" arguments to select(2), which we also pass
+     * arguments to poll(2) (select(2) on Win32), which we also pass
      * down to the listen loop.
      */
 
+#ifdef HAVE_OS_WIN32
     FD_ZERO (&listener_readfds);
     listener_nfds = 0;
+#else
+    listener_paused = false;
+#endif
 
     for (nd = 0, listener_state_copy.num_desc = 0; nd < lstate->high_water; nd++)
     {
@@ -336,16 +361,18 @@ rpc_listener_state_p_t  lstate;
 
         if (lsock->busy)
         {
-            listener_state_copy.socks[listener_state_copy.num_desc++] = *lsock;
 #ifdef HAVE_OS_WIN32
             FD_SET ((SOCKET)lsock->desc, &listener_readfds);
-#else
-            FD_SET (lsock->desc, &listener_readfds);
-#endif
             if (lsock->desc + 1 > listener_nfds)
             {
                 listener_nfds = lsock->desc + 1;
             }
+#else
+            listener_pollfds[listener_state_copy.num_desc].fd = lsock->desc;
+            listener_pollfds[listener_state_copy.num_desc].events = POLLIN;
+            listener_pollfds[listener_state_copy.num_desc].revents = 0;
+#endif
+            listener_state_copy.socks[listener_state_copy.num_desc++] = *lsock;
         }
     }
 
@@ -428,6 +455,9 @@ INTERNAL void lthread_loop (void)
     unsigned32          status;
     int                 nd;
     int                 n_found;
+#ifndef HAVE_OS_WIN32
+    int                 i;
+#endif
 
     /*
      * Loop waiting for incoming packets.
@@ -441,7 +471,9 @@ INTERNAL void lthread_loop (void)
 
         do
         { 
+#ifdef HAVE_OS_WIN32
             RPC_SELECT_FDSET_COPY(listener_readfds, readfds_copy, listener_nfds);
+#endif
 
             /*
              * Block waiting for packets.  We ocassionally need to see
@@ -467,8 +499,22 @@ INTERNAL void lthread_loop (void)
             n_found = win32_select (
 			      listener_nfds, &readfds_copy, NULL, NULL, NULL);
 #else
-            n_found = select (
-			      listener_nfds, &readfds_copy, NULL, NULL, NULL);
+            n_found = poll (listener_pollfds, listener_state_copy.num_desc,
+                            listener_paused ? RPC_C_LISTENER_PAUSE_MS : -1);
+            if (listener_paused)
+            {
+                /*
+                 * Poll the paused sockets again.
+                 */
+                for (i = 0; i < listener_state_copy.num_desc; i++)
+                {
+                    if (listener_pollfds[i].fd < 0)
+                    {
+                        listener_pollfds[i].fd = -1 - listener_pollfds[i].fd;
+                    }
+                }
+                listener_paused = false;
+            }
 #endif
             RPC_LOG_SELECT_POST;
 
@@ -506,7 +552,11 @@ INTERNAL void lthread_loop (void)
         {
             rpc_listener_sock_p_t lsock = &listener_state_copy.socks[nd];
 
+#ifdef HAVE_OS_WIN32
             if (lsock->busy && FD_ISSET (lsock->desc, &readfds_copy))
+#else
+            if (lsock->busy && listener_pollfds[nd].revents != 0)
+#endif
             {
                 n_found--;
 
@@ -517,6 +567,21 @@ INTERNAL void lthread_loop (void)
                     RPC_DBG_GPRINTF
                     (("(lthread) select dispatch failed: desc=%d *status=%d\n",
                         lsock->desc, status));
+
+#ifndef HAVE_OS_WIN32
+                    if (status == rpc_s_cannot_accept)
+                    {
+                        /*
+                         * A connection could not be accepted, e.g. because
+                         * the process is out of descriptors (EMFILE).  It
+                         * stays in the backlog and the socket stays
+                         * readable: do not poll the socket for a moment
+                         * instead of trying again at once in a busy loop.
+                         */
+                        listener_pollfds[nd].fd = -1 - lsock->desc;
+                        listener_paused = true;
+                    }
+#endif
 
                     /*
                      * Check for pending cancels.  Select might have

@@ -46,6 +46,9 @@
 #include <comnaf.h>
 #include <comp.h>
 #include <fcntl.h>
+#ifndef HAVE_OS_WIN32
+#include <poll.h>
+#endif
 #include <rpcmem.h>
 #include <comsoc.h>
 /*#include <dce/cma_ux_wrappers.h>*/
@@ -1034,17 +1037,33 @@ rpc_socket_t sock;
 struct timeval *tmo;
 #endif
 {
+#ifdef HAVE_OS_WIN32
     fd_set  write_fds;
-    int     nfds, num_found;
+    int     nfds;
+#else
+    struct pollfd pfd;      /* poll(): the descriptor may be >= FD_SETSIZE */
+#endif
+    int     num_found;
     int     cs;
 
+#ifdef HAVE_OS_WIN32
     FD_ZERO (&write_fds);
     FD_SET ((unsigned int)sock, &write_fds);
     nfds = sock + 1;
-                  
+#else
+    pfd.fd = sock;
+    pfd.events = POLLOUT;
+    pfd.revents = 0;
+#endif
+
     cs = sys_pthread_setcancel(CANCEL_ON);
 
+#ifdef HAVE_OS_WIN32
     num_found = select(nfds, NULL, (void *)&write_fds, NULL, tmo);
+#else
+    num_found = poll(&pfd, 1, tmo == NULL ? -1 :
+                     (int) (tmo->tv_sec * 1000 + tmo->tv_usec / 1000));
+#endif
 
     cs = sys_pthread_setcancel(cs);
 
