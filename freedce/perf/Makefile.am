@@ -10,10 +10,10 @@ libs=$(top_builddir)/dcelib/libdcerpc.la \
 all-local: client server
 
 EXTRA_PROGRAMS=client server
+# "make check" runs the suite against a local server (see run_tests.sh);
+# client and server are built by "all", which "check" depends on.
 TESTS=run_tests.sh
-EXTRA_DIST=run_tests.sh
-
-run_tests.sh:	$(EXTRA_PROGRAMS)
+EXTRA_DIST=run_tests.sh perf_tcp.sh perf_udp.sh
 
 client_SOURCES=client.c 
 server_SOURCES=server.c perf.c
@@ -26,7 +26,7 @@ BUILT_SOURCES=perf.h perfb.h perfc.h perfg.h
 CLEANFILES=perf.h perfb.h perfc.h perfg.h server client \
            perf_sstub.o perfb_sstub.o perfc_sstub.o perfg_sstub.o \
            perf_cstub.o perfb_cstub.o perfc_cstub.o perfg_cstub.o \
-           perf.stamp perfb.stamp perfc.stamp perfg.stamp
+           perf.stamp perfb.stamp perfc.stamp perfg.stamp server.log
 
 # Each dceidl run creates a header and two stub objects.  The stamp files
 # make sure that it runs only once per IDL file, also with "make -j"
