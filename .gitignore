@@ -119,4 +119,5 @@ test-driver
 /dcethreads/tests/test3var
 /dcethreads/tests/test4
 /dcethreads/tests/test5
+/dcethreads/tests/test6
 /dcethreads/tests/test_atfork1
