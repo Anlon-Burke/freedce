@@ -5,8 +5,7 @@ IDL_FLAGS=-I$(IDL_INCLUDE_DIR)/.. -I$(top_builddir)/include $(DCETHREADINCLUDES)
 IDLCC=-I$(top_builddir)/include -I$(IDL_INCLUDE_DIR)/.. \
 	-cc_cmd "$(CC) -D_BSD $(IDL_FLAGS) $(IDL_CFLAGS) -c"
 
-libs=$(top_builddir)/dcelib/libdcerpc.la \
-	$(top_builddir)/uuid/libuuid.la -lstdc++
+libs=$(top_builddir)/dcelib/libdcerpc.la
 
 noinst_PROGRAMS=lt_server lt_client
 

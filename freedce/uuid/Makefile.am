@@ -1,28 +1,19 @@
 ## Process this file with automake to produce Makefile.in
-# Makefile for the UUID library and tools
+# Makefile for the UUID functions.  They are part of libdcerpc (a separate
+# libuuid.so.1 would clash with the util-linux library of the same name);
+# the uuid tool is built in tool/, after libdcerpc.
 
 include $(top_srcdir)/include.mk
 
-# any libraries specified will be listed as dependencies; avoid this
-# as is means that a loop is present when we build libdcerpc
 if TARGET_OS_WIN32
 LIBS += -lkernel32 -lrpcrt4
 endif
 
-# Build the UUID shared library
-lib_LTLIBRARIES = libuuid.la
+noinst_LTLIBRARIES = libdceuuid.la
 if TARGET_OS_WIN32
-libuuid_la_SOURCES = uuid.c uuid-cpp.cpp uuidsys.c get_ether_addr.c win32timeofday.c win32uuid.c win32mem.c
+libdceuuid_la_SOURCES = uuid.c uuidsys.c get_ether_addr.c win32timeofday.c win32uuid.c win32mem.c
 else
-libuuid_la_SOURCES = uuid.c uuid-cpp.cpp uuidsys.c get_ether_addr.c 
+libdceuuid_la_SOURCES = uuid.c uuidsys.c get_ether_addr.c 
 endif
-libuuid_la_LDFLAGS=-lstdc++ -version-info $(LT_VERSION)
 
-noinst_HEADERS= uuid_i.h uuid.hpp
-
-# Build the UUID generation tool
-bin_PROGRAMS = uuid
-uuid_SOURCES = uuidtool.cpp
-uuid_LDADD = libuuid.la
-
-
+noinst_HEADERS= uuid_i.h

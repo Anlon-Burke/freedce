@@ -67,8 +67,6 @@ rm -rf $RPM_BUILD_ROOT
 %dir /usr/sbin
 /usr/sbin/dceidl
 %dir /usr/lib/
-/usr/lib/libuuid.la
-/usr/lib/libuuid.a
 /usr/lib/libdcerpc.la
 /usr/lib/libdcerpc.a
 %dir /usr/include/dce/

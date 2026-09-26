@@ -16,8 +16,7 @@ noinst_HEADERS=misc.h echo.idl echo.acf
 BUILT_SOURCES=echo.h
 CLEANFILES=echo.h echo_sstub.o echo_cstub.o echo.stamp
 
-libs=$(top_builddir)/dcelib/libdcerpc.la \
-	$(top_builddir)/uuid/libuuid.la -lstdc++
+libs=$(top_builddir)/dcelib/libdcerpc.la
 
 # ugh.
 if TARGET_OS_WIN32

@@ -40,9 +40,6 @@ DCE_DIRS="/opt/dce"
 AC_ARG_WITH(dce-dir, [  --with-dce-dir   Specify where you have installed FreeDCE],
 [DCE_DIRS="$withval $DCE_DIRS"])
 
-RPC_CHECK_LIBDIR(uuid_create, uuid, $DCE_DIRS,,
-AC_MSG_ERROR([we require libuuid]))
-
 RPC_CHECK_LIBDIR(rpc_ss_allocate, dcerpc, $DCE_DIRS,,
 AC_MSG_ERROR([we require libdcerpc]))
 

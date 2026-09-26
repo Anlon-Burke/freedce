@@ -55,7 +55,7 @@ noinst_HEADERS=lsarpc.idl lsarpc.acf
 BUILT_SOURCES=lsarpc.h
 CLEANFILES=lsa.h lsa_sstub.o lsa_cstub.o lsa_sstub.c lsa_cstub.c lsarpc.stamp
 
-libs=-L/opt/dce/lib -ldcerpc -luuid -lstdc++
+libs=-L/opt/dce/lib -ldcerpc
 
 #lsa_server_LDADD=lsa_sstub.o $(libs)
 #lsa_client_LDADD=lsa_cstub.o $(libs)

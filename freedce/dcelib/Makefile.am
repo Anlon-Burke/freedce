@@ -9,6 +9,6 @@ lib_LTLIBRARIES = libdcerpc.la
 libdcerpc_la_LDFLAGS = -version-info $(LT_VERSION)
 libdcerpc_la_SOURCES=dummyfuncs.c
 
-libdcerpc_la_LIBADD=../ncklib/libnck.la ../idllib/libidl.la
+libdcerpc_la_LIBADD=../ncklib/libnck.la ../idllib/libidl.la ../uuid/libdceuuid.la
 
 

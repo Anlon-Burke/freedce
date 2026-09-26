@@ -81,9 +81,9 @@ How to build your own programs that use DCE RPC
 -----------------------------------------------
 
 CFLAGS+=-D_REENTRANT -D_GNU_SOURCE
-LDFLAGS+= -ldcethreads -lpthread
-If you are using the uuid library, you will also need:
-LDFLAGS+= -luuid -lstdc++
+LDFLAGS+= -ldcerpc -ldcethreads -lpthread
+The UUID functions (uuid_create etc.) are part of libdcerpc; do not link
+-luuid (that is the unrelated util-linux library).
 
 ----------------------
 

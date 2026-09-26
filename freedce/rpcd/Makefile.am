@@ -22,9 +22,9 @@ noinst_HEADERS=dsm_p.h rpcddb.h rpcdepdb.h rpcdepdbp.h rpcdp.h rpcdutil.h dsm.id
 # removing objex due to problems with include/objex.idl - this
 # should be a configure option [--enable-dcom]
 if TARGET_OS_WIN32
-rpcd_LDADD=ep_sstub.o objex_sstub.o ../dcelib/libdcerpc.la ../uuid/libuuid.la ../ncklib/naf/libnaf_ip.la ../ncklib/transport/dg/libprot_ncadg.la ../ncklib/transport/cn/libprot_ncacn.la ../ncklib/com/libcom.la -lrpcrt4
+rpcd_LDADD=ep_sstub.o objex_sstub.o ../dcelib/libdcerpc.la ../ncklib/naf/libnaf_ip.la ../ncklib/transport/dg/libprot_ncadg.la ../ncklib/transport/cn/libprot_ncacn.la ../ncklib/com/libcom.la -lrpcrt4
 else
-rpcd_LDADD=ep_sstub.o objex_sstub.o ../dcelib/libdcerpc.la ../uuid/libuuid.la
+rpcd_LDADD=ep_sstub.o objex_sstub.o ../dcelib/libdcerpc.la
 rpcd_LDFLAGS=-lstdc++
 endif
 
