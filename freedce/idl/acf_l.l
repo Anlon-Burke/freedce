@@ -439,7 +439,7 @@ typedef struct acf_flexxer_state_data acf_flexxer_activation_record;
 void *
 new_acf_flexxer_activation_record()
   {
-    return (malloc(sizeof(acf_flexxer_activation_record)));
+    return (calloc(1, sizeof(acf_flexxer_activation_record)));
   }
 
 void

@@ -2086,7 +2086,7 @@ typedef struct acf_bisonparser_state acf_bisonparser_activation_record;
 void *
 new_acf_bisonparser_activation_record()
   {
-    return (malloc(sizeof(acf_bisonparser_activation_record)));
+    return (calloc(1, sizeof(acf_bisonparser_activation_record)));
   }
  
 void

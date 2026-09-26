@@ -677,7 +677,7 @@ typedef struct nidl_flexxer_state_data nidl_flexxer_activation_record;
 void *
 new_nidl_flexxer_activation_record()
   {
-    return (malloc(sizeof(nidl_flexxer_activation_record)));
+    return (calloc(1, sizeof(nidl_flexxer_activation_record)));
   }
 
 void

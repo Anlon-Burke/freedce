@@ -1881,7 +1881,7 @@ typedef struct nidl_bisonparser_state nidl_bisonparser_activation_record;
 void *
 new_nidl_bisonparser_activation_record()
   {
-    return (malloc(sizeof(nidl_bisonparser_activation_record)));
+    return (calloc(1, sizeof(nidl_bisonparser_activation_record)));
   }
 
 void
