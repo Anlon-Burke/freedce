@@ -576,7 +576,15 @@ extern EXCEPTION pthread_unimp_e;               /* Unimplemented feature */
  * of the list is stored under _exc_key in the thread specific data.
  */
 
-/*extern void _pthread_cleanup_push(void*, void*, void*);*/
+#ifndef HAVE_OS_WIN32
+/*
+ * glibc still exports these, but <pthread.h> no longer declares them
+ * (since glibc 2.34).
+ */
+extern void _pthread_cleanup_push(struct _pthread_cleanup_buffer *,
+                                  void (*)(void *), void *);
+extern void _pthread_cleanup_pop(struct _pthread_cleanup_buffer *, int);
+#endif
 
 static inline void
 _exc_push_buf(_exc_buf * buf)
@@ -601,8 +609,6 @@ _exc_push_buf(_exc_buf * buf)
 #endif
 }
 
-
-/*extern void _pthread_cleanup_pop(void*, int);*/
 
 static inline void
 _exc_pop_buf(_exc_buf * buf)
