@@ -44,6 +44,8 @@
 #include <cnpkt.h>	/* NCA Connection packet encoding */
 #include <cnassoc.h>    /* NCA Connection association service */
 #include <cnid.h>       /* NCA Connection local id service */
+#include <cnsm.h>       /* NCA Connection state machine service */
+#include <cnasgsm.h>    /* NCA Connection association group state machine */
 #include <cnbind.h>     
 
 
@@ -502,6 +504,34 @@ unsigned32              *st;
                  st);
 
     /*
+     * The client may have closed its connections while a server call
+     * still runs (a maybe call, or a client that went away). Its
+     * association group then waits for the call to end and is no
+     * longer active, but the address the receiver cached in it is
+     * still good.
+     */
+    if (!RPC_CN_LOCAL_ID_VALID (grp_id) && type == RPC_C_CN_ASSOC_GRP_SERVER)
+    {
+        grp_id = ((rpc_cn_binding_rep_t *)binding_r)->grp_id;
+        if (RPC_CN_LOCAL_ID_VALID (grp_id))
+        {
+            assoc_grp = RPC_CN_ASSOC_GRP (grp_id);
+            if (RPC_CN_LOCAL_ID_EQUAL (assoc_grp->grp_id, grp_id) &&
+                (assoc_grp->grp_flags & type) &&
+                (assoc_grp->grp_state.cur_state ==
+                 RPC_C_SERVER_ASSOC_GRP_CALL_WAIT) &&
+                (assoc_grp->grp_address != NULL))
+            {
+                *st = rpc_s_ok;
+            }
+            else
+            {
+                RPC_CN_LOCAL_ID_CLEAR (grp_id);
+            }
+        }
+    }
+
+    /*
      * Check whether an association group was found or not.
      */
     if (RPC_CN_LOCAL_ID_VALID (grp_id))
@@ -521,6 +551,10 @@ unsigned32              *st;
                                 rpc_addr,
                                 st);
         }
+        else if (RPC_LIST_EMPTY (assoc_grp->grp_assoc_list))
+        {
+            *st = rpc_s_connection_closed;
+        }
         else
         {
             /*
@@ -530,7 +564,7 @@ unsigned32              *st;
              */
 #ifdef USE_SOCKETS
 
-            rpc__naf_desc_inq_protseq_id 
+            rpc__naf_desc_inq_protseq_id
                 (((rpc_cn_assoc_t *)assoc_grp->grp_assoc_list.next)->cn_ctlblk.cn_sock,
                  RPC_C_PROTOCOL_ID_NCACN,
                  &protseq_id,
@@ -553,7 +587,10 @@ unsigned32              *st;
 	    *st = rpc_s_cant_inq_socket;
 #endif
         }
-        binding_r->rpc_addr = *rpc_addr;
+        if (*st == rpc_s_ok)
+        {
+            binding_r->rpc_addr = *rpc_addr;
+        }
     }
     else
     {

@@ -47,6 +47,7 @@
 #include <cnclsm.h>     /* NCA Connection call state machine */
 #include <cnpkt.h>      /* NCA Connection packet encoding */
 #include <cnfbuf.h>     /* NCA Connection fragment buffer service */
+#include <cnid.h>       /* NCA Connection local ID service */
 #include <cnassoc.h>    /* NCA Connection association service */
 #include <cnrcvr.h>     /* NCA Connection receiver service */
 #include <comauth.h>    /* Externals for Auth. Services sub-component */
@@ -899,8 +900,43 @@ rpc_cn_assoc_p_t        assoc;
                  * Put the association group id in the binding rep.
                  */
                 ((rpc_cn_binding_rep_t *)call_r->binding_rep)->grp_id 
-                    = assoc->assoc_grp_id; 
-                call_r->assoc = assoc; 
+                    = assoc->assoc_grp_id;
+                call_r->assoc = assoc;
+
+#ifdef USE_SOCKETS
+                /*
+                 * Remember the client's address in the association
+                 * group (once per group). The manager may ask for it
+                 * after the client has closed its connections, e.g.
+                 * during a maybe call.
+                 */
+                {
+                    rpc_cn_assoc_grp_t  *assoc_grp;
+                    rpc_protseq_id_t    protseq_id;
+                    rpc_addr_p_t        peer_addr;
+                    unsigned32          addr_st;
+
+                    assoc_grp = RPC_CN_ASSOC_GRP (assoc->assoc_grp_id);
+                    if (assoc_grp != NULL && assoc_grp->grp_address == NULL)
+                    {
+                        rpc__naf_desc_inq_protseq_id (assoc->cn_ctlblk.cn_sock,
+                                                      RPC_C_PROTOCOL_ID_NCACN,
+                                                      &protseq_id,
+                                                      &addr_st);
+                        if (addr_st == rpc_s_ok)
+                        {
+                            rpc__naf_desc_inq_peer_addr (assoc->cn_ctlblk.cn_sock,
+                                                         protseq_id,
+                                                         &peer_addr,
+                                                         &addr_st);
+                            if (addr_st == rpc_s_ok)
+                            {
+                                assoc_grp->grp_address = peer_addr;
+                            }
+                        }
+                    }
+                }
+#endif
 
                 /*
                  * Attach the auth info, if any, to the new binding
