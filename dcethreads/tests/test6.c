@@ -102,7 +102,7 @@ static void wait_for_cancel(enum mode mode, int round)
 static void *worker(void *arg)
 {
     enum mode mode = (enum mode) (long) arg;
-    int i;
+    volatile int i;     /* modified between the TRY's setjmp and a longjmp */
 
     for (i = 1; i <= ROUNDS; i++)
     {

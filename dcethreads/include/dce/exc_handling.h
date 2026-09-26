@@ -673,11 +673,10 @@ do \
 { \
     struct ptw32_cleanup_t _cb; \
     _exc_buf *_eb = NULL; \
-    EXCEPTION *_exc_cur = NULL; \
+    EXCEPTION * volatile _exc_cur = NULL; \
     volatile char _exc_cur_handled = 0; \
     volatile char _exc_in_finally = 0; \
     volatile int _setjmp_res = 0; \
-    _exc_cur = *&_exc_cur; \
     _exc_thread_init(); \
     _exc_alloc_buf(&_eb); \
     _eb->cancel_buf = _cb; \
@@ -705,11 +704,10 @@ do \
 { \
     struct _pthread_cleanup_buffer _cb; \
     _exc_buf *_eb; \
-    EXCEPTION *_exc_cur = NULL; \
+    EXCEPTION * volatile _exc_cur = NULL; \
     volatile char _exc_cur_handled = 0; \
     volatile char _exc_in_finally = 0; \
     volatile int _setjmp_res; \
-    _exc_cur = *&_exc_cur; \
     _exc_thread_init(); \
     _exc_alloc_buf(&_eb); \
     _eb->cancel_buf = &_cb; \
@@ -763,7 +761,7 @@ do \
     } \
     else \
     { \
-        EXCEPTION *THIS_CATCH __attribute__((__unused__)) = _exc_cur; \
+        EXCEPTION * volatile THIS_CATCH __attribute__((__unused__)) = _exc_cur; \
         _exc_cur_handled = 1; \
         /* exception code here */
 
