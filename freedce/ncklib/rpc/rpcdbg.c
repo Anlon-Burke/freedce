@@ -326,7 +326,8 @@ uuid_t          *uuid;
         return (NULL);
     }
 
-    strncpy (uuid_string_buff, (char *) uuid_string_p, sizeof uuid_string_buff);
+    strncpy (uuid_string_buff, (char *) uuid_string_p, sizeof uuid_string_buff - 1);
+    uuid_string_buff[sizeof uuid_string_buff - 1] = '\0';
     rpc_string_free (&uuid_string_p, &status);
 
     return (uuid_string_buff);

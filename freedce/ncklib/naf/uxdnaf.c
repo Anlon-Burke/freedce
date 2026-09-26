@@ -749,13 +749,19 @@ unsigned32              *status;
     {
 		char *f;
 		f = tempnam(PIPE_PREFIX, ".epm");
+        if (f == NULL)
+        {
+            *status = rpc_s_no_memory;
+            return;
+        }
         RPC__UXD_ENDPOINT_SPRINTF(uxd_addr->sa.sun_path, "%s", f);
+        free(f);
         /*uxd_addr->sa.sun_path[0] = 0;*/
         *status = rpc_s_ok;
         return;
     }
 
-    if (strlen((char*)endpoint) > sizeof(uxd_addr->sa.sun_path) - strlen(PIPE_PREFIX))
+    if (strlen((char*)endpoint) >= sizeof(uxd_addr->sa.sun_path) - strlen(PIPE_PREFIX))
     {
         *status = rpc_s_invalid_endpoint_format;
         return;

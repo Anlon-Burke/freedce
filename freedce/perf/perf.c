@@ -661,7 +661,7 @@ DONE:
                 if (cpid == 0)
                 {
                     /* Child */
-                    execlp("sleep", "sleep", buf, 0);
+                    execlp("sleep", "sleep", buf, (char *) NULL);
                 }
                 else
                 {
