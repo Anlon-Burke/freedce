@@ -977,6 +977,24 @@ unsigned32              *st;
 #endif
             
             /*
+             * Set the keepalive socket option for this connection, as
+             * the client side does. A client host that goes away
+             * without closing its connections (power loss, network
+             * gone) is then detected by the kernel, the association
+             * is closed and the contexts of the client are run down.
+             */
+            serr = rpc__socket_set_keepalive (newdesc);
+            if (RPC_SOCKET_IS_ERR(serr))
+            {
+                /*
+                 * The set option failed. We'll continue anyway.
+                 */
+                RPC_DBG_PRINTF (rpc_e_dbg_general, RPC_C_CN_DBG_ERRORS,
+                                ("(rpc__cn_network_select_dispatch) desc->%x rpc__socket_set_keepalive failed, error = %d\n",
+                                 newdesc, RPC_SOCKET_ETOI(serr)));
+            }
+
+            /*
              * Acquire the CN global mutex to prevent other threads from
              * running.
              */
