@@ -1310,8 +1310,33 @@ unsigned32              *st;
     valid_fragbuf = false;
     while (!valid_fragbuf)
     {
-        rpc__cn_assoc_receive_frag (call_rep->assoc, 
-                                    &frag_buf, 
+        /*
+         * A client may start more calls on an association without
+         * waiting for the previous one (maybe calls), so a queued
+         * server call need not be the association's current call.
+         * Its fragments were queued before those of any later call.
+         * If none is left, they were flushed when the connection went
+         * away and the current call ended, and none will arrive:
+         * treat the call as orphaned instead of waiting forever.
+         */
+        if (call_rep->common.is_server &&
+            ((call_rep->assoc == NULL) ||
+             ((call_rep->assoc->call_rep != call_rep) &&
+              RPC_LIST_EMPTY (call_rep->assoc->msg_list))))
+        {
+            RPC_DBG_PRINTF (rpc_e_dbg_orphan, RPC_C_CN_DBG_ORPHAN,
+                            ("CN: call_rep->%p no longer on its association ... orphaned\n",
+                             call_rep));
+            call_rep->cn_call_status = rpc_s_call_orphaned;
+            call_args->buff_dealloc = NULL;
+            call_args->data_addr = (byte_p_t) NULL;
+            call_args->data_len = 0;
+            *st = rpc_s_call_orphaned;
+            RPC_CN_UNLOCK ();
+            return;
+        }
+        rpc__cn_assoc_receive_frag (call_rep->assoc,
+                                    &frag_buf,
                                     st);
         if (*st != rpc_s_ok)
         {
