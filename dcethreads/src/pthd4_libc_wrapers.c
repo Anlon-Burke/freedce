@@ -308,7 +308,7 @@ NON_CANCELABLE_SYSCALL (pid_t, waitpid,
 #if USE_CANCELATION_WRAPPER
 
 /*
- * With DCETHREADS_CANCEL=own, cancels are posted and delivered by
+ * With the own cancel implementation, cancels are posted and delivered by
  * dcethreads itself (pthd4_cancel.c).  A thread that waits in one of the
  * calls below must then be woken up by the wake-up signal: the wrappers
  * wait with ppoll()/pselect(), which unblock that signal only for the

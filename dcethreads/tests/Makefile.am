@@ -4,9 +4,6 @@ AM_CPPFLAGS = -I$(top_builddir)/include -I$(top_srcdir)/include
 
 EXTRA_PROGRAMS = test1 test2 test3 test3var test4 test5 test6
 TESTS=test1 test2 test3 test3var test4 invert-test5 test6
-# Repeated cancels of one thread do not work yet: once NPTL has acted on
-# a cancel, it ignores every further pthread_cancel() on that thread.
-XFAIL_TESTS=test6
 EXTRA_DIST=inverttest
 
 DEFS = -DCOMPILING_DCETHREADS# -I. -I$(srcdir)

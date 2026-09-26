@@ -137,7 +137,7 @@ cancel_init_once(void)
     const char       *mode = getenv("DCETHREADS_CANCEL");
     struct sigaction  sa;
 
-    pthd4__own_cancel = (mode != NULL && strcmp(mode, "own") == 0);
+    pthd4__own_cancel = !(mode != NULL && strcmp(mode, "nptl") == 0);
 
     pthread_key_create(&state_key, state_destructor);
 

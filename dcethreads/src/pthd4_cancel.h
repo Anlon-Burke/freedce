@@ -8,9 +8,9 @@
  * pthread_cancel().  This module keeps the DCE cancel state per thread
  * so that dcethreads can post and deliver cancels itself.
  *
- * Mode selection (transition period): the environment variable
- * DCETHREADS_CANCEL=own selects the own implementation, anything else
- * keeps using NPTL cancellation.
+ * Mode selection: this implementation is the default.  The environment
+ * variable DCETHREADS_CANCEL=nptl selects the old emulation on top of
+ * NPTL pthread_cancel() instead (for comparison).
  */
 
 #ifndef PTHD4_CANCEL_H
@@ -42,7 +42,7 @@ typedef struct pthd4_cancel_state
     struct pthd4_cancel_state  *next;
 } pthd4_cancel_state_t;
 
-/* Non-zero if DCETHREADS_CANCEL=own was set when the library started. */
+/* Zero if DCETHREADS_CANCEL=nptl was set when the library started. */
 extern int pthd4__own_cancel;
 
 /* Initialize the module (idempotent). */
