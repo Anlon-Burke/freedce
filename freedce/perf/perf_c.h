@@ -63,7 +63,7 @@
 #  define index strchr
 #endif
 
-extern char *error_text();
+extern char *error_text(unsigned32);
 
 #if defined(vax) && ! (defined(vms) || defined(ultrix))
 #  include <vax.h>

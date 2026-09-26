@@ -217,8 +217,7 @@ static int setup_thread_pools()
  *       -1 - couldn't free pool
  *        1 - couldn't set thread pool fn NULL
  */
-int teardown_thread_pools(wait_flg)
-idl_boolean wait_flg;
+int teardown_thread_pools(idl_boolean wait_flg)
 {
     unsigned32 st;
 

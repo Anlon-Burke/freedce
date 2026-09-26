@@ -62,19 +62,19 @@ typedef struct
     unsigned short              stub_rtl_if_vers;
 } rpc_if_rep_t, *rpc_if_rep_p_t;
 
-static void looping_test();
-static void brd_test();
-static void unreg_test();
-static void forwarding_test();
-static void exception_test();
-static void shutdown_test();
-static void callback_test();
-static void generic_test();
-static void context_test();
-static void static_cancel_test();
-static void stats_test();
-static void inq_if_ids_test();
-static void one_shot_test();
+static void looping_test(int, int, char *[]);
+static void brd_test(int, int, char *[]);
+static void unreg_test(int, int, char *[]);
+static void forwarding_test(int, int, char *[]);
+static void exception_test(int, int, char *[]);
+static void shutdown_test(int, int, char *[]);
+static void callback_test(int, int, char *[]);
+static void generic_test(int, int, char *[]);
+static void context_test(int, int, char *[]);
+static void static_cancel_test(int, int, char *[]);
+static void stats_test(int, int, char *[]);
+static void inq_if_ids_test(int, int, char *[]);
+static void one_shot_test(int, int, char *[]);
 
 #define SHUTMODE_MGR    1
 #define SHUTMODE_NO_MGR 2
@@ -82,7 +82,7 @@ static void one_shot_test();
 
 struct tinfo_t
 {
-    void (*proc)();
+    void (*proc)(int, int, char *[]);
     char *name;
     char *usage;
 } tinfo[] =
