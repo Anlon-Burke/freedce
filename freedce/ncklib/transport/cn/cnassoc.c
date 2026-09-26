@@ -1371,6 +1371,7 @@ rpc_cn_call_rep_p_t  call_rep;
 {
     rpc_cn_call_rep_t   *call_r;
     rpc_cn_assoc_grp_t  *assoc_grp;
+    rpc_cn_local_id_t   grp_id;
     unsigned32          st;
 
     RPC_LOG_CN_ASSOC_POP_CALL_NTR;
@@ -1385,6 +1386,28 @@ rpc_cn_call_rep_p_t  call_rep;
          * the group's state machine. 
          */
         assoc_grp = RPC_CN_ASSOC_GRP (assoc->assoc_grp_id);
+        if (assoc_grp == NULL
+            && call_rep->common.is_server
+            && call_rep->binding_rep != NULL)
+        {
+            /*
+             * The connection of the association was closed while this
+             * call was running and the association has already left its
+             * group (other associations were still in it), which cleared
+             * its group id.  The call still counts in the group's call
+             * count, and the group runs down the client's context handles
+             * only when that count drops to zero: find the group through
+             * the id the call's binding got when the call started, if
+             * the group still exists.
+             */
+            grp_id = ((rpc_cn_binding_rep_t *) call_rep->binding_rep)->grp_id;
+            assoc_grp = RPC_CN_ASSOC_GRP (grp_id);
+            if (assoc_grp != NULL
+                && !RPC_CN_LOCAL_ID_EQUAL (assoc_grp->grp_id, grp_id))
+            {
+                assoc_grp = NULL;
+            }
+        }
         if (assoc_grp != NULL)
         {
             assoc_grp->grp_callcnt--;
