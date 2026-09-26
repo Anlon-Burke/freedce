@@ -115,6 +115,9 @@
 #include <signal.h>
 
 #include "dce/exc_handling.h"
+#ifndef HAVE_OS_WIN32
+#include "pthd4_cancel.h"
+#endif
 
 /**
  **
@@ -200,6 +203,7 @@ static char  *exc_lib_errmsgs[] =
 pthread_key_t _exc_key;
 
 static pthread_once_t init_once_block = pthread_once_init;
+static volatile int exc_initialized = 0;
 
 /* -------------------------------------------------------------------- */
 
@@ -555,6 +559,7 @@ init_once()
     {
         exc_library_fatal_error(EXC_INT_FAIL_KEYCREATE, "init_once", 0);
     }
+    exc_initialized = 1;
 }
 
 
@@ -572,6 +577,11 @@ _exc_thread_init(void)
      * One time initialization for all threads.
      */
     pthd4_once(&init_once_block, init_once);
+
+#ifndef HAVE_OS_WIN32
+    /* A thread that uses TRY is a DCE thread: give it its cancel state. */
+    pthd4__cancel_self();
+#endif
 
     /*
      * If we already have the thread-specific storage to hold this thread's
@@ -681,6 +691,26 @@ _exc_set_current(EXCEPTION *exc)
 #endif
     }
 }
+
+
+#ifndef HAVE_OS_WIN32
+/*
+ * P T H D 4 _ _ R A I S E _ C A N C E L
+ *
+ * Deliver a DCE cancel: raise pthread_cancel_e in the calling thread.
+ * A thread without an exception context ends with PTHREAD_CANCELED, as
+ * does a thread that has no TRY block left (see _exc_set_current).
+ */
+void
+pthd4__raise_cancel(void)
+{
+    if (exc_initialized && pthd4_getspecific(_exc_key) != NULL)
+    {
+        _exc_set_current(&pthread_cancel_e);
+    }
+    pthread_exit(PTHREAD_CANCELED);
+}
+#endif
 
 
 /*

@@ -113,6 +113,7 @@ static const char rcsid[] __attribute__((__unused__)) = "$Id: pthread_dce.c,v 1.
 #include <dce/pthread_dce.h>           /* Import DCE Threads */
 #ifndef HAVE_OS_WIN32
 #include "pthread_dce_atfork.h"
+#include "pthd4_cancel.h"
 #endif
 
 #include <errno.h>
@@ -180,6 +181,9 @@ pthd4_lib_init(void)
     pthread_mutexattr_init (&pthread4_mutexattr_default);
     pthread_condattr_init  (&pthread4_condattr_default);
     pthread_mutex_init     (&pthd4__g_global_lock, &pthread_mutexattr_default);
+#ifndef HAVE_OS_WIN32
+    pthd4__cancel_init();
+#endif
 }
 
 /******************************************************************************
@@ -302,7 +306,11 @@ pthd4_create(pthread_t *th_h,
         return (FAILURE);
     }
 
+#ifndef HAVE_OS_WIN32
+    istat = pthd4__create(th_h, attr, (pthread_startroutine_t) proc, arg);
+#else
     istat = pthread_create(th_h, attr, (pthread_startroutine_t) proc, arg);
+#endif
 
     // FIXME draft 4 defines it thre is no choice
 #if defined(YIELD_AFTER_PTHREAD_CREATE)
@@ -403,6 +411,13 @@ pthd4_join(pthread_t thread, pthread_addr_t *status)
         return (FAILURE);
     }
 
+#ifndef HAVE_OS_WIN32
+    if (pthd4__own_cancel)
+    {
+        istat = pthd4__join(thread, (void **)status);
+    }
+    else
+#endif
     istat = pthread_join(thread, (void **)status);
     switch (istat)
     {
@@ -848,6 +863,13 @@ pthd4_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
     }
 
     /* pthread_cond_wait can't fail, although it may call pthread_exit() */
+#ifndef HAVE_OS_WIN32
+    if (pthd4__own_cancel)
+    {
+        istat = pthd4__cond_wait(cond, mutex, NULL);
+    }
+    else
+#endif
     istat = pthread_cond_wait(cond, mutex);
     if (istat != SUCCESS)
     {
@@ -878,6 +900,13 @@ pthd4_cond_timedwait(pthread_cond_t *cond,
         return (FAILURE);
     }
 
+#ifndef HAVE_OS_WIN32
+    if (pthd4__own_cancel)
+    {
+        istat = pthd4__cond_wait(cond, mutex, abstime);
+    }
+    else
+#endif
     istat = PTHREAD_TEMP_FAILURE_RETRY(pthread_cond_timedwait(cond, mutex, abstime));
     switch (istat)
     {
@@ -1048,6 +1077,17 @@ pthd4_cancel(pthread_t thread)
         return (FAILURE);
     }
 
+#ifndef HAVE_OS_WIN32
+    if (pthd4__own_cancel)
+    {
+        if (pthd4__cancel_post(thread) == 0)
+        {
+            return (SUCCESS);
+        }
+        /* not a DCE thread: fall back to NPTL cancellation */
+    }
+#endif
+
     istat = pthread_cancel(thread);
     switch (istat)
     {
@@ -1090,6 +1130,18 @@ pthd4_setasynccancel(int state)
         errno = ENOMEM;
         return (FAILURE);
     }
+
+#ifndef HAVE_OS_WIN32
+    if (pthd4__own_cancel)
+    {
+        if (state != CANCEL_ON && state != CANCEL_OFF)
+        {
+            errno = EINVAL;
+            return (FAILURE);
+        }
+        return pthd4__setasynccancel(state);
+    }
+#endif
 
     if (state == CANCEL_OFF)
     {
@@ -1142,6 +1194,13 @@ pthd4_setcancel(int state)
         errno = ENOMEM;
         return (FAILURE);
     }
+
+#ifndef HAVE_OS_WIN32
+    if (pthd4__own_cancel)
+    {
+        return pthd4__setcancel(state);
+    }
+#endif
 
     if (state == CANCEL_OFF)
     {
@@ -1751,6 +1810,14 @@ pthd4_getscheduler(pthread_t thread)
 void
 pthd4_testcancel(void)
 {
+#ifndef HAVE_OS_WIN32
+    pthd4__cancel_init();
+    if (pthd4__own_cancel)
+    {
+        pthd4__check_cancel();
+        return;
+    }
+#endif
     pthread_testcancel();
 }
 
@@ -2086,7 +2153,7 @@ pthd4__cancel_thread(void)
             return NULL;
         }
 
-        pthread_cancel(pthd4__g_handle_target);
+        pthd4_cancel(pthd4__g_handle_target);
     }
 }
 #endif

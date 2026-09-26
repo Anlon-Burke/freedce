@@ -15,10 +15,11 @@ libdcethreads_la_SOURCES = \
 
 if TARGET_OS_LINUX
     libdcethreads_la_SOURCES+=pthread_dce_atfork.c \
+                              pthd4_cancel.c \
                               pthd4_libc_wrapers.c
 
 endif
 
-noinst_HEADERS = pthread_dce_atfork.h
+noinst_HEADERS = pthread_dce_atfork.h pthd4_cancel.h
 
 #EXTRA_DIST = Versions
