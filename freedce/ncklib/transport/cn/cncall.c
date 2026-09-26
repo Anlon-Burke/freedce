@@ -1445,6 +1445,7 @@ unsigned32              *st;
         /*
          * No stub data.
          */
+        call_args->buff_dealloc = NULL;
         call_args->data_addr = (byte_p_t) NULL;
         call_args->data_len = 0;
 
