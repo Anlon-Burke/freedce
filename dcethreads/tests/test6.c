@@ -89,8 +89,18 @@ static void wait_for_cancel(enum mode mode, int round)
         break;
 
     case M_POLL:
-        round_ready = round;
-        poll(NULL, 0, 2000);
+        {
+            /*
+             * An array of known size and a count that is not a constant:
+             * with _FORTIFY_SOURCE this calls __poll_chk() (like the RPC
+             * listener does).
+             */
+            struct pollfd pfd[1] = { { -1, 0, 0 } };
+            volatile nfds_t n = 1;
+
+            round_ready = round;
+            poll(pfd, n, 2000);
+        }
         break;
 
     case M_REPOSTED:

@@ -823,6 +823,51 @@ CANCELABLE_SYSCALL (net_type, sendto,
             );
 
 
+/*--------------------------------------------------------*
+ * __poll_chk, __read_chk, __recv_chk, __recvfrom_chk     *
+ *--------------------------------------------------------*
+ * With _FORTIFY_SOURCE (the default of many distributions *
+ * at -O2) glibc's headers turn a call on a buffer of      *
+ * known size into these checking variants, which go to    *
+ * libc directly and would bypass the wrappers above.  Do  *
+ * the same check and call the wrapper.                    *
+ *--------------------------------------------------------*/
+extern void __chk_fail (void) __attribute__ ((__noreturn__));
+
+int
+__poll_chk (struct pollfd *fds, nfds_t nfds, int timeout, size_t fdslen)
+{
+  if (fdslen / sizeof (*fds) < nfds)
+    __chk_fail ();
+  return poll (fds, nfds, timeout);
+}
+
+ssize_t
+__read_chk (int fd, void *buf, size_t nbytes, size_t buflen)
+{
+  if (nbytes > buflen)
+    __chk_fail ();
+  return read (fd, buf, nbytes);
+}
+
+ssize_t
+__recv_chk (int fd, void *buf, size_t n, size_t buflen, int flags)
+{
+  if (n > buflen)
+    __chk_fail ();
+  return recv (fd, buf, n, flags);
+}
+
+ssize_t
+__recvfrom_chk (int fd, void *__restrict buf, size_t n, size_t buflen,
+                int flags, __SOCKADDR_ARG addr, socklen_t *__restrict addr_len)
+{
+  if (n > buflen)
+    __chk_fail ();
+  return recvfrom (fd, buf, n, flags, addr, addr_len);
+}
+
+
 #endif /* USE_CANCEL_WRAPPER */
 
 
