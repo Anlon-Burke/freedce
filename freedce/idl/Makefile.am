@@ -9,6 +9,8 @@ include $(top_srcdir)/include.mk
 # implementations of some io functions.
 LIBS:=$(subst -ldcethread,,$(LIBS))
 
+# The IDL compiler needs C23 (see configure.ac).
+AM_CFLAGS+=$(IDL_C23_CFLAGS)
 AM_CFLAGS+=-DMIA -DDEFAULT_IDIR=\"$(includedir)\" -DCATALOG_DIR=\"$(pkgdatadir)\"
 AM_CPPFLAGS+=-I$(top_builddir)/include -I$(top_srcdir)/include
 

@@ -89,6 +89,30 @@ if test "$YACC" = "yacc" || test "$YACC" = ":"; then
   fi
 fi
 
+# The IDL compiler is written in C23 (nullptr, attributes).  Find the
+# option that selects C23; it is put in front of CFLAGS, so a -std option
+# given in CFLAGS wins and must not select an older standard.
+AC_CACHE_CHECK([for the C compiler option for C23], [rpc_cv_c23_cflags],
+[rpc_cv_c23_cflags=no
+rpc_save_CFLAGS="$CFLAGS"
+for rpc_flag in "" -std=gnu23 -std=gnu2x; do
+	CFLAGS="$rpc_flag $rpc_save_CFLAGS"
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]],
+		[[void *p = nullptr; (void) p;]])],
+		[rpc_cv_c23_cflags="${rpc_flag:-none needed}"])
+	test "$rpc_cv_c23_cflags" != no && break
+done
+CFLAGS="$rpc_save_CFLAGS"])
+case $rpc_cv_c23_cflags in
+no)
+	AC_MSG_ERROR([the IDL compiler needs a C23 compiler (e.g. gcc 13 or later); do not select an older -std in CFLAGS]) ;;
+"none needed")
+	IDL_C23_CFLAGS= ;;
+*)
+	IDL_C23_CFLAGS=$rpc_cv_c23_cflags ;;
+esac
+AC_SUBST(IDL_C23_CFLAGS)
+
 AC_PATH_PROG(GENCAT, gencat)
 AC_PATH_PROG(SED, sed)
 AC_SUBST(GENCAT)
