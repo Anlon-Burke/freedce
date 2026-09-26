@@ -76,6 +76,13 @@ static char rcsid [] __attribute__((__unused__)) = "$Id: pthd4_libc_wrapers.c,v 
 #include <stdarg.h>
 
 #include <dlfcn.h>
+#include <errno.h>
+#include <poll.h>
+#include <sys/select.h>
+#include <time.h>
+#include <unistd.h>
+
+#include "pthd4_cancel.h"
 
 #ifndef PIC
 const int __dcethread_provide_wrappers = 0;
@@ -300,16 +307,89 @@ NON_CANCELABLE_SYSCALL (pid_t, waitpid,
 
 #if USE_CANCELATION_WRAPPER
 
+/*
+ * With DCETHREADS_CANCEL=own, cancels are posted and delivered by
+ * dcethreads itself (pthd4_cancel.c).  A thread that waits in one of the
+ * calls below must then be woken up by the wake-up signal: the wrappers
+ * wait with ppoll()/pselect(), which unblock that signal only for the
+ * duration of the wait, and do the real call once the descriptor is
+ * ready.  Only such waits are cancellation points; calls that cannot
+ * block (non-blocking descriptors, sends) are not.  Threads without DCE
+ * cancel state, and the NPTL mode, keep the plain behavior.
+ */
+
+/* Look up the libc function once and cache it in *cache. */
+static void *
+real_function (void **cache, const char *name)
+{
+  if (*cache == NULL)
+    *cache = dlsym (RTLD_NEXT, name);
+  return *cache;
+}
+
+#define REAL_FUNCTION(name) \
+  ((__typeof__ (real_##name)) real_function ((void **) &real_##name, #name))
+
+/* The DCE cancel state if the own implementation applies, else NULL. */
+static pthd4_cancel_state_t *
+own_cancel_state (void)
+{
+  pthd4_cancel_state_t *s = pthd4__cancel_peek ();
+  return pthd4__own_cancel ? s : NULL;
+}
+
+static int
+fd_is_blocking (int fd)
+{
+  int flags = fcntl (fd, F_GETFL);
+  return flags != -1 && !(flags & O_NONBLOCK);
+}
+
+/*
+ * Wait until fd is ready for "events".  Returns 0 when ready, -1 with
+ * errno set on an error; delivers a cancel.
+ */
+static int
+wait_fd (pthd4_cancel_state_t *s, int fd, short events)
+{
+  struct pollfd pfd;
+  int r;
+
+  pfd.fd = fd;
+  pfd.events = events;
+  pfd.revents = 0;
+  r = pthd4__wait (s, &pfd, 1, NULL);
+  if (r == PTHD4_WAIT_CANCEL)
+    pthd4__raise_cancel ();
+  return r > 0 ? 0 : -1;
+}
+
+
+/****************************************************************************
+ * CANCELABLE_SYSCALL- wrapper for the sending calls                        *
+ ****************************************************************************
+ *                                                                          *
+ * In NPTL mode they are cancellation points before and after the call.     *
+ * With the own cancel implementation they are no cancellation points: the  *
+ * RPC runtime sends on non-blocking sockets and only expects cancels at    *
+ * its own waits, which are enclosed in TRY blocks; a cancel raised in the  *
+ * middle of a send would escape into the stub.                             *
+ ****************************************************************************/
+
 #define CANCELABLE_SYSCALL(res_type, name, param_list, params)      \
-     res_type                                 \
+                                              \
+  static res_type (*real_##name) param_list;  \
+                                              \
+  res_type                                    \
   name param_list                             \
   {                                           \
     res_type result;                          \
-    res_type (*glibc_function) param_list;    \
                                               \
-    glibc_function = dlsym(RTLD_NEXT, #name); \
-    pthread_testcancel();                     \
-    result = glibc_function params;           \
+    if (own_cancel_state () != NULL)          \
+      return REAL_FUNCTION (name) params;     \
+                                              \
+    pthread_testcancel ();                    \
+    result = REAL_FUNCTION (name) params;     \
     pthread_testcancel ();                    \
     return result;                            \
   }                                           \
@@ -317,24 +397,124 @@ NON_CANCELABLE_SYSCALL (pid_t, waitpid,
 
 
 /*--------------------------------------------------------*
- * nanosleep(2)                                           *
+ * nanosleep(2), sleep(3), usleep(3)                      *
  *--------------------------------------------------------*/
-CANCELABLE_SYSCALL (int, nanosleep,
-            (struct timespec const *requested_time,
-             struct timespec       *remaining
-             ),
-            (requested_time, remaining)
-            );
+
+static int (*real_nanosleep) (struct timespec const *, struct timespec *);
+static unsigned int (*real_sleep) (unsigned int);
+static int (*real_usleep) (useconds_t);
+
+/* Sleep as a cancellation point; returns 0, or -1/EINTR with *remaining. */
+static int
+own_sleep (pthd4_cancel_state_t *s, struct timespec const *requested,
+           struct timespec *remaining)
+{
+  struct timespec now, end, left;
+  int r;
+
+  clock_gettime (CLOCK_MONOTONIC, &now);
+  end.tv_sec = now.tv_sec + requested->tv_sec;
+  end.tv_nsec = now.tv_nsec + requested->tv_nsec;
+  if (end.tv_nsec >= 1000000000)
+    {
+      end.tv_sec++;
+      end.tv_nsec -= 1000000000;
+    }
+
+  for (;;)
+    {
+      left.tv_sec = end.tv_sec - now.tv_sec;
+      left.tv_nsec = end.tv_nsec - now.tv_nsec;
+      if (left.tv_nsec < 0)
+        {
+          left.tv_sec--;
+          left.tv_nsec += 1000000000;
+        }
+      if (left.tv_sec < 0)
+        return 0;
+
+      r = pthd4__wait (s, NULL, 0, &left);
+      if (r == PTHD4_WAIT_CANCEL)
+        pthd4__raise_cancel ();
+      if (r < 0)
+        {
+          if (remaining != NULL)
+            *remaining = left;
+          return -1;            /* EINTR from another signal */
+        }
+      clock_gettime (CLOCK_MONOTONIC, &now);
+    }
+}
+
+int
+nanosleep (struct timespec const *requested_time, struct timespec *remaining)
+{
+  pthd4_cancel_state_t *s = own_cancel_state ();
+  int result;
+
+  if (s != NULL)
+    return own_sleep (s, requested_time, remaining);
+
+  pthread_testcancel ();
+  result = REAL_FUNCTION (nanosleep) (requested_time, remaining);
+  pthread_testcancel ();
+  return result;
+}
+
+unsigned int
+sleep (unsigned int seconds)
+{
+  pthd4_cancel_state_t *s = own_cancel_state ();
+  struct timespec req, rem;
+
+  if (s == NULL)
+    return REAL_FUNCTION (sleep) (seconds);
+
+  req.tv_sec = seconds;
+  req.tv_nsec = 0;
+  if (own_sleep (s, &req, &rem) == 0)
+    return 0;
+  return rem.tv_sec + (rem.tv_nsec > 0);
+}
+
+int
+usleep (useconds_t usec)
+{
+  pthd4_cancel_state_t *s = own_cancel_state ();
+  struct timespec req;
+
+  if (s == NULL)
+    return REAL_FUNCTION (usleep) (usec);
+
+  req.tv_sec = usec / 1000000;
+  req.tv_nsec = (usec % 1000000) * 1000;
+  return own_sleep (s, &req, NULL);
+}
 
 
 /*--------------------------------------------------------*
  * read(2)                                                *
  *--------------------------------------------------------*/
-CANCELABLE_SYSCALL (ssize_t,
-            read,
-            (int fd, void *buf, size_t count),
-            (fd, buf, count)
-            );
+static ssize_t (*real_read) (int, void *, size_t);
+
+ssize_t
+read (int fd, void *buf, size_t count)
+{
+  pthd4_cancel_state_t *s = own_cancel_state ();
+  ssize_t result;
+
+  if (s != NULL)
+    {
+      if (fd_is_blocking (fd) && wait_fd (s, fd, POLLIN) != 0)
+        return -1;
+      return REAL_FUNCTION (read) (fd, buf, count);
+    }
+
+  pthread_testcancel ();
+  result = REAL_FUNCTION (read) (fd, buf, count);
+  pthread_testcancel ();
+  return result;
+}
 
 
 /*--------------------------------------------------------*
@@ -350,31 +530,121 @@ CANCELABLE_SYSCALL (ssize_t,
 /*--------------------------------------------------------*
  * accept(2)                                              *
  *--------------------------------------------------------*/
-CANCELABLE_SYSCALL (int, accept,
-            (int fd, struct sockaddr *addr, socklen_t *addr_len),
-            (fd, addr, addr_len)
-            );
+static int (*real_accept) (int, struct sockaddr *, socklen_t *);
+
+int
+accept (int fd, struct sockaddr *addr, socklen_t *addr_len)
+{
+  pthd4_cancel_state_t *s = own_cancel_state ();
+  int result;
+
+  if (s != NULL)
+    {
+      if (fd_is_blocking (fd) && wait_fd (s, fd, POLLIN) != 0)
+        return -1;
+      return REAL_FUNCTION (accept) (fd, addr, addr_len);
+    }
+
+  pthread_testcancel ();
+  result = REAL_FUNCTION (accept) (fd, addr, addr_len);
+  pthread_testcancel ();
+  return result;
+}
 
 
 /*--------------------------------------------------------*
  * connect(2)                                             *
  *--------------------------------------------------------*/
-CANCELABLE_SYSCALL (int, connect,
-            (int fd, struct sockaddr const *addr, socklen_t addrlen),
-            (fd, addr, addrlen)
-            );
+static int (*real_connect) (int, struct sockaddr const *, socklen_t);
+
+int
+connect (int fd, struct sockaddr const *addr, socklen_t addrlen)
+{
+  pthd4_cancel_state_t *s = own_cancel_state ();
+  int result, flags, err;
+  socklen_t len;
+
+  if (s == NULL)
+    {
+      pthread_testcancel ();
+      result = REAL_FUNCTION (connect) (fd, addr, addrlen);
+      pthread_testcancel ();
+      return result;
+    }
+  if ((flags = fcntl (fd, F_GETFL)) == -1 || (flags & O_NONBLOCK))
+    return REAL_FUNCTION (connect) (fd, addr, addrlen);
+
+  /* connect without blocking, then wait until the connection is set up */
+  if (pthd4__take_cancel (s))
+    pthd4__raise_cancel ();
+  fcntl (fd, F_SETFL, flags | O_NONBLOCK);
+  result = REAL_FUNCTION (connect) (fd, addr, addrlen);
+  if (result == 0 || errno != EINPROGRESS)
+    {
+      err = errno;
+      fcntl (fd, F_SETFL, flags);
+      errno = err;
+      return result;
+    }
+
+  for (;;)
+    {
+      struct pollfd pfd;
+      int r;
+
+      pfd.fd = fd;
+      pfd.events = POLLOUT;
+      pfd.revents = 0;
+      r = pthd4__wait (s, &pfd, 1, NULL);
+      if (r == PTHD4_WAIT_CANCEL)
+        {
+          fcntl (fd, F_SETFL, flags);
+          pthd4__raise_cancel ();
+        }
+      if (r > 0)
+        break;
+      if (errno != EINTR)
+        {
+          err = errno;
+          fcntl (fd, F_SETFL, flags);
+          errno = err;
+          return -1;
+        }
+    }
+
+  len = sizeof (err);
+  if (getsockopt (fd, SOL_SOCKET, SO_ERROR, &err, &len) == -1)
+    err = errno;
+  fcntl (fd, F_SETFL, flags);
+  if (err != 0)
+    {
+      errno = err;
+      return -1;
+    }
+  return 0;
+}
 
 
 /*--------------------------------------------------------*
  * select(2)                                              *
  *--------------------------------------------------------*/
-CANCELABLE_SYSCALL (int, select,
-            (int nfds,
-             fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
-             struct timeval *timeout
-             ),
-            (nfds, readfds, writefds, exceptfds, timeout)
-            );
+static int (*real_select) (int, fd_set *, fd_set *, fd_set *, struct timeval *);
+
+int
+select (int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
+        struct timeval *timeout)
+{
+  pthd4_cancel_state_t *s = own_cancel_state ();
+  int result;
+
+  if (s != NULL)
+    return pthd4__select (s, nfds, readfds, writefds, exceptfds, timeout);
+
+  pthread_testcancel ();
+  result = REAL_FUNCTION (select) (nfds, readfds, writefds, exceptfds, timeout);
+  pthread_testcancel ();
+  return result;
+}
 
 
 /*
@@ -395,31 +665,99 @@ CANCELABLE_SYSCALL (int, select,
 #endif
 
 
+/*
+ * recv(2), recvfrom(2), recvmsg(2): wait until the socket is readable,
+ * then receive without blocking (unless MSG_WAITALL was asked for).
+ */
+#define OWN_RECV(s, fd, flags, call)                                \
+  do                                                                \
+    {                                                               \
+      net_type r_;                                                  \
+      int blocking_ = fd_is_blocking (fd);                          \
+      for (;;)                                                      \
+        {                                                           \
+          if (blocking_ && wait_fd (s, fd, POLLIN) != 0)            \
+            return -1;                                              \
+          r_ = call;                                                \
+          if (r_ >= 0 || !blocking_ || (flags & MSG_WAITALL)        \
+              || (errno != EAGAIN && errno != EWOULDBLOCK))         \
+            break;                                                  \
+        }                                                           \
+      return r_;                                                    \
+    }                                                               \
+  while (0)
+
 /*--------------------------------------------------------*
  * recv(2)                                                *
  *--------------------------------------------------------*/
-CANCELABLE_SYSCALL (net_type,
-            recv,
-            (int fd, __ptr_t buf, size_t n, int flags),
-            (fd, buf, n, flags)
-            );
+static net_type (*real_recv) (int, __ptr_t, size_t, int);
 
+net_type
+recv (int fd, __ptr_t buf, size_t n, int flags)
+{
+  pthd4_cancel_state_t *s = own_cancel_state ();
+  net_type result;
+
+  if (s != NULL)
+    OWN_RECV (s, fd, flags,
+              REAL_FUNCTION (recv) (fd, buf, n,
+                                    (flags & MSG_WAITALL) ? flags
+                                    : flags | MSG_DONTWAIT));
+
+  pthread_testcancel ();
+  result = REAL_FUNCTION (recv) (fd, buf, n, flags);
+  pthread_testcancel ();
+  return result;
+}
 
 /*--------------------------------------------------------*
  * recvfrom(2)                                            *
  *--------------------------------------------------------*/
-CANCELABLE_SYSCALL (net_type, recvfrom,
-            (int fd, void *__restrict buf, size_t n, int flags,
-             __SOCKADDR_ARG addr, socklen_t *__restrict addr_len),
-            (fd, buf, n, flags, addr, addr_len))
+static net_type (*real_recvfrom) (int, void *__restrict, size_t, int,
+                                  __SOCKADDR_ARG, socklen_t *__restrict);
+
+net_type
+recvfrom (int fd, void *__restrict buf, size_t n, int flags,
+          __SOCKADDR_ARG addr, socklen_t *__restrict addr_len)
+{
+  pthd4_cancel_state_t *s = own_cancel_state ();
+  net_type result;
+
+  if (s != NULL)
+    OWN_RECV (s, fd, flags,
+              REAL_FUNCTION (recvfrom) (fd, buf, n,
+                                        (flags & MSG_WAITALL) ? flags
+                                        : flags | MSG_DONTWAIT,
+                                        addr, addr_len));
+
+  pthread_testcancel ();
+  result = REAL_FUNCTION (recvfrom) (fd, buf, n, flags, addr, addr_len);
+  pthread_testcancel ();
+  return result;
+}
 
 /*--------------------------------------------------------*
  * recvmsg(2)                                            *
  *--------------------------------------------------------*/
-CANCELABLE_SYSCALL (net_type, recvmsg,
-            (int fd, struct msghdr *message, int flags),
-            (fd, message, flags)
-            );
+static net_type (*real_recvmsg) (int, struct msghdr *, int);
+
+net_type
+recvmsg (int fd, struct msghdr *message, int flags)
+{
+  pthd4_cancel_state_t *s = own_cancel_state ();
+  net_type result;
+
+  if (s != NULL)
+    OWN_RECV (s, fd, flags,
+              REAL_FUNCTION (recvmsg) (fd, message,
+                                       (flags & MSG_WAITALL) ? flags
+                                       : flags | MSG_DONTWAIT));
+
+  pthread_testcancel ();
+  result = REAL_FUNCTION (recvmsg) (fd, message, flags);
+  pthread_testcancel ();
+  return result;
+}
 
 
 /*--------------------------------------------------------*
