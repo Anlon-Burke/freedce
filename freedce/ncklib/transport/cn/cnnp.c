@@ -1525,7 +1525,7 @@ unsigned32              *st;
      * Get the association group using the group id provided as a
      * client handle. 
      */
-    grp_id.all = (unsigned long) client_h;
+    grp_id.all = (unsigned32) (unsigned long) client_h;
     grp_id = rpc__cn_assoc_grp_lkup_by_id (grp_id,
                                            RPC_C_CN_ASSOC_GRP_SERVER,
                                            st);
@@ -1611,7 +1611,7 @@ unsigned32              *st;
      * Get the association group using the group id provided as a
      * client handle. 
      */
-    grp_id.all = (unsigned long) client_h;
+    grp_id.all = (unsigned32) (unsigned long) client_h;
     grp_id = rpc__cn_assoc_grp_lkup_by_id (grp_id,
                                            RPC_C_CN_ASSOC_GRP_SERVER,
                                            st);

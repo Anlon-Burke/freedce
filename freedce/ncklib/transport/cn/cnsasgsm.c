@@ -910,7 +910,7 @@ pointer_t       sm;
      * Assoc_grp is assigned within the SERVER_REFS_PRED
      * macro.
      */  
-    (*assoc_grp->grp_liveness_mntr) ((rpc_client_handle_t) assoc_grp->grp_id.all);
+    (*assoc_grp->grp_liveness_mntr) ((rpc_client_handle_t) (unsigned long) assoc_grp->grp_id.all);
 
     sm_p->cur_state = RPC_C_ASSOC_GRP_CLOSED;
     return (assoc_grp->grp_status); 

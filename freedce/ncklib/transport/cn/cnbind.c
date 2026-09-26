@@ -628,7 +628,7 @@ unsigned32              *st;
     /*
      * Make sure the group id is valid.
      */
-    *client_h = (rpc_client_handle_t) grp_id.all;
+    *client_h = (rpc_client_handle_t) (unsigned long) grp_id.all;
     if (RPC_CN_LOCAL_ID_VALID (grp_id))
     {
         *st = rpc_s_ok;
