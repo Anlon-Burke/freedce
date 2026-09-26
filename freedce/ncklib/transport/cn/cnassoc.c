@@ -66,36 +66,47 @@ int pthd4_delay_np(struct timespec *delay);
 /******************************************************************************/
 /*
  * We want to serialize the group create operation.  We do this so
- * that we do not wind up with multiple groups if multiple threads 
+ * that we do not wind up with multiple groups if multiple threads
  * from a client make RPCs to the same server.  This would be especially
  * painful if there are context handles since each of these groups will
  * have to maintain an association.  (If all the associations were in
  * a single group, only one association needs to be maintained.)
  *
  * The following variables simulate a mutex around the group
- * create operation.  We call this the grp_new mutex.  We do not
- * use a real mutex because mutex waits are non-cancellable.  We
- * want this operation to be cancellable to support cancel timeouts
- * even when there is no association.
+ * create operation, one per server address.  We call this the grp_new
+ * mutex.  We do not use a real mutex because mutex waits are
+ * non-cancellable.  We want this operation to be cancellable to
+ * support cancel timeouts even when there is no association.  The
+ * mutex is per server address because it is held while the connection
+ * is made and the bind is answered: a server which does not answer
+ * must not hold up the first calls to other servers.
  *
- * To acquire the grp_new mutex, a thread must set grp_new_in_progress to
- * true. A thread must acquire this mutex prior to creating a group.  
- * If you have nested calls to assoc_request, only the outermost
- * [initial] call to assoc_request should acquire the grp_new mutex.
+ * To acquire the grp_new mutex for an address, a thread must put an
+ * entry with the address on grp_new_list (the entry lives in the
+ * acquiring call frame). A thread must acquire this mutex prior to
+ * creating a group.  If you have nested calls to assoc_request, only
+ * the outermost [initial] call to assoc_request should acquire the
+ * grp_new mutex.
  *
- * To release the grp_new mutex, a thread should clear grp_new_in_progress
- * and do a condition broadcast on grp_new_wt.  Only the call frame
- * that acquired the grp_new mutex should release it.
+ * To release the grp_new mutex, a thread should remove its entry from
+ * grp_new_list and do a condition broadcast on grp_new_wt.  Only the
+ * call frame that acquired the grp_new mutex should release it.
  *
- * grp_new_waiters is an optimization.  It is the number of threads 
- * waiting for the grp_new mutex.  A thread must
+ * grp_new_waiters is an optimization.  It is the number of threads
+ * waiting for a grp_new mutex.  A thread must
  * increment this prior to waiting for the grp_new mutex.
- * We don't signal the grp_new_wt condition variable if 
+ * We don't signal the grp_new_wt condition variable if
  * there are no waiters when the grp_new mutex is released.
  */
+typedef struct
+{
+    rpc_list_t                  link;   /* MUST BE 1ST */
+    rpc_addr_p_t                addr;
+} rpc_cn_grp_new_t;
+
 INTERNAL rpc_cond_t             grp_new_wt;
 INTERNAL unsigned16             grp_new_waiters;
-INTERNAL boolean32              grp_new_in_progress;
+INTERNAL rpc_list_t             grp_new_list;
 
 
 /******************************************************************************/
@@ -163,6 +174,29 @@ INTERNAL void *rpc__cn_network_receiver_start (void *arg)
 {
     rpc__cn_network_receiver ((rpc_cn_assoc_p_t) arg);
     return NULL;
+}
+
+/*
+ * G R P _ N E W _ B U S Y
+ *
+ * True if another call frame holds the grp_new mutex for the given
+ * server address (see grp_new_list above).
+ */
+INTERNAL boolean grp_new_busy (rpc_addr_p_t rpc_addr)
+{
+    rpc_cn_grp_new_t    *entry;
+    unsigned32          st;
+
+    RPC_LIST_FIRST (grp_new_list, entry, rpc_cn_grp_new_t *);
+    while (entry != NULL)
+    {
+        if (rpc__naf_addr_compare (rpc_addr, entry->addr, &st))
+        {
+            return (true);
+        }
+        RPC_LIST_NEXT (entry, entry, rpc_cn_grp_new_t *);
+    }
+    return (false);
 }
 
 /*
@@ -374,15 +408,16 @@ unsigned32              *st;
 {
     rpc_cn_assoc_t      * volatile assoc = NULL;
     rpc_cn_assoc_grp_t  * volatile assoc_grp = NULL;
-    rpc_addr_p_t        rpc_addr;
+    rpc_addr_p_t        volatile rpc_addr;
     volatile unsigned32 wait_interval, total_wait;
     rpc_cn_local_id_t   grp_id;
     volatile rpc_cn_local_id_t rem_grp_id;
     struct timespec     timespec;
     struct timespec     abstime;
+    rpc_cn_grp_new_t    grp_new_entry;
 
     /*
-     * i_hold_grp_new_mutex means that this call frame holds the 
+     * i_hold_grp_new_mutex means that this call frame holds the
      * grp_new mutex. The grp_new_mutex is described above.
      */
     volatile boolean    i_hold_grp_new_mutex;
@@ -606,9 +641,9 @@ unsigned32              *st;
              */
 
             /*
-             * Attempt to acquire the grp_new mutex.
+             * Attempt to acquire the grp_new mutex for the address.
              */
-            if (grp_new_in_progress)
+            if (grp_new_busy (rpc_addr))
             {
                 /*
                  * Some other thread holds the grp_new mutex. We'll
@@ -617,7 +652,7 @@ unsigned32              *st;
                  */
                 grp_new_waiters++;
 
-                while (grp_new_in_progress)
+                while (grp_new_busy (rpc_addr))
                 {
                     /*
                      * Since this is a cancellable operation we'll set
@@ -674,19 +709,20 @@ unsigned32              *st;
                 grp_new_waiters--;
                 continue;
             }
-            else  /* grp_new_in_progress is false; i.e., grp_new mutex
-                   * is available.
-                   */
+            else  /* the grp_new mutex for the address is available */
             {
                 /*
                  * There is no other thread opening a new
-                 * association. Acquire the grp_new mutex.
-                 * We also set i_hold_grp_new_mutex.
+                 * association to this address. Acquire the grp_new
+                 * mutex. We also set i_hold_grp_new_mutex.
                  *
                  * Note: If we get here, we are by definition, in
                  * the outermost call to assoc_request.
                  */
-                grp_new_in_progress = true;
+                grp_new_entry.addr = rpc_addr;
+                RPC_LIST_ADD_TAIL (grp_new_list,
+                                   &grp_new_entry,
+                                   rpc_cn_grp_new_t *);
                 i_hold_grp_new_mutex = true;
 
             }
@@ -760,11 +796,12 @@ unsigned32              *st;
             if (i_hold_grp_new_mutex)
             {
                 /*
-                 * A new association has just been opened so reset
-                 * the flag to allow other thread's which want to open
-                 * new associations to do so.
+                 * A new association has just been opened so remove
+                 * the entry to allow other thread's which want to open
+                 * new associations to this address to do so.
                  */
-                grp_new_in_progress = false;
+                RPC_LIST_REMOVE (grp_new_list, &grp_new_entry);
+                i_hold_grp_new_mutex = false;
                 RPC_COND_BROADCAST (grp_new_wt,
                                     rpc_g_global_mutex);
             }
@@ -6323,8 +6360,8 @@ PRIVATE void rpc__cn_assoc_grp_tbl_init (void)
      * variables internal to this module.
      */
     RPC_COND_INIT (grp_new_wt,
-                   rpc_g_global_mutex); 
-    grp_new_in_progress = false;
+                   rpc_g_global_mutex);
+    RPC_LIST_INIT (grp_new_list);
     grp_new_waiters = 0;
 
     /*
