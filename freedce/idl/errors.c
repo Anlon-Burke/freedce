@@ -641,16 +641,22 @@ void seek_for_line
 
     lines_to_skip = lineno - last_error_line;
 
-#pragma GCC diagnostic push
+    /*
+     * Nothing is read if the line is not after the last one printed (e.g.
+     * line 0), and fgets() may hit the end of the file.
+     */
+    source_line[0] = '\0';
     for (i=0; i<lines_to_skip; i++)
-#pragma GCC diagnostic ignored "-Wunused-result"
-        (void) fgets(source_line, MAX_LINE_LEN, source_file);
-#pragma GCC diagnostic pop
+        if (fgets(source_line, MAX_LINE_LEN, source_file) == NULL)
+        {
+            source_line[0] = '\0';
+            break;
+        }
 
     /* Strip off newline. */
-    i = strlen(source_line) - 1;
-    if (source_line[i] == '\n')
-        source_line[i] = '\0';
+    i = strlen(source_line);
+    if (i > 0 && source_line[i - 1] == '\n')
+        source_line[i - 1] = '\0';
 
     last_error_line = lineno;
 }
