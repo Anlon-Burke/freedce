@@ -904,7 +904,31 @@ unsigned32              *st;
         RPC_DBG_PRINTF (rpc_e_dbg_general, RPC_C_CN_DBG_ERRORS,
                         ("(rpc__cn_network_select_dispatch) desc->%x rpc__socket_accept failed, error = %d\n",
                          desc, RPC_SOCKET_ETOI(serr)));
-        
+
+        /*
+         * Out of descriptors or memory: reclaim idle connections at
+         * once, so that the waiting clients can be accepted soon.
+         */
+        if (serr == RPC_C_SOCKET_ENOSPC
+#ifdef EMFILE
+            || serr == EMFILE
+#endif
+#ifdef ENFILE
+            || serr == ENFILE
+#endif
+#ifdef ENOBUFS
+            || serr == ENOBUFS
+#endif
+#ifdef ENOMEM
+            || serr == ENOMEM
+#endif
+           )
+        {
+            RPC_CN_LOCK ();
+            rpc__cn_assoc_reclaim_pressure ();
+            RPC_CN_UNLOCK ();
+        }
+
         *st = rpc_s_cannot_accept;
     }
     else

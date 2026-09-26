@@ -179,6 +179,12 @@ void rpc__cn_assoc_abort _DCE_PROTOTYPE_ ((
     unsigned32                  * /* st */ ));
 
 /*
+ * R P C _ _ C N _ A S S O C _ R E C L A I M _ P R E S S U R E
+ */
+
+PRIVATE void rpc__cn_assoc_reclaim_pressure _DCE_PROTOTYPE_ ((void));
+
+/*
  * R P C _ _ C N _ A S S O C _ P O P _ C A L L
  */
 

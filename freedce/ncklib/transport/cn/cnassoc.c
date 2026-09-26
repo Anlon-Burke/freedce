@@ -116,6 +116,7 @@ INTERNAL void rpc__cn_assoc_open _DCE_PROTOTYPE_ ((
     rpc_transfer_syntax_t       * /*syntax*/,
     unsigned16                  * /*context_id*/,
     rpc_cn_sec_context_p_t      * /*sec*/,
+    unsigned32                   /*timeout*/,
     unsigned32                  * /*st*/));
 
 /*
@@ -144,7 +145,8 @@ INTERNAL void rpc__cn_assoc_reclaim _DCE_PROTOTYPE_ ((
  * R P C _ _ C N _ A S S O C _ R E C L A I M _ I D L E
  */
 
-INTERNAL void rpc__cn_assoc_reclaim_idle _DCE_PROTOTYPE_ ((void));
+INTERNAL void rpc__cn_assoc_reclaim_idle _DCE_PROTOTYPE_ ((
+    boolean32                    /*pressure*/));
 
 /*
  * R P C _ _ C N _ A S S O C _ T I M E R _ R E C L A I M
@@ -229,6 +231,12 @@ INTERNAL rpc_cn_syntax_t *rpc__cn_assoc_syntax_alloc _DCE_PROTOTYPE_ ((
 #define RPC_C_ASSOC_MAX_RESOURCE_WAIT           300
 
 /*
+ * The minimum time in seconds a client waits for the answer to a bind
+ * (with a binding timeout that is not infinite; see rpc__cn_assoc_open).
+ */
+#define RPC_C_ASSOC_MIN_BIND_WAIT               5
+
+/*
  * The client idle connection disconnect time in seconds.
  * This value is specified in Appendix A of the NCA connection
  * architecture spec. 
@@ -256,6 +264,18 @@ INTERNAL rpc_cn_syntax_t *rpc__cn_assoc_syntax_alloc _DCE_PROTOTYPE_ ((
 #define RPC_C_ASSOC_SERVER_IDLE_TIMEOUT         120
 #define RPC_C_ASSOC_SERVER_IDLE_BATCH           50
 #define RPC_C_ASSOC_SERVER_IDLE_GRACE           30
+
+/*
+ * When accept fails for lack of descriptors or memory, the server
+ * reclaims at once (at most once a second) connections idle for
+ * RPC_C_ASSOC_SERVER_PRESSURE_IDLE seconds (or server_idle_timeout if
+ * that is shorter), up to RPC_C_ASSOC_SERVER_PRESSURE_BATCH per run, and
+ * aborts them RPC_C_ASSOC_SERVER_PRESSURE_GRACE seconds after the
+ * shutdown request (see rpc__cn_assoc_reclaim_pressure).
+ */
+#define RPC_C_ASSOC_SERVER_PRESSURE_IDLE        5
+#define RPC_C_ASSOC_SERVER_PRESSURE_BATCH       100
+#define RPC_C_ASSOC_SERVER_PRESSURE_GRACE       5
 
 INTERNAL unsigned32             server_idle_timeout =
                                     RPC_C_ASSOC_SERVER_IDLE_TIMEOUT;
@@ -729,8 +749,9 @@ unsigned32              *st;
                                 rem_grp_id,
                                 binding_r->common.auth_info,
                                 syntax, 
-                                context_id, 
+                                context_id,
                                 sec,
+                                binding_r->common.timeout,
                                 st);
 
             /*
@@ -1712,26 +1733,29 @@ rpc_cn_assoc_p_t        assoc;
 /*
 **++
 **
-**  ROUTINE NAME:       rpc__cn_assoc_receive_frag
+**  ROUTINE NAME:       rpc__cn_assoc_receive_frag_until
 **
-**  SCOPE:              PRIVATE - declared in cnassoc.h
+**  SCOPE:              INTERNAL - declared locally
 **
 **  DESCRIPTION:
-**      
-**  This routine will receive a fragment over the connection
-**  attached to an association.
 **
-**  INPUTS:             
+**  This routine will receive a fragment over the connection
+**  attached to an association, waiting at most until a given time.
+**
+**  INPUTS:
 **
 **      assoc           The association to receive from.
 **      fragbuf         The place to put the received fragment.
+**      abstime         The time up to which to wait, NULL to wait
+**                      without a time limit.
 **
 **  INPUTS/OUTPUTS:     none
 **
-**  OUTPUTS:            
+**  OUTPUTS:
 **
 **      st              The return status of this routine.
 **                      rpc_s_ok
+**                      rpc_s_connect_timed_out
 **
 **  IMPLICIT INPUTS:    none
 **
@@ -1746,25 +1770,28 @@ rpc_cn_assoc_p_t        assoc;
 **--
 **/
 
-PRIVATE void rpc__cn_assoc_receive_frag 
+INTERNAL void rpc__cn_assoc_receive_frag_until
 #ifdef _DCE_PROTO_
 (
   rpc_cn_assoc_p_t        assoc,
   rpc_cn_fragbuf_p_t      *fragbuf,
+  struct timespec         *abstime,
   unsigned32              *st
 )
 #else
-(assoc, fragbuf, st)
+(assoc, fragbuf, abstime, st)
 rpc_cn_assoc_p_t        assoc;
 rpc_cn_fragbuf_p_t      *fragbuf;
+struct timespec         *abstime;
 unsigned32              *st;
 #endif
 {
     volatile boolean32  retry_op;
     rpc_cn_call_rep_p_t call_rep;
+    struct timespec     zero_delta, curtime;
 
     RPC_LOG_CN_ASSOC_RECV_FRAG_NTR;
-    RPC_CN_DBG_RTN_PRINTF(rpc__cn_assoc_receive_frag);
+    RPC_CN_DBG_RTN_PRINTF(rpc__cn_assoc_receive_frag_until);
     CODING_ERROR(st);
     
     /*
@@ -1788,8 +1815,17 @@ unsigned32              *st;
         TRY
         RPC_LOG_TRY_POST;
         {
-            RPC_COND_WAIT (assoc->assoc_msg_cond,
-                           rpc_g_global_mutex);
+            if (abstime == NULL)
+            {
+                RPC_COND_WAIT (assoc->assoc_msg_cond,
+                               rpc_g_global_mutex);
+            }
+            else
+            {
+                RPC_COND_TIMED_WAIT (assoc->assoc_msg_cond,
+                                     rpc_g_global_mutex,
+                                     abstime);
+            }
         }
         RPC_LOG_CATCH_PRE;
         CATCH (pthread_cancel_e)
@@ -1836,22 +1872,99 @@ unsigned32              *st;
          * If a cancel was caught and the operation should not be
          * retried just return now. The error status is already set up.
          */
-        if (!retry_op) 
+        if (!retry_op)
         {
             return;
         }
+
+        /*
+         * Give up if nothing arrived up to the given time.
+         */
+        if ((abstime != NULL)
+            &&
+            (assoc->assoc_status == rpc_s_ok)
+            &&
+            (RPC_LIST_EMPTY (assoc->msg_list)))
+        {
+            zero_delta.tv_sec = 0;
+            zero_delta.tv_nsec = 0;
+            pthd4_get_expiration_np (&zero_delta, &curtime);
+            if ((curtime.tv_sec > abstime->tv_sec)
+                ||
+                ((curtime.tv_sec == abstime->tv_sec)
+                 &&
+                 (curtime.tv_nsec >= abstime->tv_nsec)))
+            {
+                *st = rpc_s_connect_timed_out;
+                return;
+            }
+        }
     }
-    
+
     /*
      * Remove a fragment from the queue.
      */
-    RPC_LIST_REMOVE_HEAD (assoc->msg_list, 
-                          *fragbuf, 
+    RPC_LIST_REMOVE_HEAD (assoc->msg_list,
+                          *fragbuf,
                           rpc_cn_fragbuf_p_t);
 
-    
+
     *st = assoc->assoc_status;
     RPC_LOG_CN_ASSOC_RECV_FRAG_XIT;
+}
+
+
+/******************************************************************************/
+/*
+**++
+**
+**  ROUTINE NAME:       rpc__cn_assoc_receive_frag
+**
+**  SCOPE:              PRIVATE - declared in cnassoc.h
+**
+**  DESCRIPTION:
+**
+**  This routine will receive a fragment over the connection
+**  attached to an association (see rpc__cn_assoc_receive_frag_until).
+**
+**  INPUTS:
+**
+**      assoc           The association to receive from.
+**      fragbuf         The place to put the received fragment.
+**
+**  INPUTS/OUTPUTS:     none
+**
+**  OUTPUTS:
+**
+**      st              The return status of this routine.
+**                      rpc_s_ok
+**
+**  IMPLICIT INPUTS:    none
+**
+**  IMPLICIT OUTPUTS:   none
+**
+**  FUNCTION VALUE:     none
+**
+**  SIDE EFFECTS:       none
+**
+**--
+**/
+
+PRIVATE void rpc__cn_assoc_receive_frag
+#ifdef _DCE_PROTO_
+(
+  rpc_cn_assoc_p_t        assoc,
+  rpc_cn_fragbuf_p_t      *fragbuf,
+  unsigned32              *st
+)
+#else
+(assoc, fragbuf, st)
+rpc_cn_assoc_p_t        assoc;
+rpc_cn_fragbuf_p_t      *fragbuf;
+unsigned32              *st;
+#endif
+{
+    rpc__cn_assoc_receive_frag_until (assoc, fragbuf, NULL, st);
 }
 
 
@@ -3321,10 +3434,11 @@ INTERNAL void rpc__cn_assoc_open
   rpc_transfer_syntax_t   *syntax,
   unsigned16              *context_id,
   rpc_cn_sec_context_p_t  *sec,
+  unsigned32              timeout,
   unsigned32              *st
 )
 #else
-(assoc, rpc_addr, if_r, grp_id, info, syntax, context_id, sec, st)
+(assoc, rpc_addr, if_r, grp_id, info, syntax, context_id, sec, timeout, st)
 rpc_cn_assoc_p_t        assoc;
 rpc_addr_p_t            rpc_addr;
 rpc_if_rep_p_t          if_r;
@@ -3333,6 +3447,7 @@ rpc_auth_info_p_t       info;
 rpc_transfer_syntax_t   *syntax;
 unsigned16              *context_id;
 rpc_cn_sec_context_p_t  *sec;
+unsigned32              timeout;
 unsigned32              *st;
 #endif
 {
@@ -3340,6 +3455,9 @@ unsigned32              *st;
     rpc_cn_sec_context_t        *sec_context;
     rpc_cn_fragbuf_t            *fragbuf;
     rpc_cn_assoc_sm_work_t      assoc_sm_work;
+    struct timespec             delta, abstime;
+    struct timespec             *bind_deadline;
+    unsigned32                  abort_st;
 
     RPC_CN_DBG_RTN_PRINTF(rpc__cn_assoc_open);
     CODING_ERROR (st);
@@ -3456,12 +3574,35 @@ unsigned32              *st;
     /*
      * Wait for both presentation and optional security context
      * negotiations to complete either successfully or with an error.
+     * Unless the binding timeout is infinite, wait no longer than the
+     * time the association request would spend on retries (e.g. a
+     * server out of descriptors leaves the connection in its backlog
+     * and never answers the bind).
      */
-    while (!(pres_context->syntax_valid) 
+    if (timeout == rpc_c_binding_infinite_timeout)
+    {
+        bind_deadline = NULL;
+    }
+    else
+    {
+        delta.tv_sec = MAX (MIN (timeout * 6, RPC_C_ASSOC_MAX_RESOURCE_WAIT),
+                            RPC_C_ASSOC_MIN_BIND_WAIT);
+        delta.tv_nsec = 0;
+        pthd4_get_expiration_np (&delta, &abstime);
+        bind_deadline = &abstime;
+    }
+    while (!(pres_context->syntax_valid)
            ||
            (RPC_CN_AUTH_REQUIRED (info) && (!sec_context->sec_valid)))
     {
-        rpc__cn_assoc_receive_frag (assoc, &fragbuf, st);
+        rpc__cn_assoc_receive_frag_until (assoc, &fragbuf, bind_deadline, st);
+        if (*st == rpc_s_connect_timed_out)
+        {
+            RPC_DBG_PRINTF (rpc_e_dbg_general, RPC_C_CN_DBG_ERRORS,
+                            ("(rpc__cn_assoc_open) assoc->%x no answer to the bind in time\n",
+                             assoc));
+            rpc__cn_assoc_abort (assoc, &abort_st);
+        }
         if (*st != rpc_s_ok)
         {
             return;
@@ -4176,7 +4317,7 @@ pointer_t       type;
     RPC_CN_LOCK ();
     if ((unsigned long) type == RPC_C_CN_ASSOC_GRP_SERVER)
     {
-        rpc__cn_assoc_reclaim_idle ();
+        rpc__cn_assoc_reclaim_idle (false);
     }
     else
     {
@@ -4391,9 +4532,12 @@ boolean32		loop;
 **  shutdown request on server associations which have been idle for
 **  server_idle_timeout seconds and aborts those which are still idle
 **  RPC_C_ASSOC_SERVER_IDLE_GRACE seconds after the shutdown request
-**  (see RPC_C_ASSOC_SERVER_IDLE_TIMEOUT).
+**  (see RPC_C_ASSOC_SERVER_IDLE_TIMEOUT). Under pressure, it uses the
+**  shorter times of RPC_C_ASSOC_SERVER_PRESSURE_IDLE.
 **
-**  INPUTS:             none
+**  INPUTS:
+**
+**      pressure        True if accept ran out of descriptors.
 **
 **  INPUTS/OUTPUTS:     none
 **
@@ -4410,12 +4554,23 @@ boolean32		loop;
 **--
 **/
 
-INTERNAL void rpc__cn_assoc_reclaim_idle (void)
+INTERNAL void rpc__cn_assoc_reclaim_idle
+#ifdef _DCE_PROTO_
+(
+  boolean32               pressure
+)
+#else
+(pressure)
+boolean32               pressure;
+#endif
 {
     unsigned32          i;
     unsigned32          shutdowns;
     unsigned32          pending;
     unsigned32          allowed;
+    unsigned32          idle_time;
+    unsigned32          batch;
+    unsigned32          grace;
     rpc_cn_assoc_grp_t  *assoc_grp;
     rpc_cn_assoc_t      *assoc;
     rpc_cn_assoc_t      *next_assoc;
@@ -4427,6 +4582,20 @@ INTERNAL void rpc__cn_assoc_reclaim_idle (void)
         || rpc_g_cn_assoc_grp_tbl.grp_active_count == 0)
     {
         return;
+    }
+
+    if (pressure)
+    {
+        idle_time = MIN (server_idle_timeout,
+                         RPC_C_ASSOC_SERVER_PRESSURE_IDLE);
+        batch = RPC_C_ASSOC_SERVER_PRESSURE_BATCH;
+        grace = RPC_C_ASSOC_SERVER_PRESSURE_GRACE;
+    }
+    else
+    {
+        idle_time = server_idle_timeout;
+        batch = RPC_C_ASSOC_SERVER_IDLE_BATCH;
+        grace = RPC_C_ASSOC_SERVER_IDLE_GRACE;
     }
 
     shutdowns = 0;
@@ -4488,7 +4657,7 @@ INTERNAL void rpc__cn_assoc_reclaim_idle (void)
                 if (assoc->assoc_shutdown_time != 0)
                 {
                     if (rpc__clock_aged (assoc->assoc_shutdown_time,
-                            RPC_CLOCK_SEC (RPC_C_ASSOC_SERVER_IDLE_GRACE)))
+                                         RPC_CLOCK_SEC (grace)))
                     {
                         /*
                          * The client neither closed nor used the
@@ -4501,10 +4670,10 @@ INTERNAL void rpc__cn_assoc_reclaim_idle (void)
                 }
                 else if (allowed > 0
                          &&
-                         shutdowns < RPC_C_ASSOC_SERVER_IDLE_BATCH
+                         shutdowns < batch
                          &&
                          rpc__clock_aged (assoc->assoc_last_activity,
-                             RPC_CLOCK_SEC (server_idle_timeout)))
+                                          RPC_CLOCK_SEC (idle_time)))
                 {
                     RPC_CN_ASSOC_ACB_INC_REF (assoc);
                     RPC_CN_ASSOC_EVAL_USER_EVENT (assoc,
@@ -4520,6 +4689,53 @@ INTERNAL void rpc__cn_assoc_reclaim_idle (void)
             assoc = next_assoc;
         }
     }
+}
+
+
+/******************************************************************************/
+/*
+**++
+**
+**  ROUTINE NAME:       rpc__cn_assoc_reclaim_pressure
+**
+**  SCOPE:              PRIVATE - declared in cnassoc.h
+**
+**  DESCRIPTION:
+**
+**  This routine is called when a server could not accept a
+**  connection for lack of descriptors or memory. It reclaims idle
+**  server associations at once, at most once a second (the listener
+**  tries to accept again every 100 ms). The caller holds the CN lock.
+**
+**  INPUTS:             none
+**
+**  INPUTS/OUTPUTS:     none
+**
+**  OUTPUTS:            none
+**
+**  IMPLICIT INPUTS:    none
+**
+**  IMPLICIT OUTPUTS:   none
+**
+**  FUNCTION VALUE:     none
+**
+**  SIDE EFFECTS:       none
+**
+**--
+**/
+
+PRIVATE void rpc__cn_assoc_reclaim_pressure (void)
+{
+    static rpc_clock_t  last_run = 0;
+
+    RPC_CN_DBG_RTN_PRINTF(rpc__cn_assoc_reclaim_pressure);
+
+    if (last_run != 0 && !rpc__clock_aged (last_run, RPC_CLOCK_SEC (1)))
+    {
+        return;
+    }
+    last_run = rpc__clock_stamp ();
+    rpc__cn_assoc_reclaim_idle (true);
 }
 
 

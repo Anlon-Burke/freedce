@@ -94,7 +94,14 @@ RPC_CN_SERVER_IDLE_TIMEOUT: the idle time in seconds after which a server
 asks a client to close its connection (default 120, 0 = never).  A
 connection that the client neither closes nor uses in the 30 seconds after
 that is closed by the server.  The last connection of a client that holds
-context handles is kept.
+context handles is kept.  When accept runs out of descriptors, the server
+reclaims connections idle for 5 seconds at once (shutdown request, closed
+after 5 seconds).
+
+Bind timeout: a client gives up waiting for the answer to its bind after
+6 times the com timeout of the binding (rpc_mgmt_set_com_timeout; 30
+seconds by default, at least 5 seconds, no limit with
+rpc_c_binding_infinite_timeout) with rpc_s_connect_timed_out.
 
 TCP keepalive: servers and clients set SO_KEEPALIVE on their connections;
 the kernel settings net.ipv4.tcp_keepalive_time/intvl/probes decide how
