@@ -296,7 +296,7 @@ static void rpc_ss_ndr_unmar_union_body
         case IDL_DT_FULL_PTR:
             /* Unmarshall the node number into the space for the pointer */
             rpc_ss_ndr_unmar_scalar(IDL_DT_ULONG, &node_number, IDL_msp);
-            *(rpc_void_p_t *)body_addr = (rpc_void_p_t)node_number;
+            *(rpc_void_p_t *)body_addr = (rpc_void_p_t)(size_t)node_number;
             break;
         case IDL_DT_STRING:
             IDL_DISCARD_LONG_FROM_VECTOR(arm_type_ptr);
@@ -414,7 +414,7 @@ static void rpc_ss_ndr_unmar_union_ptees
         case IDL_DT_FULL_PTR:
             IDL_GET_LONG_FROM_VECTOR(defn_index, arm_type_ptr);
                                                  /* Will skip properties byte */
-            node_number = (idl_ulong_int)(*(rpc_void_p_t *)body_addr);
+            node_number = (idl_ulong_int)(size_t)(*(rpc_void_p_t *)body_addr);
             if (node_number != 0)
             {
                 pointee_defn_ptr = IDL_msp->IDL_type_vec + defn_index;

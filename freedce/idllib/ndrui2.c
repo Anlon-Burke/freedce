@@ -84,7 +84,7 @@ static void rpc_ss_ndr_unmar_ptr_ptee
         case IDL_DT_FULL_PTR:
             /* Unmarshall the node number */
             IDL_UNMAR_ULONG( &node_number );
-            *(rpc_void_p_t *)p_node = (rpc_void_p_t)node_number;
+            *(rpc_void_p_t *)p_node = (rpc_void_p_t)(size_t)node_number;
             defn_vec_ptr++;
             pointee_desc.dimensionality = 0;
             rpc_ss_ndr_unmar_pointee_desc( pointee_type, defn_vec_ptr,
@@ -183,7 +183,7 @@ void rpc_ss_ndr_unmar_pointee
     if ( (pointer_type == IDL_DT_FULL_PTR) 
             || (pointer_type == IDL_DT_UNIQUE_PTR) )
     {
-        node_number = (idl_ulong_int)*p_pointer;
+        node_number = (idl_ulong_int)(size_t)*p_pointer;
         if (node_number == 0)
         {
             /* Pointee of a null [ptr] or [unique] pointer */

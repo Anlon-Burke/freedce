@@ -438,7 +438,7 @@ void rpc_ss_ndr_unmar_struct
                 offset_vec_ptr++;
                 IDL_UNMAR_ULONG( &node_number );
                 *(rpc_void_p_t *)((idl_byte *)struct_addr+offset)
-                                                    = (rpc_void_p_t)node_number;
+                                                    = (rpc_void_p_t)(size_t)node_number;
                 IDL_DISCARD_LONG_FROM_VECTOR( defn_vec_ptr );
                                         /* Indirection to pointee type */
                 break;
@@ -813,7 +813,7 @@ void rpc_ss_ndr_unmar_by_looping
             case IDL_DT_FULL_PTR:
                 /* Unmarshall the node number into the space for the pointer */
                 IDL_UNMAR_ULONG( &node_number );
-                *(rpc_void_p_t *)(array_addr) = (rpc_void_p_t)node_number;
+                *(rpc_void_p_t *)(array_addr) = (rpc_void_p_t)(size_t)node_number;
                 array_addr = (rpc_void_p_t)((rpc_void_p_t *)(array_addr) + 1);
                 break;
             case IDL_DT_UNIQUE_PTR:
@@ -1998,7 +1998,7 @@ void rpc_ss_ndr_unmar_interp
                     /* Unmarshall the node number */
                     IDL_UNMAR_ULONG( &node_number );
                     *(rpc_void_p_t *)(IDL_param_vector[param_index])
-                                                    = (rpc_void_p_t)node_number;
+                                                    = (rpc_void_p_t)(size_t)node_number;
                     if (node_number != 0)
                     {
                         pointee_defn_ptr = IDL_msp->IDL_type_vec+defn_index;
