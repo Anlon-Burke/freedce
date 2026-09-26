@@ -93,6 +93,8 @@ test-driver
 /freedce/demos/echo_server/echo.h
 /freedce/demos/ntsec/ntsec.h
 /freedce/demos/samr/samr.h
+/freedce/demos/lsa/lsarpc.h
+/freedce/rpcd/dsm.h
 /freedce/perf/perf.h
 /freedce/perf/perfb.h
 /freedce/perf/perfc.h
