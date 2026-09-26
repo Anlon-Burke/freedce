@@ -38,6 +38,7 @@ stamp-h
 stamp-h1
 test-driver
 *~
+*.stamp
 
 # Files that configure writes from their .in templates
 /freedce/config.mk

@@ -52,7 +52,8 @@ all-local: $(IDLHEADERS)
 
 noinst_HEADERS=lsarpc.idl lsarpc.acf
 
-CLEANFILES=lsa.h lsa_sstub.o lsa_cstub.o lsa_sstub.c lsa_cstub.c
+BUILT_SOURCES=lsarpc.h
+CLEANFILES=lsa.h lsa_sstub.o lsa_cstub.o lsa_sstub.c lsa_cstub.c lsarpc.stamp
 
 libs=-L/opt/dce/lib -ldcerpc -luuid -lstdc++
 
@@ -64,7 +65,15 @@ liblsarpc_la_LDFLAGS = -version-info $(LT_VERSION)
 #lsa_server.c: lsarpc.h
 #lsarpc.h lsa_sstub.o lsa_cstub.o: lsarpc.idl
 
-lsarpc.h lsarpc_cstub.c lsarpc_cstub.lo: lsarpc.idl lsarpc.acf
+# One dceidl run creates the header and the stub; the stamp makes it run
+# only once, also with "make -j" (see "Multiple Outputs" in the automake
+# manual).
+lsarpc.stamp: lsarpc.idl lsarpc.acf
+	@rm -f lsarpc.tmp; touch lsarpc.tmp
 	$(IDL) $(IDL_FLAGS) $(top_srcdir)/demos/lsa/lsarpc.idl
+	@mv -f lsarpc.tmp $@
+lsarpc.h lsarpc_cstub.c lsarpc_cstub.lo: lsarpc.stamp
+	@test -f $@ || rm -f lsarpc.stamp
+	@test -f $@ || $(MAKE) $(AM_MAKEFLAGS) lsarpc.stamp
 
 

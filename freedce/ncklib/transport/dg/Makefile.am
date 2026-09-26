@@ -22,8 +22,15 @@ libprot_ncadg_la_LIBADD=$(idlobjs)
 conv_cstub.lo:	$(IDL_INCLUDE_DIR)/conv.idl
 	$(IDL) $(NCK_IDLFLAGS) -cepv -server none $<
 
-convc_cstub.lo convc_sstub.lo convc_cstub.c convc_sstub.c: $(IDL_INCLUDE_DIR)/convc.idl
-	$(IDL) $(NCK_IDLFLAGS) -cepv $<
+# One dceidl run creates both stubs; the stamp makes it run only once, also
+# with "make -j" (see "Multiple Outputs" in the automake manual).
+convc.stamp: $(IDL_INCLUDE_DIR)/convc.idl
+	@rm -f convc.tmp; touch convc.tmp
+	$(IDL) $(NCK_IDLFLAGS) -cepv $(IDL_INCLUDE_DIR)/convc.idl
+	@mv -f convc.tmp $@
+convc_cstub.lo convc_sstub.lo convc_cstub.c convc_sstub.c: convc.stamp
+	@test -f $@ || rm -f convc.stamp
+	@test -f $@ || $(MAKE) $(AM_MAKEFLAGS) convc.stamp
 
-CLEANFILES=conv.h convc.h
+CLEANFILES=conv.h convc.h convc.stamp
 endif

@@ -20,9 +20,18 @@ libnck_la_SOURCES=comfork.c ndrglob.c mgmt.c
 
 libnck_la_LIBADD=com/libcom.la rpc/librpc.la transport/libtrans.la $(idlobjs)
 
-mgmt_cstub.lo mgmt_sstub.lo: $(IDL_INCLUDE_DIR)/mgmt.idl
-	$(IDL) $(NCK_IDLFLAGS) -cepv $<
+# One dceidl run creates both stubs; the stamp makes it run only once, also
+# with "make -j" (see "Multiple Outputs" in the automake manual).
+mgmt.stamp: $(IDL_INCLUDE_DIR)/mgmt.idl
+	@rm -f mgmt.tmp; touch mgmt.tmp
+	$(IDL) $(NCK_IDLFLAGS) -cepv $(IDL_INCLUDE_DIR)/mgmt.idl
 	@rm -f mgmt.h
+	@mv -f mgmt.tmp $@
+mgmt_cstub.lo mgmt_sstub.lo: mgmt.stamp
+	@test -f $@ || rm -f mgmt.stamp
+	@test -f $@ || $(MAKE) $(AM_MAKEFLAGS) mgmt.stamp
+
+CLEANFILES=mgmt.stamp
 
 
 #libnck.la:	mgmt_cstub.lo mgmt_sstub.lo
