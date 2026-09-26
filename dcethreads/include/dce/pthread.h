@@ -56,6 +56,7 @@
 #include </usr/i586-mingw32msvc/include/pthread.h>    /* Import platform win32 threads*/
 #else
 #include </usr/include/pthread.h>          /* Import platform LinuxThreads */
+#include <signal.h>                        /* sigset_t for pthd4_signal_to_cancel_np */
 #endif
 
 /* Enable Draft 4 POSIX Threads API compatibility */
