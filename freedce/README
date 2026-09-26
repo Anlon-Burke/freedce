@@ -87,6 +87,19 @@ The UUID functions (uuid_create etc.) are part of libdcerpc; do not link
 util-linux libuuid itself must call it from a separate shared library: both
 libraries define uuid_compare, with different arguments.
 
+Runtime settings (ncacn_ip_tcp)
+-------------------------------
+
+RPC_CN_SERVER_IDLE_TIMEOUT: the idle time in seconds after which a server
+asks a client to close its connection (default 120, 0 = never).  A
+connection that the client neither closes nor uses in the 30 seconds after
+that is closed by the server.  The last connection of a client that holds
+context handles is kept.
+
+TCP keepalive: servers and clients set SO_KEEPALIVE on their connections;
+the kernel settings net.ipv4.tcp_keepalive_time/intvl/probes decide how
+fast a vanished peer is detected (default: after about 2 hours).
+
 ----------------------
 
 Maintainers:

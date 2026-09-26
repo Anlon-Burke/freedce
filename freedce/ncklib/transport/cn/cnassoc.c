@@ -141,6 +141,12 @@ INTERNAL void rpc__cn_assoc_reclaim _DCE_PROTOTYPE_ ((
     boolean32			 /*loop*/));
 
 /*
+ * R P C _ _ C N _ A S S O C _ R E C L A I M _ I D L E
+ */
+
+INTERNAL void rpc__cn_assoc_reclaim_idle _DCE_PROTOTYPE_ ((void));
+
+/*
  * R P C _ _ C N _ A S S O C _ T I M E R _ R E C L A I M
  */
 
@@ -235,6 +241,24 @@ INTERNAL rpc_cn_syntax_t *rpc__cn_assoc_syntax_alloc _DCE_PROTOTYPE_ ((
  * architecture spec. 
  */
 #define RPC_C_ASSOC_SERVER_DISC_TIMER           10
+
+/*
+ * Idle connections of a server. The reclaim timer sends a shutdown
+ * request on a connection that has been idle for server_idle_timeout
+ * seconds (environment variable RPC_CN_SERVER_IDLE_TIMEOUT, 0 = never),
+ * to at most RPC_C_ASSOC_SERVER_IDLE_BATCH connections per timer run, so
+ * that clients coming back do not all reconnect at once. If the client
+ * has neither closed nor used the connection RPC_C_ASSOC_SERVER_IDLE_GRACE
+ * seconds later, the connection is aborted: clients of the Microsoft RPC
+ * runtime do not close a connection on a shutdown request. The last
+ * connection of a group that holds context handles is never reclaimed.
+ */
+#define RPC_C_ASSOC_SERVER_IDLE_TIMEOUT         120
+#define RPC_C_ASSOC_SERVER_IDLE_BATCH           50
+#define RPC_C_ASSOC_SERVER_IDLE_GRACE           30
+
+INTERNAL unsigned32             server_idle_timeout =
+                                    RPC_C_ASSOC_SERVER_IDLE_TIMEOUT;
 
 /*
  * The initial amount of time in seconds to wait before retrying an
@@ -4150,7 +4174,14 @@ pointer_t       type;
      */
     RPC_CN_LOCAL_ID_CLEAR (grp_id);
     RPC_CN_LOCK ();
-    rpc__cn_assoc_reclaim (grp_id, (unsigned long) type, false);
+    if ((unsigned long) type == RPC_C_CN_ASSOC_GRP_SERVER)
+    {
+        rpc__cn_assoc_reclaim_idle ();
+    }
+    else
+    {
+        rpc__cn_assoc_reclaim (grp_id, (unsigned long) type, false);
+    }
     RPC_CN_UNLOCK ();
 }
 
@@ -4345,6 +4376,152 @@ boolean32		loop;
     }
 }
 
+
+/******************************************************************************/
+/*
+**++
+**
+**  ROUTINE NAME:       rpc__cn_assoc_reclaim_idle
+**
+**  SCOPE:              INTERNAL - declared locally
+**
+**  DESCRIPTION:
+**
+**  This routine is called by the server reclaim timer. It sends a
+**  shutdown request on server associations which have been idle for
+**  server_idle_timeout seconds and aborts those which are still idle
+**  RPC_C_ASSOC_SERVER_IDLE_GRACE seconds after the shutdown request
+**  (see RPC_C_ASSOC_SERVER_IDLE_TIMEOUT).
+**
+**  INPUTS:             none
+**
+**  INPUTS/OUTPUTS:     none
+**
+**  OUTPUTS:            none
+**
+**  IMPLICIT INPUTS:    none
+**
+**  IMPLICIT OUTPUTS:   none
+**
+**  FUNCTION VALUE:     none
+**
+**  SIDE EFFECTS:       none
+**
+**--
+**/
+
+INTERNAL void rpc__cn_assoc_reclaim_idle (void)
+{
+    unsigned32          i;
+    unsigned32          shutdowns;
+    unsigned32          pending;
+    unsigned32          allowed;
+    rpc_cn_assoc_grp_t  *assoc_grp;
+    rpc_cn_assoc_t      *assoc;
+    rpc_cn_assoc_t      *next_assoc;
+    unsigned32          st;
+
+    RPC_CN_DBG_RTN_PRINTF(rpc__cn_assoc_reclaim_idle);
+
+    if (server_idle_timeout == 0
+        || rpc_g_cn_assoc_grp_tbl.grp_active_count == 0)
+    {
+        return;
+    }
+
+    shutdowns = 0;
+    for (i = 0; i < rpc_g_cn_assoc_grp_tbl.grp_count; i++)
+    {
+        assoc_grp = &rpc_g_cn_assoc_grp_tbl.assoc_grp_vector[i];
+        if (!(assoc_grp->grp_flags & RPC_C_CN_ASSOC_GRP_SERVER)
+            ||
+            assoc_grp->grp_state.cur_state != RPC_C_ASSOC_GRP_ACTIVE)
+        {
+            continue;
+        }
+
+        /*
+         * A group which holds context handles keeps one association:
+         * count the associations which got a shutdown request already
+         * and send new ones only to the others but one.
+         */
+        pending = 0;
+        RPC_LIST_FIRST (assoc_grp->grp_assoc_list, assoc, rpc_cn_assoc_p_t);
+        while (assoc != NULL)
+        {
+            if (assoc->assoc_shutdown_time != 0)
+            {
+                pending++;
+            }
+            RPC_LIST_NEXT (assoc, assoc, rpc_cn_assoc_p_t);
+        }
+        if (assoc_grp->grp_refcnt == 0)
+        {
+            allowed = assoc_grp->grp_cur_assoc;
+        }
+        else if (assoc_grp->grp_cur_assoc > pending + 1)
+        {
+            allowed = assoc_grp->grp_cur_assoc - pending - 1;
+        }
+        else
+        {
+            allowed = 0;
+        }
+
+        RPC_LIST_FIRST (assoc_grp->grp_assoc_list, assoc, rpc_cn_assoc_p_t);
+        while (assoc != NULL)
+        {
+            RPC_LIST_NEXT (assoc, next_assoc, rpc_cn_assoc_p_t);
+            if (assoc->assoc_ref_count == 0)
+            {
+                if (assoc->assoc_shutdown_time != 0
+                    &&
+                    (signed32) (assoc->assoc_last_activity
+                                - assoc->assoc_shutdown_time) > 0)
+                {
+                    /*
+                     * The client used the association again after the
+                     * shutdown request.
+                     */
+                    assoc->assoc_shutdown_time = 0;
+                }
+                if (assoc->assoc_shutdown_time != 0)
+                {
+                    if (rpc__clock_aged (assoc->assoc_shutdown_time,
+                            RPC_CLOCK_SEC (RPC_C_ASSOC_SERVER_IDLE_GRACE)))
+                    {
+                        /*
+                         * The client neither closed nor used the
+                         * association after the shutdown request.
+                         */
+                        RPC_CN_ASSOC_ACB_INC_REF (assoc);
+                        rpc__cn_assoc_abort (assoc, &st);
+                        rpc__cn_assoc_acb_dealloc (assoc);
+                    }
+                }
+                else if (allowed > 0
+                         &&
+                         shutdowns < RPC_C_ASSOC_SERVER_IDLE_BATCH
+                         &&
+                         rpc__clock_aged (assoc->assoc_last_activity,
+                             RPC_CLOCK_SEC (server_idle_timeout)))
+                {
+                    RPC_CN_ASSOC_ACB_INC_REF (assoc);
+                    RPC_CN_ASSOC_EVAL_USER_EVENT (assoc,
+                                                  RPC_C_ASSOC_SHUTDOWN_REQ,
+                                                  NULL,
+                                                  st);
+                    assoc->assoc_shutdown_time = rpc__clock_stamp ();
+                    rpc__cn_assoc_acb_dealloc (assoc);
+                    allowed--;
+                    shutdowns++;
+                }
+            }
+            assoc = next_assoc;
+        }
+    }
+}
+
 
 /***********************************************************************/
 /*
@@ -4448,6 +4625,8 @@ unsigned32      *st;
 			 rpc_c_cn_svr_assoc );
     }
     assoc->assoc_flags |= type;
+    assoc->assoc_last_activity = rpc__clock_stamp ();
+    assoc->assoc_shutdown_time = 0;
 
     /*
      * We use our version number until we negotiate different.
@@ -5942,6 +6121,20 @@ PRIVATE void rpc__cn_assoc_grp_tbl_init (void)
      * Init the association group vector to NULL.
      */
     rpc_g_cn_assoc_grp_tbl.assoc_grp_vector = NULL;
+
+    /*
+     * The idle time after which a server closes a connection (see
+     * RPC_C_ASSOC_SERVER_IDLE_TIMEOUT).
+     */
+    {
+        char    *env;
+
+        env = getenv ("RPC_CN_SERVER_IDLE_TIMEOUT");
+        if (env != NULL && *env != '\0')
+        {
+            server_idle_timeout = (unsigned32) strtoul (env, NULL, 10);
+        }
+    }
 
     /*
      * Start the client and server reclaimation timers with the

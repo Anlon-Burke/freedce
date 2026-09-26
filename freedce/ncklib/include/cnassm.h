@@ -134,9 +134,9 @@
  *
  * This macro will be called by the network receiver thread when an
  * association network event is detected. The "scanned" bit in
- * the association is turned off. This bit is used in finding
- * associations to reclaim. The fragbuf is freed if provided as an
- * event parameter. 
+ * the association is turned off and its activity time stamp is set.
+ * Both are used in finding associations to reclaim. The fragbuf is
+ * freed if provided as an event parameter.
  */
 #define RPC_CN_ASSOC_EVAL_NETWORK_EVENT(assoc, event_id, fragbuf, st)\
 {\
@@ -146,6 +146,7 @@
                                 (pointer_t) (assoc),\
                                 &((assoc)->assoc_state));\
     assoc->assoc_flags &= ~RPC_C_CN_ASSOC_SCANNED;\
+    assoc->assoc_last_activity = rpc__clock_stamp ();\
     if ((fragbuf) != NULL)\
     {\
         (*(fragbuf)->fragbuf_dealloc)((fragbuf));\
@@ -160,7 +161,8 @@
  *
  * This macro will be called when user level events are detected. If
  * the association status is bad then don't evaluate the user event.
- * The "scanned" bit in the association is turned off. 
+ * The "scanned" bit in the association is turned off and its activity
+ * time stamp is set.
  */
 #define RPC_CN_ASSOC_EVAL_USER_EVENT(assoc, event_id, event_param, st)\
 {\
@@ -173,6 +175,7 @@
                                     (pointer_t) (assoc),\
                                     &((assoc)->assoc_state));\
         assoc->assoc_flags &= ~RPC_C_CN_ASSOC_SCANNED;\
+        assoc->assoc_last_activity = rpc__clock_stamp ();\
     }\
     RPC_CN_ASSOC_SM_TRC_STATE (assoc); \
 }

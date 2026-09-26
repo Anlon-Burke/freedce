@@ -605,6 +605,8 @@ typedef struct rpc_cn_assoc_s_t
     unsigned16                          assoc_acb_ref_count;
 #define RPC_C_CN_ASSOC_SERVER_MAX_SHUTDOWN_REQ_COUNT 2
     unsigned16                          assoc_shutdown_req_count;
+    rpc_clock_t                         assoc_last_activity;    /* last event */
+    rpc_clock_t                         assoc_shutdown_time;    /* idle shutdown sent */
 
     rpc_cn_local_id_t                   assoc_grp_id;
     unsigned16                          assoc_msg_waiters;
