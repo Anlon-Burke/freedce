@@ -5037,7 +5037,7 @@ unsigned32              *st;
             first_frag = false;
         }
 
-        memset(auth_tlr->auth_value, auth_len, 0);
+        memset(auth_tlr->auth_value, 0, auth_len);
 
         RPC_CN_AUTH_FMT_CLIENT_REQ (&assoc->security, 
                                     sec_context,
