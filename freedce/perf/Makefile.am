@@ -33,7 +33,7 @@ CLEANFILES=perf.h perfb.h perfc.h perfg.h server client \
 # (see "Multiple Outputs" in the automake manual).
 perf.stamp: perf.idl perf.acf
 	@rm -f perf.tmp; touch perf.tmp
-	$(IDL) $(IDLCC) perf.idl
+	$(IDL) $(IDLCC) $(srcdir)/perf.idl
 	@mv -f perf.tmp $@
 perf_cstub.o perf_sstub.o perf.h: perf.stamp
 	@test -f $@ || rm -f perf.stamp
@@ -41,7 +41,7 @@ perf_cstub.o perf_sstub.o perf.h: perf.stamp
 
 perfb.stamp: perfb.idl
 	@rm -f perfb.tmp; touch perfb.tmp
-	$(IDL) $(IDLCC) perfb.idl
+	$(IDL) $(IDLCC) $(srcdir)/perfb.idl
 	@mv -f perfb.tmp $@
 perfb_cstub.o perfb_sstub.o perfb.h: perfb.stamp
 	@test -f $@ || rm -f perfb.stamp
@@ -49,7 +49,7 @@ perfb_cstub.o perfb_sstub.o perfb.h: perfb.stamp
 
 perfc.stamp: perfc.idl
 	@rm -f perfc.tmp; touch perfc.tmp
-	$(IDL) $(IDLCC) perfc.idl
+	$(IDL) $(IDLCC) $(srcdir)/perfc.idl
 	@mv -f perfc.tmp $@
 perfc_cstub.o perfc_sstub.o perfc.h: perfc.stamp
 	@test -f $@ || rm -f perfc.stamp
@@ -57,7 +57,7 @@ perfc_cstub.o perfc_sstub.o perfc.h: perfc.stamp
 
 perfg.stamp: perfg.idl
 	@rm -f perfg.tmp; touch perfg.tmp
-	$(IDL) $(IDLCC) perfg.idl
+	$(IDL) $(IDLCC) $(srcdir)/perfg.idl
 	@mv -f perfg.tmp $@
 perfg_cstub.o perfg_sstub.o perfg.h: perfg.stamp
 	@test -f $@ || rm -f perfg.stamp
