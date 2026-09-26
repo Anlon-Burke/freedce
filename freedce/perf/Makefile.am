@@ -5,7 +5,7 @@ IDL_FLAGS=-I$(IDL_INCLUDE_DIR)/.. -I$(top_builddir)/include $(DCETHREADINCLUDES)
 IDLCC=-I../include -no_mepv -cc_cmd "$(CC) -D_BSD $(IDL_FLAGS) $(IDL_CFLAGS) -c" $(IDL_INCS)
 
 libs=$(top_builddir)/dcelib/libdcerpc.la \
-	$(top_builddir)/uuid/libuuid.la -lstdc++ 
+	$(top_builddir)/uuid/libuuid.la -lstdc++ -lm
 
 all: client server
 
