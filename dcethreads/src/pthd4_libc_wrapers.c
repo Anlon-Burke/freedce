@@ -287,6 +287,7 @@ NON_CANCELABLE_SYSCALL (pid_t, waitpid,
  *    sendmsg(2)
  *    sendto(2)
  *    select(2)
+ *    poll(2)
  *
  *It happens that these system calls are exactly CP in Pthreads.
  *However, in some older glibc, there weren't true CP. This is exactly
@@ -642,6 +643,38 @@ select (int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
 
   pthread_testcancel ();
   result = REAL_FUNCTION (select) (nfds, readfds, writefds, exceptfds, timeout);
+  pthread_testcancel ();
+  return result;
+}
+
+
+/*--------------------------------------------------------*
+ * poll(2)                                                *
+ *--------------------------------------------------------*/
+static int (*real_poll) (struct pollfd *, nfds_t, int);
+
+int
+poll (struct pollfd *fds, nfds_t nfds, int timeout)
+{
+  pthd4_cancel_state_t *s = own_cancel_state ();
+  struct timespec ts;
+  int result;
+
+  if (s != NULL)
+    {
+      if (timeout >= 0)
+        {
+          ts.tv_sec = timeout / 1000;
+          ts.tv_nsec = (timeout % 1000) * 1000000L;
+        }
+      result = pthd4__wait (s, fds, nfds, timeout >= 0 ? &ts : NULL);
+      if (result == PTHD4_WAIT_CANCEL)
+        pthd4__raise_cancel ();
+      return result;
+    }
+
+  pthread_testcancel ();
+  result = REAL_FUNCTION (poll) (fds, nfds, timeout);
   pthread_testcancel ();
   return result;
 }

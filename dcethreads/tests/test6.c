@@ -10,6 +10,7 @@
  *   testcancel  - busy loop calling pthread_testcancel()
  *   cond_wait   - blocked in pthread_cond_wait()
  *   select      - blocked in select()
+ *   poll        - blocked in poll()
  *   reposted    - cancel posted while cancelability is off, delivered
  *                 by pthread_testcancel() after turning it on again
  */
@@ -21,17 +22,18 @@
 #include <dce/pthread_exc.h>
 #include <stdio.h>
 #include <string.h>
+#include <poll.h>
 #include <sys/select.h>
 #include <sys/time.h>
 #include <unistd.h>
 
 #define ROUNDS 3
 
-enum mode { M_TESTCANCEL, M_COND_WAIT, M_SELECT, M_REPOSTED };
+enum mode { M_TESTCANCEL, M_COND_WAIT, M_SELECT, M_POLL, M_REPOSTED };
 
 static const char *mode_names[] =
 {
-    "testcancel", "cond_wait", "select", "reposted"
+    "testcancel", "cond_wait", "select", "poll", "reposted"
 };
 
 static pthread_mutex_t mutex;
@@ -84,6 +86,11 @@ static void wait_for_cancel(enum mode mode, int round)
             round_ready = round;
             select(0, NULL, NULL, NULL, &tv);
         }
+        break;
+
+    case M_POLL:
+        round_ready = round;
+        poll(NULL, 0, 2000);
         break;
 
     case M_REPOSTED:
@@ -174,6 +181,7 @@ int main(void)
     ok &= run(M_TESTCANCEL);
     ok &= run(M_COND_WAIT);
     ok &= run(M_SELECT);
+    ok &= run(M_POLL);
     ok &= run(M_REPOSTED);
 
     return ok ? 0 : 1;
