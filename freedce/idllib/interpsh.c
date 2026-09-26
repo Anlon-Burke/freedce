@@ -1152,7 +1152,6 @@ idl_boolean rpc_ss_find_union_arm_defn
     do {
         mid = (low + high) / 2;         /* Compute midpoint element */
         arm_switch_value = IDL_ARM_SWITCH_VALUE(defn_vec_ptr, mid);
-	arm_switch_value &= 0xffff; /* lkcl: XXX HACK! */
         if (switch_value > arm_switch_value)
         {
             /* If element is beyond the midpoint */
@@ -1220,16 +1219,6 @@ void rpc_ss_get_switch_from_data
 
     *p_switch_value = rpc_ss_get_typed_integer( switch_type, switch_addr,
                                                     IDL_msp );
-    (*p_switch_value) &= 0xffff; /* lkcl: XXX HACK! */
-    /*
-     * lkcl: no, unbelievably, don't do this!  some MSRPC
-     * applications * _rely_ on the faulty switch value being available!!!!
-     * ah ha, ah ha *gibber*.
-    if (switch_type == IDL_DT_LONG)
-    {
-            (*(idl_long_int *)switch_addr) = *p_switch_value;
-    }
-     */
 }
 
 /******************************************************************************/
@@ -1596,7 +1585,6 @@ idl_ulong_int rpc_ss_arm_switch_value
 
     switch_value_ptr = defn_vec_ptr + index * IDL_UNION_ARM_DESC_WIDTH;
     IDL_GET_LONG_FROM_VECTOR(switch_value, switch_value_ptr);
-    switch_value &= 0xffff; /* lkcl: XXX HACK! */
     return(switch_value);
 }
 

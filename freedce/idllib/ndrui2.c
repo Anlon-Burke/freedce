@@ -538,7 +538,6 @@ void rpc_ss_ndr_unmar_pointee
             IDL_GET_LONG_FROM_VECTOR(pointee_defn_index,defn_vec_ptr);
             rpc_ss_ndr_unmar_n_e_union(p_node, pointee_defn_index,
                                        &switch_value, IDL_msp);
-	    switch_value &= 0xffff; /* lkcl: XXX HACK! */
             if (type_has_pointers)
             {
                 rpc_ss_ndr_u_n_e_union_ptees(p_node, switch_value, 0,
