@@ -132,13 +132,13 @@ const int __dcethread_provide_wrappers = 0;
   name param_list                                                     \
   {                                                                   \
     res_type result;                                                  \
-    int      old_cancel_type;                                         \
+    int      old_cancel_state;                                        \
     res_type (*glibc_function) param_list;                            \
                                                                       \
     glibc_function = dlsym(RTLD_NEXT, #name);                         \
-    pthread_setcanceltype (PTHREAD_CANCEL_DISABLE, &old_cancel_type); \
+    pthread_setcancelstate (PTHREAD_CANCEL_DISABLE, &old_cancel_state); \
     result = glibc_function params;                                   \
-    pthread_setcanceltype (old_cancel_type, NULL);                    \
+    pthread_setcancelstate (old_cancel_state, NULL);                  \
     return result;                                                    \
   }                                                                   \
 
@@ -158,15 +158,15 @@ const int __dcethread_provide_wrappers = 0;
   {                                                                   \
     va_list  ap;                                                      \
     res_type result;                                                  \
-    int      old_cancel_type;                                         \
+    int      old_cancel_state;                                        \
     res_type (*glibc_function) param_list;                            \
                                                                       \
     glibc_function = dlsym(RTLD_NEXT, #name);                         \
-    pthread_setcanceltype (PTHREAD_CANCEL_DISABLE, &old_cancel_type); \
+    pthread_setcancelstate (PTHREAD_CANCEL_DISABLE, &old_cancel_state); \
     va_start (ap, last_arg);                                          \
     result = glibc_function params;                                   \
     va_end (ap);                                                      \
-    pthread_setcanceltype (old_cancel_type, NULL);                    \
+    pthread_setcancelstate (old_cancel_state, NULL);                  \
     return result;                                                    \
   }                                                                   \
 
