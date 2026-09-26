@@ -13,30 +13,79 @@
  * and yippee ncalrpc using shared memory or something,
  * but with a socket interface.
  *
- * The table is indexed by the socket descriptor, so every index must
- * be checked against its size.  Descriptors that do not fit cannot be
- * used with select() either.
+ * The table is indexed by the socket descriptor.  A server can have
+ * thousands of connections, so it has two levels: chunks of
+ * RPC_C_EPV_CHUNK entries are allocated when a descriptor in their range
+ * is first used and are never freed.  Lookups need no lock because a
+ * chunk pointer only ever changes from NULL to its final value.
+ * Descriptors beyond the table are refused (RPC_C_SOCKET_ENOSPC).
  */
 #ifdef HAVE_OS_WIN32
-#define RPC_C_SOCKET_EPV_TABLE_SIZE 256
+#define RPC_C_EPV_CHUNK_BITS        8
+#define RPC_C_EPV_CHUNKS            1
 #else
-#include <sys/select.h>
-#define RPC_C_SOCKET_EPV_TABLE_SIZE FD_SETSIZE
+#define RPC_C_EPV_CHUNK_BITS        10
+#define RPC_C_EPV_CHUNKS            1024        /* 1M descriptors */
 #endif
-static rpc_socket_epv_p_t epvs[RPC_C_SOCKET_EPV_TABLE_SIZE];
+#define RPC_C_EPV_CHUNK             (1 << RPC_C_EPV_CHUNK_BITS)
+#define RPC_C_SOCKET_EPV_TABLE_SIZE (RPC_C_EPV_CHUNK * RPC_C_EPV_CHUNKS)
 
-#define SOCKET_IN_EPV_TABLE(sock) \
-	((sock) >= 0 && (sock) < RPC_C_SOCKET_EPV_TABLE_SIZE)
+static rpc_socket_epv_p_t *epv_chunks[RPC_C_EPV_CHUNKS];
+
+/*
+ * Return the table entry of sock, or NULL if sock is out of range or
+ * (unless create is set) its chunk does not exist yet.
+ */
+static rpc_socket_epv_p_t *epv_slot (rpc_socket_t sock, int create)
+{
+	rpc_socket_epv_p_t *chunk, *expected = NULL;
+	int                i;
+
+	if (sock < 0 || sock >= RPC_C_SOCKET_EPV_TABLE_SIZE)
+		return NULL;
+	i = sock >> RPC_C_EPV_CHUNK_BITS;
+	chunk = __atomic_load_n (&epv_chunks[i], __ATOMIC_ACQUIRE);
+	if (chunk == NULL)
+	{
+		if (! create)
+			return NULL;
+		chunk = calloc (RPC_C_EPV_CHUNK, sizeof *chunk);
+		if (chunk == NULL)
+			return NULL;
+		if (! __atomic_compare_exchange_n (&epv_chunks[i], &expected, chunk,
+				0, __ATOMIC_ACQ_REL, __ATOMIC_ACQUIRE))
+		{
+			/* another thread was faster */
+			free (chunk);
+			chunk = expected;
+		}
+	}
+	return &chunk[sock & (RPC_C_EPV_CHUNK - 1)];
+}
 
 extern void rpc__socket_bsd_init (rpc_socket_epv_p_t *epv);
 
 #define SCKEPV(sock) \
 	rpc_socket_epv_p_t epv; \
-	if (! SOCKET_IN_EPV_TABLE(sock)) \
-		return rpc_s_socket_failure; \
-	epv = epvs[sock]; \
-	if (epv == NULL) \
+	rpc_socket_epv_p_t *epv_slot_ = epv_slot (sock, 0); \
+	if (epv_slot_ == NULL || (epv = *epv_slot_) == NULL) \
 		return rpc_s_socket_failure;
+
+/*
+ * Enter a new socket into the table, or close it and fail if it does not
+ * fit.
+ */
+#define SCKEPV_ENTER(epv, sock) \
+	{ \
+		rpc_socket_epv_p_t *slot_ = epv_slot (*(sock), 1); \
+		if (slot_ == NULL) \
+		{ \
+			(epv)->sock_close (*(sock)); \
+			*(sock) = -1; \
+			return RPC_C_SOCKET_ENOSPC; \
+		} \
+		*slot_ = (epv); \
+	}
 
 /*
  * R P C _ _ S O C K E T _ O P E N
@@ -66,13 +115,7 @@ rpc_socket_error_t rpc__socket_open (
         if (err != rpc_s_ok)
 		return err;
 
-	if (! SOCKET_IN_EPV_TABLE(*sock))
-	{
-		epv->sock_close(*sock);
-		*sock = -1;
-		return RPC_C_SOCKET_ENOSPC;
-	}
-	epvs[*sock] = epv;
+	SCKEPV_ENTER(epv, sock);
 
         return err;
 }
@@ -109,13 +152,7 @@ rpc_socket_error_t rpc__socket_open_basic (
         if (err != rpc_s_ok)
 		return err;
 
-	if (! SOCKET_IN_EPV_TABLE(*sock))
-	{
-		epv->sock_close(*sock);
-		*sock = -1;
-		return RPC_C_SOCKET_ENOSPC;
-	}
-	epvs[*sock] = epv;
+	SCKEPV_ENTER(epv, sock);
 
         return err;
 }
@@ -146,13 +183,7 @@ extern rpc_socket_error_t rpc__socket_accept (
 
         if (err != rpc_s_ok)
 		return err;
-	if (! SOCKET_IN_EPV_TABLE(*newsock))
-	{
-		epv->sock_close(*newsock);
-		*newsock = -1;
-		return RPC_C_SOCKET_ENOSPC;
-	}
-	epvs[*newsock] = epvs[sock];
+	SCKEPV_ENTER(epv, newsock);
         return err;
 }
 
@@ -163,7 +194,7 @@ rpc_socket_error_t rpc__socket_close (
     )
 {
 	SCKEPV(sock);
-	epvs[sock] = NULL;
+	*epv_slot_ = NULL;
 	return epv->sock_close(sock);
 }
 
