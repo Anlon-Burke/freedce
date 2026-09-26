@@ -22,6 +22,9 @@
  *   -T ms        duration of the slow operation (default 100)
  *   -s seed      seed of the test data (default 1)
  *   -C id        client id sent to the server (default: process id)
+ *   -a first     thread i connects to the server at 127.0.0.0 + first + i + 1
+ *                instead of host (server on this machine): every thread then
+ *                has its own association group, like a separate client host
  *   -W           use union discriminants that do not fit into 16 bits
  *   -k           keep the contexts: exit without closing them (rundown test)
  *   -S           print the server statistics at the end
@@ -78,6 +81,7 @@ static unsigned int weight_sum;
 static unsigned32   size = 16, slow_ms = 100, client_id, flags;
 static uint64_t     seed = 1;
 static int          keep_contexts, server_stats, query_only;
+static long         spread_first = -1;     /* -a */
 
 static double       start_time, end_time;
 static int          reports_left = 10;     /* not exact with many threads */
@@ -361,13 +365,23 @@ static int pick_op(worker_t *w)
 static void *worker(void *arg)
 {
     worker_t *w = arg;
+    char     addr[32];
+    const char *h = host;
     double   interval = rate > 0 ? n_threads / rate : 0;
     double   next;
     lt_key_t rkey;
 
-    if (lt_bind(protseq, host, endpoint, &w->h) != 0)
+    if (spread_first >= 0)
     {
-        fprintf(stderr, "lt_client: cannot bind to %s:%s\n", protseq, host);
+        unsigned long n = (unsigned long) spread_first + w->id + 1;
+
+        snprintf(addr, sizeof addr, "127.%lu.%lu.%lu",
+                 (n >> 16) & 255, (n >> 8) & 255, n & 255);
+        h = addr;
+    }
+    if (lt_bind(protseq, h, endpoint, &w->h) != 0)
+    {
+        fprintf(stderr, "lt_client: cannot bind to %s:%s\n", protseq, h);
         exit(2);
     }
 
@@ -539,7 +553,7 @@ static void usage(void)
     fprintf(stderr,
         "usage: lt_client -h host [-e endpoint] [-P tcp|udp] [-t threads]\n"
         "                 [-d secs | -n calls] [-r rate] [-m mix] [-z size] [-T ms]\n"
-        "                 [-s seed] [-C id] [-W] [-k] [-S] [-Q] [-v]\n");
+        "                 [-s seed] [-C id] [-a first] [-W] [-k] [-S] [-Q] [-v]\n");
     exit(2);
 }
 
@@ -586,7 +600,7 @@ int main(int argc, char *argv[])
 #endif
     client_id = (unsigned32) lt_getpid();
 
-    while ((c = lt_getopt(argc, argv, "h:e:P:t:d:n:r:m:z:T:s:C:WkSQv")) != -1)
+    while ((c = lt_getopt(argc, argv, "h:e:P:t:d:n:r:m:z:T:s:C:a:WkSQv")) != -1)
     {
         switch (c)
         {
@@ -609,6 +623,7 @@ int main(int argc, char *argv[])
             case 'T': slow_ms = strtoul(lt_optarg, NULL, 0); break;
             case 's': seed = strtoull(lt_optarg, NULL, 0); break;
             case 'C': client_id = strtoul(lt_optarg, NULL, 0); break;
+            case 'a': spread_first = atol(lt_optarg); break;
             case 'W': flags |= LT_F_WIDE_SWITCH; break;
             case 'k': keep_contexts = 1; break;
             case 'S': server_stats = 1; break;
