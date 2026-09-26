@@ -1395,8 +1395,8 @@ unsigned32              *status;
      * freed by the stubs when we're done
      */
     *if_id_vector = (rpc_if_id_vector_p_t)
-        rpc_ss_allocate (((sizeof local_if_id_vector->count) +
-            (local_if_id_vector->count * sizeof (rpc_if_id_p_t))));
+        rpc_ss_allocate ((sizeof (rpc_if_id_vector_t) - sizeof (rpc_if_id_p_t)
+            + (local_if_id_vector->count * sizeof (rpc_if_id_p_t))));
 
     if (*if_id_vector == NULL)
     {

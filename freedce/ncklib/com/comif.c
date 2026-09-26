@@ -1959,12 +1959,15 @@ unsigned32              *status;
     }
     
     /*
-     * allocate memory for the if id vector
+     * allocate memory for the if id vector (the pointer array starts
+     * after the padding that follows count on LP64, so size it from the
+     * struct, which holds one element)
      */
     RPC_MEM_ALLOC (
         *if_id_vector,
         rpc_if_id_vector_p_t,
-        ((sizeof if_count) + (if_count * sizeof (rpc_if_id_p_t))),
+        (sizeof (rpc_if_id_vector_t) - sizeof (rpc_if_id_p_t)
+            + (if_count * sizeof (rpc_if_id_p_t))),
         RPC_C_MEM_IF_ID_VECTOR,
         RPC_C_MEM_WAITOK);
 
