@@ -1830,7 +1830,7 @@ rpc_dg_recvq_elt_p_t rqe;
      * If the application has disabled general cancelability, we
      * need to turn it on here, temporarily.
      */
-    prev_cancel_state = sys_pthread_setcancel(CANCEL_OFF);
+    prev_cancel_state = sys_pthread_setcancel(CANCEL_ON);
 
     TRY
     {
@@ -1893,7 +1893,7 @@ rpc_dg_recvq_elt_p_t rqe;
          */
         if (! call->priv_cond_signal)
         {
-            if (prev_cancel_state == PTHREAD_CANCEL_ENABLE)
+            if (prev_cancel_state == CANCEL_ON)
                 rpc__dg_call_local_cancel(call);
             else
             {
