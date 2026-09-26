@@ -225,10 +225,23 @@ void lt_quick_exit(int rc)
 
 #include <time.h>
 #include <unistd.h>
+#include <dce/dce_error.h>
 
 void lt_exc_name(EXCEPTION *exc, char *name, size_t len)
 {
-    snprintf(name, len, "%s", exc->printable_name);
+    long int           status;
+    dce_error_string_t text;
+    int                st;
+
+    /* an exception for a status without its own exception: show the status */
+    if (exc_get_status(exc, &status) == 0)
+    {
+        dce_error_inq_text((unsigned32) status, text, &st);
+        snprintf(name, len, "%s (0x%lx)", st == 0 ? (char *) text : exc->printable_name,
+                 (unsigned long) status);
+    }
+    else
+        snprintf(name, len, "%s", exc->printable_name);
 }
 
 int lt_bind(const char *protseq, const char *host, const char *endpoint, handle_t *h)
