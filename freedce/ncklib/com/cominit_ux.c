@@ -46,17 +46,17 @@
 #if HAVE_DLFCN_H
 #include <dirent.h>
 /* load protocols before naf, then auth */
-static int sort_modules(const void* a, const void* b)
+static int sort_modules(const struct dirent **a, const struct dirent **b)
 {
 	int pri_a, pri_b;
 
-	switch((*(const struct dirent**)a)->d_name[3])	{
+	switch((*a)->d_name[3])	{
 		case 'p': pri_a = 1; break;
 		case 'n': pri_a = 2; break;
 		case 'a': pri_a = 3; break;
 		default: pri_a = 4;
 	}
-	switch((*(const struct dirent**)b)->d_name[3])	{
+	switch((*b)->d_name[3])	{
 		case 'p': pri_b = 1; break;
 		case 'n': pri_b = 2; break;
 		case 'a': pri_b = 3; break;
