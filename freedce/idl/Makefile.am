@@ -36,7 +36,8 @@ noinst_HEADERS= acf.h ast.h astp.h astp_dmp.h backend.h be_pvt.h bedeck.h \
 BUILT_SOURCES=acf_y.c acf_l.c nidl_y.c nidl_l.c acf_y.h nidl_y.h default_msg.h
 
 # Ensure that YACC/LEX generated files go away during clean
-CLEANFILES=acf_y.o acf_y.c acf_l.o acf_l.c acf_y.h nidl_y.o nidl_y.c nidl_l.o nidl_l.c nidl_y.h
+CLEANFILES=acf_y.o acf_y.c acf_l.o acf_l.c acf_y.h nidl_y.o nidl_y.c nidl_l.o nidl_l.c nidl_y.h \
+	default_msg.h idl.cat
 
 # Override the standard YACC/LEX rules so we can build two scanners into
 # the idl compiler.
@@ -57,9 +58,14 @@ install-exec-local:
 	test -f $(bindir)/idl || $(LN_S) dceidl $(bindir)/idl
 
 
+# The built-in message texts and the message catalog are both made from
+# nidlmsg.m.
 default_msg.h:	nidlmsg.m
 	$(RM) $(RMFLAGS) default_msg.h idl.cat
-	$(SED) -e '/^\$$/d;/^$$/d;s/^[^ ]* /"/;s/$$/",/;' nidlmsg.m > default_msg.h
-	$(GENCAT) idl.cat nidlmsg.m
+	$(SED) -e '/^\$$/d;/^$$/d;s/^[^ ]* /"/;s/$$/",/;' $(srcdir)/nidlmsg.m > default_msg.h
+	$(GENCAT) idl.cat $(srcdir)/nidlmsg.m
+idl.cat: default_msg.h
+	@test -f $@ || rm -f default_msg.h
+	@test -f $@ || $(MAKE) $(AM_MAKEFLAGS) default_msg.h
 
 	
