@@ -437,6 +437,13 @@ INTERNAL void convq_remove _DCE_PROTOTYPE_ ((void));
 
 INTERNAL void convq_loop _DCE_PROTOTYPE_ ((void));
 
+/* pthread start routine: calls convq_loop() with the right function type */
+INTERNAL void *convq_loop_start (void *arg __attribute__((unused)))
+{
+    convq_loop ();
+    return NULL;
+}
+
 
 INTERNAL boolean32 convq_has_act _DCE_PROTOTYPE_ (( uuid_p_t  /*actuid*/));
 
@@ -460,7 +467,7 @@ INTERNAL void convq_start(void)
     {
         convq_running = true;
         sys_pthread_create(&conv_thread, &sys_pthread_attr_default,
-                       (pthread_startroutine_t)convq_loop, 
+                       convq_loop_start, 
                        NULL);  
     }
     RPC_MUTEX_UNLOCK(convq.m);
@@ -697,7 +704,7 @@ PRIVATE void rpc__dg_conv_fork_handler
             convq_stop = false;
             convq_running = true;
             sys_pthread_create(&conv_thread, sys_pthread_attr_default,
-                           (pthread_startroutine_t)convq_loop, 
+                           convq_loop_start, 
                            NULL);  
         }
         RPC_MUTEX_UNLOCK(convq.m);

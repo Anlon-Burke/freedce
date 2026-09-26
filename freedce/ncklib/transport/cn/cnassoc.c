@@ -148,6 +148,16 @@ INTERNAL void rpc__cn_assoc_timer_reclaim _DCE_PROTOTYPE_ ((
     pointer_t                   /*type*/));
 
 /*
+ * pthread start routine: calls rpc__cn_network_receiver() with the right
+ * function type
+ */
+INTERNAL void *rpc__cn_network_receiver_start (void *arg)
+{
+    rpc__cn_network_receiver ((rpc_cn_assoc_p_t) arg);
+    return NULL;
+}
+
+/*
  * R P C _ _ C N _ A S S O C _ A C B _ A L L O C
  */
 
@@ -4677,7 +4687,7 @@ rpc_cn_assoc_p_t        assoc;
         TRY {
             sys_pthread_create (&(assoc->cn_ctlblk.cn_rcvr_thread_id),
                             &rpc_g_default_pthread_attr,
-                            (pthread_startroutine_t) rpc__cn_network_receiver,
+                            rpc__cn_network_receiver_start,
                             (pthread_addr_t) assoc);
             successful = true;
         }

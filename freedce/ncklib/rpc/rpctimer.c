@@ -61,6 +61,13 @@ INTERNAL boolean timer_task_was_running = false;
 
 #ifndef NO_RPC_TIMER_THREAD
 INTERNAL void timer_loop _DCE_PROTOTYPE_((void));
+
+/* pthread start routine: calls timer_loop() with the right function type */
+INTERNAL void *timer_loop_start (void *arg __attribute__((unused)))
+{
+    timer_loop ();
+    return NULL;
+}
 #endif
 
 
@@ -199,7 +206,7 @@ PRIVATE void rpc__timer_init(void)
             sys_pthread_create (
                 &timer_task,                            /* new thread    */
                 &sys_pthread_attr_default,                   /* attributes    */
-                (pthread_startroutine_t)timer_loop,    /* start routine */
+                timer_loop_start,    /* start routine */
                 NULL);                 /* arguments     */
             successful = true;
          }
@@ -300,7 +307,7 @@ rpc_fork_stage_id_t stage;
                    sys_pthread_create (
                        &timer_task,                          /* new thread    */
                        sys_pthread_attr_default,                 /* attributes    */
-                       (pthread_startroutine_t) timer_loop,  /* start routine */
+                       timer_loop_start,  /* start routine */
                        NULL);               /* arguments     */
                    successful=true;
                 }

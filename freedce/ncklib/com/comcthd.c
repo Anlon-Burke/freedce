@@ -312,6 +312,13 @@ INTERNAL void cthread_call_executor _DCE_PROTOTYPE_ ((
         cthread_elt_p_t        /*cthread*/
     ));
 
+/* pthread start routine: calls cthread_call_executor() with the right type */
+INTERNAL void *cthread_call_executor_start (void *arg)
+{
+    cthread_call_executor ((cthread_elt_p_t) arg);
+    return NULL;
+}
+
 INTERNAL void cthread_reaper _DCE_PROTOTYPE_ ((
         pointer_t    /*arg*/
     ));
@@ -424,7 +431,7 @@ unsigned32              *status;
     TRY {
         sys_pthread_create (&cthread->thread_id,
                     &rpc_g_server_pthread_attr,
-                    (pthread_startroutine_t)cthread_call_executor,
+                    cthread_call_executor_start,
                     (pthread_addr_t)cthread);
 
         cthread->thread_state = RPC_C_IDLE_CTHREAD;

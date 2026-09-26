@@ -127,6 +127,13 @@ INTERNAL void lthread _DCE_PROTOTYPE_ ((
         rpc_listener_state_p_t   /*lstate*/
     ));
 
+/* pthread start routine: calls lthread() with the right function type */
+INTERNAL void *lthread_start (void *arg)
+{
+    lthread ((rpc_listener_state_p_t) arg);
+    return NULL;
+}
+
 INTERNAL void lthread_loop _DCE_PROTOTYPE_ ((void));
 
 
@@ -184,7 +191,7 @@ unsigned32              *status;
                 sys_pthread_create (
                     &listener_thread,                   /* new thread    */
                     &rpc_g_default_pthread_attr,         /* attributes    */
-                    (pthread_startroutine_t)lthread,   /* start routine */
+                    lthread_start,   /* start routine */
                     lstate);           /* arguments     */
                 successful = true;
             }
@@ -609,7 +616,7 @@ rpc_fork_stage_id_t stage;
                             sys_pthread_create (
                                 &listener_thread,                   /* new thread    */
                                 rpc_g_default_pthread_attr,         /* attributes    */
-                                (pthread_startroutine_t)lthread,   /* start routine */
+                                lthread_start,   /* start routine */
                                 (pthread_addr_t)lstate);           /* arguments*/
                             successful = true;
                         }

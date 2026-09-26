@@ -48,6 +48,13 @@
 
 INTERNAL void network_monitor_liveness    _DCE_PROTOTYPE_((void));
 
+/* pthread start routine: calls network_monitor_liveness() with the right type */
+INTERNAL void *network_monitor_liveness_start (void *arg __attribute__((unused)))
+{
+    network_monitor_liveness ();
+    return NULL;
+}
+
 /* ========================================================================= */
 
 /*
@@ -206,7 +213,7 @@ unsigned32 *st;
     {
         monitor_running = true;
         sys_pthread_create(&monitor_task, &sys_pthread_attr_default, 
-            (pthread_startroutine_t) network_monitor_liveness, 
+            network_monitor_liveness_start, 
             NULL);  
     }                         
 
@@ -660,7 +667,7 @@ rpc_fork_stage_id_t stage;
             monitor_running = true;
             stop_monitor = false;
             sys_pthread_create(&monitor_task, sys_pthread_attr_default, 
-                           (pthread_startroutine_t) network_monitor_liveness, 
+                           network_monitor_liveness_start, 
                            NULL);  
         }
         RPC_MUTEX_UNLOCK(monitor_mutex);
