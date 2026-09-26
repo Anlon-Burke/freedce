@@ -217,8 +217,10 @@ PRIVATE void rpc__load_modules(void)
 		}
 		else
 			RPC_DBG_PRINTF(rpc_es_dbg_general, 1, ("failed to load module %s %s\n", buf, dlerror()));
+		free(namelist[i]);
 	}
-	free(namelist);
+	if (n >= 0)
+		free(namelist);
 #endif
 }
 

@@ -187,8 +187,11 @@ int main(int argc, char *argv[])
                     (unsigned char **)&string_binding,
                     &status
                     );
-      if (string_binding)
-        printf("\t%s\n",string_binding);
+      if (status == rpc_s_ok && string_binding)
+        {
+          printf("\t%s\n",string_binding);
+          rpc_string_free((unsigned char **)&string_binding, &status);
+        }
     }
 
 
@@ -279,6 +282,7 @@ ReverseIt(h, in_text, out_text, status)
   if (e == rpc_s_ok)
     {
       printf ("ReverseIt() called by client: %s\n", binding_info);
+      rpc_string_free((unsigned char **)&binding_info, &e);
     }
 
   if (in_text == NULL) return 0;
