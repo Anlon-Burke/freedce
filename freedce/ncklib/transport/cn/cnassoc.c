@@ -318,12 +318,12 @@ rpc_cn_sec_context_p_t  *sec;
 unsigned32              *st;
 #endif
 {
-    rpc_cn_assoc_t      *assoc = NULL;
-    rpc_cn_assoc_grp_t  *assoc_grp = NULL;
+    rpc_cn_assoc_t      * volatile assoc = NULL;
+    rpc_cn_assoc_grp_t  * volatile assoc_grp = NULL;
     rpc_addr_p_t        rpc_addr;
-    unsigned32          wait_interval, total_wait;
+    volatile unsigned32 wait_interval, total_wait;
     rpc_cn_local_id_t   grp_id;
-    rpc_cn_local_id_t   rem_grp_id;
+    volatile rpc_cn_local_id_t rem_grp_id;
     struct timespec     timespec;
     struct timespec     abstime;
 
@@ -331,10 +331,10 @@ unsigned32              *st;
      * i_hold_grp_new_mutex means that this call frame holds the 
      * grp_new mutex. The grp_new_mutex is described above.
      */
-    boolean             i_hold_grp_new_mutex;
+    volatile boolean    i_hold_grp_new_mutex;
 
     volatile boolean32  retry_op;
-    boolean             old_server = false;
+    volatile boolean    old_server = false;
     unsigned32          temp_st;
 
 	DO_NOT_CLOBBER(assoc);
@@ -1856,18 +1856,18 @@ unsigned32              *st;
 #endif
 {
     rpc_socket_iovec_t          iov[RPC_C_MAX_IOVEC_LEN];
-    int                         iovcnt;
-    rpc_socket_iovec_t          *iovp;
+    volatile int                iovcnt;
+    rpc_socket_iovec_t          * volatile iovp;
     rpc_socket_iovec_t          out_iov;
 #ifdef USE_SOCKETS
     static rpc_addr_p_t         addr = NULL;
 #endif
-    unsigned32                  bytes_to_send;
-    boolean32                   free_iov_buffer;
+    volatile unsigned32         bytes_to_send;
+    volatile boolean32          free_iov_buffer;
     volatile boolean32          retry_op;
     volatile rpc_socket_error_t serr;
     volatile int                cc;
-    byte_p_t                    save_base = NULL;
+    volatile byte_p_t           save_base = NULL;
    
 	DO_NOT_CLOBBER(iovcnt);
 	DO_NOT_CLOBBER(iovp);
@@ -4658,7 +4658,7 @@ PRIVATE void rpc__cn_assoc_acb_create
 rpc_cn_assoc_p_t        assoc;
 #endif
 {
-    int successful = false;
+    volatile int successful = false;
     DO_NOT_CLOBBER(successful);
     RPC_LOG_CN_ASSOC_ACB_CR_NTR;
     RPC_CN_DBG_RTN_PRINTF(rpc__cn_assoc_acb_create);

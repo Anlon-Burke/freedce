@@ -2433,7 +2433,7 @@ int                 test;
 int                 argc;
 char                *argv[];
 {
-    int                 i;
+    volatile int        i;
     volatile idl_boolean  done;
     pthread_t           tasks[MAX_TASKS];
 

@@ -1066,9 +1066,9 @@ rpc_cn_assoc_p_t        assoc;
 unsigned32              *st;
 #endif
 {
-    rpc_socket_error_t  serr;
+    volatile rpc_socket_error_t serr;
     volatile boolean32  retry_op;
-    boolean32           connect_completed;
+    volatile boolean32  connect_completed;
     rpc_naf_id_t        naf_id;
     rpc_addr_p_t        temp_rpc_addr;
     unsigned32          temp_status;

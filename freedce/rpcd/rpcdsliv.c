@@ -237,7 +237,7 @@ void    *arg;
     struct db       *h;
     struct timeval  now;
     struct timespec waketime;
-    unsigned32      waitsecs;
+    volatile unsigned32 waitsecs;
     boolean32       have_db_lock;
     db_lists_t      *lp;
     db_entry_t      *entp;

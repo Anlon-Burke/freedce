@@ -158,7 +158,7 @@ unsigned32              idx;
 unsigned32              *status;
 #endif
 {
-    int successful = false;
+    volatile int successful = false;
     DO_NOT_CLOBBER(successful);
     RPC_MUTEX_LOCK_ASSERT (lstate->mutex);
 

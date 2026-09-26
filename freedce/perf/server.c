@@ -585,11 +585,11 @@ char                *argv[];
     char            *s;
     int             c;
     unsigned32      authn_protocol;
-    unsigned16      i;
+    volatile unsigned16 i;
     extern int      optind;
     extern char     *optarg;
     unsigned32      max_calls;
-    idl_boolean     ep_reg = false;     /* should we rpc_ep_register() at startup? */
+    volatile idl_boolean ep_reg = false;     /* should we rpc_ep_register() at startup? */
     idl_boolean     b_reg = false;      /* ditto for perfb i/f */
     idl_char        *keytab;
     unsigned32      ssize,rsize;

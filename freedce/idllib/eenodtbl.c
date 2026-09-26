@@ -182,7 +182,7 @@ idl_void_p_t rpc_sm_allocate
     error_status_t *p_st;
 #endif
 {
-    idl_void_p_t result = NULL;
+    volatile idl_void_p_t result = NULL;
 	DO_NOT_CLOBBER(result);
     *p_st = error_status_ok;
     TRY	{

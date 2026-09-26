@@ -176,7 +176,7 @@ void rpc_ss_create_callee_context
 {
     rpc_client_handle_t  ctx_client;         /* ID of client owning context */
     callee_context_entry_t *this_link, *next_link;
-    callee_context_entry_t *new_link;
+    callee_context_entry_t * volatile new_link;
     ndr_boolean is_new_client;
 
 #ifdef PERFMON

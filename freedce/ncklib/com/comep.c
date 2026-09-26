@@ -1863,7 +1863,7 @@ unsigned32              *st;
     uuid_t                      saved_object_uuid;
     rpc_tower_ref_vector_p_t    tower_vector = NULL;
     twr_p_t                     map_tower = NULL;
-    twr_p_t                     *towers = NULL;
+    twr_p_t * volatile towers = NULL;
     unsigned32                  num_towers = 0;
     rpc_addr_p_t                tower_rpc_addr = NULL;
     rpc_auth_info_t             *saved_auth_info;

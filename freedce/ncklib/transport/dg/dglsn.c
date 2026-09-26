@@ -1803,9 +1803,9 @@ INTERNAL unsigned32 recv_pkt_private(sp, rqe)
 rpc_dg_sock_pool_elt_p_t sp;
 rpc_dg_recvq_elt_p_t rqe;
 {
-    unsigned32 recv_flag = 0;
+    volatile unsigned32 recv_flag = 0;
     rpc_dg_ccall_p_t ccall = sp->ccall;
-    rpc_dg_call_p_t call;
+    volatile rpc_dg_call_p_t call;
     int prev_cancel_state;
 
 	DO_NOT_CLOBBER(recv_flag);

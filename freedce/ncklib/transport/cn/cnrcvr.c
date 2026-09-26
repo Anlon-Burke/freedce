@@ -196,7 +196,7 @@ rpc_cn_assoc_p_t        assoc;
 #endif
 {
     rpc_socket_error_t  serr;
-    boolean             done=false;
+    volatile boolean    done=false;
 
 	DO_NOT_CLOBBER(done);
 	 
@@ -445,8 +445,8 @@ rpc_cn_assoc_p_t        assoc;
     unsigned32                  st;
     rpc_cn_packet_p_t           pktp;
     unsigned8                   ptype;
-    boolean                     unpack_ints = false;
-    unsigned32                  i;
+    volatile boolean            unpack_ints = false;
+    volatile unsigned32         i;
     rpc_cn_syntax_t             *pres_context;
     unsigned32                  auth_st;
     rpc_cn_sec_context_t        *sec_context;
@@ -1127,8 +1127,8 @@ rpc_cn_fragbuf_p_t      *ovf_fragbuf_p;
 unsigned32              *st;
 #endif
 {
-    rpc_cn_fragbuf_t    *fbp;
-    unsigned16          frag_length;
+    rpc_cn_fragbuf_t    * volatile fbp;
+    volatile unsigned16 frag_length;
     int                 bytes_rcvd;
     rpc_socket_iovec_t  iov;
     rpc_socket_error_t  serr;
