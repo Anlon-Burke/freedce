@@ -14,7 +14,8 @@ noinst_HEADERS=misc.h samr.idl samr.acf
 
 CLEANFILES=samr.h samr_sstub.o samr_cstub.o
 
-libs=-L/opt/dce/lib -ldcerpc -luuid -lstdc++
+libs=$(top_builddir)/dcelib/libdcerpc.la \
+	$(top_builddir)/uuid/libuuid.la -lstdc++
 
 samr_server_LDADD=samr_sstub.o $(libs)
 samr_client_LDADD=samr_cstub.o $(libs)
