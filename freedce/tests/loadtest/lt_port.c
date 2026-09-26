@@ -58,6 +58,16 @@ void lt_unbind(handle_t *h)
     RpcBindingFree(h);
 }
 
+void lt_binding_reset(handle_t h)
+{
+    RpcBindingReset(h);
+}
+
+void lt_ctx_destroy(void **ctx)
+{
+    RpcSsDestroyClientContext(ctx);
+}
+
 /*
  * The stubs allocate with midl_user_allocate(): keep a per-thread list of
  * the blocks of the current call, so that lt_call_end() frees them all
@@ -260,6 +270,18 @@ void lt_unbind(handle_t *h)
     unsigned32 st;
 
     rpc_binding_free(h, &st);
+}
+
+void lt_binding_reset(handle_t h)
+{
+    unsigned32 st;
+
+    rpc_binding_reset(h, &st);
+}
+
+void lt_ctx_destroy(void **ctx)
+{
+    rpc_ss_destroy_client_context(ctx);
 }
 
 void lt_call_begin(void)

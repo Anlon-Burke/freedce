@@ -27,11 +27,17 @@
  *                has its own association group, like a separate client host
  *   -W           use union discriminants that do not fit into 16 bits
  *   -k           keep the contexts: exit without closing them (rundown test)
+ *   -R           recover from errors: after a failed call, reset the binding
+ *                (with a dynamic endpoint the endpoint mapper is asked again),
+ *                replace a context handle whose call failed, and pause 100 ms
  *   -S           print the server statistics at the end
  *   -Q           only print the server statistics
  *   -v           print every error (default: the first 10)
  *
- * The exit status is 0 if every call succeeded and all data was correct.
+ * An outage of a thread lasts from the start of its first failed call to
+ * the end of its next successful call; the summary shows their number and
+ * the longest one.  The exit status is 0 if every call succeeded and all
+ * data was correct.
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -68,6 +74,9 @@ typedef struct
     lt_key_t    key;
     op_stats_t  ops[LT_N_OPS];
     struct { char name[65]; uint64_t count; } exc[MAX_EXC_NAMES];
+    double      down_since;     /* start of the current outage, 0 if none */
+    uint64_t    outages, unrecovered;
+    double      longest;        /* longest outage in seconds */
 } worker_t;
 
 /* options */
@@ -80,7 +89,7 @@ static unsigned int weights[LT_N_OPS];
 static unsigned int weight_sum;
 static unsigned32   size = 16, slow_ms = 100, client_id, flags;
 static uint64_t     seed = 1;
-static int          keep_contexts, server_stats, query_only;
+static int          keep_contexts, server_stats, query_only, recover;
 static long         spread_first = -1;     /* -a */
 
 static double       start_time, end_time;
@@ -297,6 +306,59 @@ static int call_op(worker_t *w, int op)
     return sbad + bad;
 }
 
+/* outages ------------------------------------------------------------------ */
+
+static void end_outage(worker_t *w)
+{
+    double d = lt_now() - w->down_since;
+
+    w->outages++;
+    if (d > w->longest)
+        w->longest = d;
+    w->down_since = 0;
+}
+
+/*
+ * Called after every call that started at t0: keeps track of the outages
+ * and, with -R, gets ready for a server that has restarted or moved: the
+ * next call asks the endpoint mapper again (dynamic endpoint), a context
+ * handle whose call failed is closed or given up (a new one is opened before
+ * the next ctx_op), and a server that is down is not called in a busy loop.
+ */
+static void call_done(worker_t *w, int op, double t0, int failed)
+{
+    char exc[80];
+
+    if (!failed)
+    {
+        if (w->down_since != 0)
+            end_outage(w);
+        return;
+    }
+    if (w->down_since == 0)
+        w->down_since = t0;
+    if (!recover)
+        return;
+
+    if (endpoint == NULL)
+        lt_binding_reset(w->h);
+    if (op == LT_OP_CTX_OP && w->ctx != NULL)
+    {
+        LT_TRY
+        {
+            lt_close(&w->ctx);
+        }
+        LT_CATCH(exc)
+            (void) exc;
+        LT_ENDTRY
+        if (w->ctx != NULL)
+            lt_ctx_destroy(&w->ctx);
+    }
+    lt_sleep_until(lt_now() + 0.1);
+}
+
+/* calls --------------------------------------------------------------------- */
+
 static void run_op(worker_t *w, int op)
 {
     op_stats_t *s = &w->ops[op];
@@ -304,6 +366,7 @@ static void run_op(worker_t *w, int op)
     double     t0 = lt_now();
     uint64_t   us;
     int        b;
+    volatile int failed = 0;    /* set in the handler */
 
     lt_call_begin();
     LT_TRY
@@ -313,6 +376,7 @@ static void run_op(worker_t *w, int op)
     }
     LT_CATCH(exc)
         s->errors++;
+        failed = 1;
         count_exception(w, exc);
         report(w, op, "exception ", exc);
     LT_ENDTRY
@@ -326,12 +390,15 @@ static void run_op(worker_t *w, int op)
     for (b = 0; b < N_BUCKETS - 1 && (1ULL << b) <= us; b++)
         ;
     s->hist[b]++;
+    call_done(w, op, t0, failed);
 }
 
 /* lt_open and lt_close, counted but not timed */
 static void run_ctx(worker_t *w, int op)
 {
-    char exc[80];
+    char         exc[80];
+    double       t0 = lt_now();
+    volatile int failed = 0;    /* set in the handler */
 
     LT_TRY
     {
@@ -343,9 +410,11 @@ static void run_ctx(worker_t *w, int op)
     }
     LT_CATCH(exc)
         w->ops[op].errors++;
+        failed = 1;
         count_exception(w, exc);
         report(w, op, "exception ", exc);
     LT_ENDTRY
+    call_done(w, op, t0, failed);
 }
 
 static int pick_op(worker_t *w)
@@ -410,8 +479,6 @@ static void *worker(void *arg)
                                  : next >= end_time)
             break;
         op = pick_op(w);
-        if (op == LT_OP_CTX_OP && w->ctx == NULL)
-            op = LT_OP_NULL;
         if (interval > 0)
         {
             lt_sleep_until(next);
@@ -419,11 +486,20 @@ static void *worker(void *arg)
         }
         else
             next = lt_now();
+        if (op == LT_OP_CTX_OP && w->ctx == NULL && recover)
+            run_ctx(w, LT_OP_OPEN);
+        if (op == LT_OP_CTX_OP && w->ctx == NULL)
+            op = LT_OP_NULL;
         run_op(w, op);
     }
 
     if (w->ctx != NULL && !keep_contexts)
         run_ctx(w, LT_OP_CLOSE);
+    if (w->down_since != 0)
+    {
+        w->unrecovered++;
+        end_outage(w);
+    }
     return NULL;
 }
 
@@ -446,6 +522,8 @@ static uint64_t percentile(const op_stats_t *s, double p)
 static int print_results(worker_t *workers, double secs)
 {
     op_stats_t total_op[LT_N_OPS], all;
+    uint64_t   outages = 0, unrecovered = 0;
+    double     longest = 0;
     int        i, j, k, rc = 0;
 
     memset(total_op, 0, sizeof total_op);
@@ -504,6 +582,17 @@ static int print_results(worker_t *workers, double secs)
         printf("exception %s: %llu\n", workers[0].exc[k].name,
                (unsigned long long) workers[0].exc[k].count);
 
+    for (i = 0; i < n_threads; i++)
+    {
+        outages += workers[i].outages;
+        unrecovered += workers[i].unrecovered;
+        if (workers[i].longest > longest)
+            longest = workers[i].longest;
+    }
+    printf("outages %llu longest %llu ms not recovered %llu\n",
+           (unsigned long long) outages, (unsigned long long) (longest * 1000),
+           (unsigned long long) unrecovered);
+
     printf("total calls %llu errors %llu mismatches %llu threads %d secs %.1f rate %.1f/s\n",
            (unsigned long long) all.calls, (unsigned long long) all.errors,
            (unsigned long long) all.mismatches, n_threads, secs,
@@ -553,7 +642,7 @@ static void usage(void)
     fprintf(stderr,
         "usage: lt_client -h host [-e endpoint] [-P tcp|udp] [-t threads]\n"
         "                 [-d secs | -n calls] [-r rate] [-m mix] [-z size] [-T ms]\n"
-        "                 [-s seed] [-C id] [-a first] [-W] [-k] [-S] [-Q] [-v]\n");
+        "                 [-s seed] [-C id] [-a first] [-W] [-k] [-R] [-S] [-Q] [-v]\n");
     exit(2);
 }
 
@@ -600,7 +689,7 @@ int main(int argc, char *argv[])
 #endif
     client_id = (unsigned32) lt_getpid();
 
-    while ((c = lt_getopt(argc, argv, "h:e:P:t:d:n:r:m:z:T:s:C:a:WkSQv")) != -1)
+    while ((c = lt_getopt(argc, argv, "h:e:P:t:d:n:r:m:z:T:s:C:a:WkRSQv")) != -1)
     {
         switch (c)
         {
@@ -626,6 +715,7 @@ int main(int argc, char *argv[])
             case 'a': spread_first = atol(lt_optarg); break;
             case 'W': flags |= LT_F_WIDE_SWITCH; break;
             case 'k': keep_contexts = 1; break;
+            case 'R': recover = 1; break;
             case 'S': server_stats = 1; break;
             case 'Q': query_only = 1; break;
             case 'v': verbose = 1; break;

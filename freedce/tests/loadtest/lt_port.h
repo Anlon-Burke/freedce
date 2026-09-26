@@ -89,6 +89,10 @@ void lt_exc_name(EXCEPTION *exc, char *name, size_t len);
 /* binding to protseq:host[endpoint] (endpoint may be NULL); 0 on success */
 int lt_bind(const char *protseq, const char *host, const char *endpoint, handle_t *h);
 void lt_unbind(handle_t *h);
+/* remove the endpoint of a binding (the endpoint mapper resolves it again) */
+void lt_binding_reset(handle_t h);
+/* give up a context handle without a call (the server may not know it) */
+void lt_ctx_destroy(void **ctx);
 
 /*
  * Memory of one call: everything the stubs and lt_alloc allocate between

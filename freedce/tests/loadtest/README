@@ -43,7 +43,7 @@ Client
 
   lt_client -h host [-e endpoint] [-P tcp|udp] [-t threads] [-d secs | -n calls]
             [-r rate] [-m mix] [-z size] [-T ms] [-s seed] [-C id]
-            [-W] [-k] [-S] [-Q] [-v]
+            [-W] [-k] [-R] [-S] [-Q] [-v]
 
 Every thread has its own binding handle and therefore its own connection
 (association).  -r limits the calls per second of the whole process; -m
@@ -53,6 +53,17 @@ closing the contexts (the server must run them down).  -W uses union
 discriminants that do not fit into 16 bits.  See the comment at the top of
 lt_client.c for all options.  The exit status is 0 if all calls succeeded
 and all data was correct.
+
+For fault tests (server restarts, network outages), -R makes the client
+recover by itself: after a failed call it resets the binding, so that the
+endpoint mapper is asked again for a server with a dynamic endpoint,
+replaces a context handle whose call failed, and pauses 100 ms.  The line
+
+  outages <n> longest <ms> ms not recovered <k>
+
+of the summary counts the outages of all threads (from the start of the
+first failed call to the end of the next successful one), the longest one,
+and the threads whose last outage lasted until the end.
 
 "make check" (run_check.sh) runs a short test against a local server on
 endpoint 2101 (LT_ENDPOINT) over TCP and UDP (LT_UDP=0 skips UDP) plus a
