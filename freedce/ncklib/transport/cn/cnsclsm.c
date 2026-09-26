@@ -1489,8 +1489,13 @@ pointer_t       sm;
     else
     {
         /*
-         * There is no response packet for a maybe call.
+         * There is no response packet for a maybe call.  The
+         * iovector holds only the (empty) protocol header, so that
+         * rpc__cn_call_end() does not free elements left over from
+         * an earlier use of this call rep.
          */
+        RPC_CN_CREP_IOVLEN (call_rep) = 1;
+        RPC_CN_CREP_CUR_IOV_INDX (call_rep) = 0;
         (RPC_CN_CREP_IOV (call_rep)[0]).data_len = 0;
 
         /*

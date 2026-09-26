@@ -2499,6 +2499,7 @@ rpc_cn_call_rep_p_t     ccb;
     iov_p->buff_addr = (byte_p_t) fragbuf_p;
     iov_p->buff_len = fragbuf_p->max_data_size;
     iov_p->data_addr = (byte_p_t) fragbuf_p->data_p;
+    RPC_CN_CREP_IOVLEN (ccb) = 1;
 
     /*
      * Init the common call rep mutex.
