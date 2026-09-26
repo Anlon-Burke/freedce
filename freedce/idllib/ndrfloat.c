@@ -2736,7 +2736,7 @@ PUBLIC void ndr_cvt_long_float
 }
 
 #ifdef DEBUG
-globaldef void (*cvt_vector[])() = {
+globaldef void (*cvt_vector[]) (CVT_BYTE *, CVT_SIGNED_INT, CVT_BYTE *) = {
     cvt_vax_f_to_ieee_single,
     cvt_vax_g_to_ieee_double,
     cvt_cray_to_ieee_single,

@@ -761,7 +761,7 @@ void rpc_ss_ndr_unmar_xmit_as
 {
     idl_ulong_int routine_index;    /* Index in routine vector of routine group
                                                             for this type */
-    void (**routine_ptr)();         /* Pointer to routine group */
+    IDL_rtn_func_t *routine_ptr;         /* Pointer to routine group */
     rpc_void_p_t transmitted_data;
     idl_ulong_int transmitted_data_size; /* Storage size for transmitted data */
     idl_byte *defn_vec_ptr;
@@ -983,7 +983,7 @@ void rpc_ss_ndr_unmar_xmit_as
     }
 
     /* Convert to presented type */
-    (*(routine_ptr+IDL_RTN_FROM_XMIT_INDEX))(transmitted_data, param_addr);
+    ((IDL_rtn_from_xmit_t) *(routine_ptr+IDL_RTN_FROM_XMIT_INDEX))(transmitted_data, param_addr);
 
     /* Release storage for transmitted type */
     if (xmit_data_buff == NULL)

@@ -82,7 +82,7 @@ struct_addr, struct_offset_vec_ptr, offset_vec_ptr, cs_shadow, shadow_index,
     idl_ulong_int cs_type_defn_index;
     idl_byte *cs_type_defn_ptr;
     idl_ulong_int routine_index;
-    void (**routine_ptr)();
+    IDL_rtn_func_t *routine_ptr;
     idl_byte ln_type = 0;           /* Data type of [length_is] item */
     idl_ulong_int ln_index;     /* Index in shadow of [length_is] item */
     idl_byte sz_type = 0;           /* Data type of [size_is] item */
@@ -201,7 +201,7 @@ struct_addr, struct_offset_vec_ptr, offset_vec_ptr, cs_shadow, shadow_index,
 
     /* Call ..._net_size */
 
-    (*(routine_ptr + IDL_RTN_NET_SIZE_INDEX))(IDL_msp->IDL_h,
+    ((IDL_rtn_net_size_t) *(routine_ptr + IDL_RTN_NET_SIZE_INDEX))(IDL_msp->IDL_h,
             *(IDL_msp->IDL_cs_tags_p->p_marsh_tag),
             l_storage_len,
             &convert_type,
@@ -243,7 +243,7 @@ struct_addr, struct_offset_vec_ptr, offset_vec_ptr, cs_shadow, shadow_index,
 
     /* Call ..._to_netcs */
 
-    (*(routine_ptr + IDL_RTN_TO_NETCS_INDEX))(IDL_msp->IDL_h,
+    ((IDL_rtn_to_netcs_t) *(routine_ptr + IDL_RTN_TO_NETCS_INDEX))(IDL_msp->IDL_h,
             *(IDL_msp->IDL_cs_tags_p->p_marsh_tag),
             ldata,
             l_data_len,
@@ -436,7 +436,7 @@ static void rpc_ss_ndr_m_cs_farr_or_single
 {
     idl_byte *cs_type_defn_ptr;
     idl_ulong_int routine_index;
-    void (**routine_ptr)();
+    IDL_rtn_func_t *routine_ptr;
     /* Parameters for ..._net_size */
     idl_cs_convert_t convert_type;
     /* Parameters for ..._to_netcs */
@@ -448,7 +448,7 @@ static void rpc_ss_ndr_m_cs_farr_or_single
     routine_ptr = IDL_msp->IDL_rtn_vec + routine_index;
 
     /* Call ..._net_size */
-    (*(routine_ptr + IDL_RTN_NET_SIZE_INDEX))(IDL_msp->IDL_h,
+    ((IDL_rtn_net_size_t) *(routine_ptr + IDL_RTN_NET_SIZE_INDEX))(IDL_msp->IDL_h,
             *(IDL_msp->IDL_cs_tags_p->p_marsh_tag),
             l_storage_len,
             &convert_type,
@@ -469,7 +469,7 @@ static void rpc_ss_ndr_m_cs_farr_or_single
         wdata = (idl_void_p_t)rpc_ss_mem_alloc(&IDL_msp->IDL_mem_handle,
                  l_storage_len * rpc_ss_type_size(cs_type_defn_ptr, IDL_msp));
         /* Call ..._to_netcs */
-        (*(routine_ptr + IDL_RTN_TO_NETCS_INDEX))(IDL_msp->IDL_h,
+        ((IDL_rtn_to_netcs_t) *(routine_ptr + IDL_RTN_TO_NETCS_INDEX))(IDL_msp->IDL_h,
                 *(IDL_msp->IDL_cs_tags_p->p_marsh_tag),
                 data_addr,
                 l_storage_len,

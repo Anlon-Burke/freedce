@@ -687,7 +687,7 @@ void rpc_ss_ndr_marsh_xmit_as
 {
     idl_ulong_int routine_index;    /* Index in routine vector of routine group
                                                             for this type */
-    void (**routine_ptr)();         /* Pointer to routine group */
+    IDL_rtn_func_t *routine_ptr;         /* Pointer to routine group */
     rpc_void_p_t transmitted_data;
     idl_byte *defn_vec_ptr;
     idl_byte transmitted_type;      /* Type of transmitted data */
@@ -704,7 +704,7 @@ void rpc_ss_ndr_marsh_xmit_as
     routine_ptr = IDL_msp->IDL_rtn_vec + routine_index;
 
     /* Convert presented type to transmitted type */
-    (*(routine_ptr+IDL_RTN_TO_XMIT_INDEX))(param_addr, &transmitted_data);
+    ((IDL_rtn_to_xmit_t) *(routine_ptr+IDL_RTN_TO_XMIT_INDEX))(param_addr, &transmitted_data);
     (IDL_msp->IDL_m_xmit_level)++;
 
     /* Marshall transmitted type */
@@ -813,7 +813,7 @@ void rpc_ss_ndr_marsh_xmit_as
 
     /* Release storage for transmitted type */
     (IDL_msp->IDL_m_xmit_level)--;
-    (*(routine_ptr+IDL_RTN_FREE_XMIT_INDEX))(transmitted_data);
+    ((IDL_rtn_free_t) *(routine_ptr+IDL_RTN_FREE_XMIT_INDEX))(transmitted_data);
 
     /* On server side, release targets of any pointers in presented type.
         If this is a recursive call, the "presented type" is freed by
@@ -821,7 +821,7 @@ void rpc_ss_ndr_marsh_xmit_as
     if ((IDL_msp->IDL_side == IDL_server_side_k)
         && (IDL_msp->IDL_m_xmit_level == 0))
     {
-        (*(routine_ptr+IDL_RTN_FREE_INST_INDEX))(param_addr);
+        ((IDL_rtn_free_t) *(routine_ptr+IDL_RTN_FREE_INST_INDEX))(param_addr);
     }
 }
 

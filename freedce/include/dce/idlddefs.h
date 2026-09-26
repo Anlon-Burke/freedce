@@ -425,6 +425,34 @@ typedef struct IDL_bound_pair_t {
 #define IDL_RTN_FROM_NETCS_INDEX    3
 
 /*
+ *  The routine vector holds all routines as IDL_rtn_func_t.  These are
+ *  the real types of the [transmit_as] and [cs_char] routines; the
+ *  interpreter converts a vector entry to them before calling it.
+ */
+typedef void (*IDL_rtn_to_xmit_t) _DCE_PROTOTYPE_ ((
+    rpc_void_p_t /*presented*/, rpc_void_p_t * /*transmitted*/));
+typedef void (*IDL_rtn_from_xmit_t) _DCE_PROTOTYPE_ ((
+    rpc_void_p_t /*transmitted*/, rpc_void_p_t /*presented*/));
+typedef void (*IDL_rtn_free_t) _DCE_PROTOTYPE_ ((rpc_void_p_t));
+typedef void (*IDL_rtn_net_size_t) _DCE_PROTOTYPE_ ((
+    handle_t /*h*/, unsigned32 /*tag*/, unsigned32 /*l_storage_len*/,
+    idl_cs_convert_t * /*p_convert_type*/,
+    unsigned32 * /*p_w_storage_len*/, error_status_t * /*status*/));
+typedef void (*IDL_rtn_to_netcs_t) _DCE_PROTOTYPE_ ((
+    handle_t /*h*/, unsigned32 /*tag*/, rpc_void_p_t /*ldata*/,
+    unsigned32 /*l_data_len*/, rpc_void_p_t /*wdata*/,
+    unsigned32 * /*p_w_data_len*/, error_status_t * /*status*/));
+typedef void (*IDL_rtn_local_size_t) _DCE_PROTOTYPE_ ((
+    handle_t /*h*/, unsigned32 /*tag*/, unsigned32 /*w_storage_len*/,
+    idl_cs_convert_t * /*p_convert_type*/,
+    unsigned32 * /*p_l_storage_len*/, error_status_t * /*status*/));
+typedef void (*IDL_rtn_from_netcs_t) _DCE_PROTOTYPE_ ((
+    handle_t /*h*/, unsigned32 /*tag*/, rpc_void_p_t /*wdata*/,
+    unsigned32 /*w_data_len*/, unsigned32 /*l_storage_len*/,
+    rpc_void_p_t /*ldata*/, unsigned32 * /*p_l_data_len*/,
+    error_status_t * /*status*/));
+
+/*
  *  Values and test for properties byte
  */
 

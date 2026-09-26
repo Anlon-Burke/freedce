@@ -86,7 +86,7 @@ void rpc_ss_ndr_u_conf_cs_struct_hdr
     idl_ulong_int cs_type_defn_index;
     idl_byte *cs_type_defn_ptr;
     idl_ulong_int routine_index;
-    void (**routine_ptr)();
+    IDL_rtn_func_t *routine_ptr;
     idl_ulong_int l_storage_len;
     idl_byte *base_type_defn_ptr;       /* Pointer to base type of array */
 
@@ -104,7 +104,7 @@ void rpc_ss_ndr_u_conf_cs_struct_hdr
     routine_ptr = IDL_msp->IDL_rtn_vec + routine_index;
 
     /* Call ..._local_size */
-    (*(routine_ptr + IDL_RTN_LOCAL_SIZE_INDEX))(IDL_msp->IDL_h,
+    ((IDL_rtn_local_size_t) *(routine_ptr + IDL_RTN_LOCAL_SIZE_INDEX))(IDL_msp->IDL_h,
             *(IDL_msp->IDL_cs_tags_p->p_unmar_tag),
             *Z_values,
             &cs_shadow[conf_arr_shadow_index].IDL_convert_type,
@@ -167,7 +167,7 @@ void rpc_ss_ndr_unmar_cs_array
     idl_byte ln_type;           /* Data type of [length_is] item */
     idl_ulong_int ln_index;     /* Index in shadow of [length_is] item */
     idl_ulong_int sz_index;     /* Index in shadow of [size_is] item */
-    void (**routine_ptr)();
+    IDL_rtn_func_t *routine_ptr;
     /* Parameters for ..._net_size */
     idl_ulong_int l_storage_len;
     idl_ulong_int w_storage_len;
@@ -239,7 +239,7 @@ void rpc_ss_ndr_unmar_cs_array
     else
     {
         /* Call ..._local_size */
-        (*(routine_ptr + IDL_RTN_LOCAL_SIZE_INDEX))(IDL_msp->IDL_h,
+        ((IDL_rtn_local_size_t) *(routine_ptr + IDL_RTN_LOCAL_SIZE_INDEX))(IDL_msp->IDL_h,
                 *(IDL_msp->IDL_cs_tags_p->p_unmar_tag),
                 w_storage_len,
                 &convert_type,
@@ -275,7 +275,7 @@ void rpc_ss_ndr_unmar_cs_array
     if (convert_type != idl_cs_no_convert)
     {
         /* Call ..._from_netcs */
-        (*(routine_ptr + IDL_RTN_FROM_NETCS_INDEX))(IDL_msp->IDL_h,
+        ((IDL_rtn_from_netcs_t) *(routine_ptr + IDL_RTN_FROM_NETCS_INDEX))(IDL_msp->IDL_h,
                 *(IDL_msp->IDL_cs_tags_p->p_unmar_tag),
                 wdata,
                 w_data_len,
@@ -330,7 +330,7 @@ void rpc_ss_ndr_unmar_cs_char
 {
     idl_byte *cs_type_defn_ptr;
     idl_ulong_int routine_index;
-    void (**routine_ptr)();
+    IDL_rtn_func_t *routine_ptr;
     /* Parameters for ..._net_size */
     idl_ulong_int w_storage_len = 1;
     idl_cs_convert_t convert_type;
@@ -343,7 +343,7 @@ void rpc_ss_ndr_unmar_cs_char
     routine_ptr = IDL_msp->IDL_rtn_vec + routine_index;
 
     /* Call ..._local_size */
-    (*(routine_ptr + IDL_RTN_LOCAL_SIZE_INDEX))(IDL_msp->IDL_h,
+    ((IDL_rtn_local_size_t) *(routine_ptr + IDL_RTN_LOCAL_SIZE_INDEX))(IDL_msp->IDL_h,
             *(IDL_msp->IDL_cs_tags_p->p_unmar_tag),
             w_storage_len,
             &convert_type,
@@ -367,7 +367,7 @@ void rpc_ss_ndr_unmar_cs_char
     if (convert_type != idl_cs_no_convert)
     {
         /* Call ..._from_netcs */
-        (*(routine_ptr + IDL_RTN_FROM_NETCS_INDEX))(IDL_msp->IDL_h,
+        ((IDL_rtn_from_netcs_t) *(routine_ptr + IDL_RTN_FROM_NETCS_INDEX))(IDL_msp->IDL_h,
                 *(IDL_msp->IDL_cs_tags_p->p_unmar_tag),
                 wdata,
                 w_storage_len,
@@ -670,7 +670,7 @@ static void rpc_ss_ndr_conf_cs_array_param
     idl_ulong_int cs_type_defn_index;
     idl_byte *cs_type_defn_ptr;
     idl_ulong_int routine_index;
-    void (**routine_ptr)();
+    IDL_rtn_func_t *routine_ptr;
 
     if (array_type == IDL_DT_OPEN_ARRAY)
     {
@@ -688,7 +688,7 @@ static void rpc_ss_ndr_conf_cs_array_param
     /* cs_type_defn_ptr now pointing at network type definition */
 
     /* Call ..._local_size */
-    (*(routine_ptr + IDL_RTN_LOCAL_SIZE_INDEX))(IDL_msp->IDL_h,
+    ((IDL_rtn_local_size_t) *(routine_ptr + IDL_RTN_LOCAL_SIZE_INDEX))(IDL_msp->IDL_h,
                 *(IDL_msp->IDL_cs_tags_p->p_unmar_tag),
                 Z_value,
                 p_convert_type,
