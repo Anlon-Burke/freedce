@@ -1,0 +1,75 @@
+Load test for the RPC runtime
+=============================
+
+lt_server and lt_client exercise the runtime and the NDR marshaling code with
+many concurrent calls and check every byte of data in both directions.
+
+The interface (loadtest.idl) has one operation per area:
+
+  null, null_idem   empty calls (plain and idempotent)
+  struct            scalars of every size, hyper, float/double, enum, fixed
+                    array, string
+  array             conformant varying array of structs, in and out
+  union             non-encapsulated unions with small/short/long
+                    discriminants and an encapsulated union
+  list              [unique] linked list in, new list out
+  graph             [ptr] (full) pointers with aliasing, in and out
+  pipe_in/pipe_out  pipes in both directions
+  open/ctx_op/close context handles; the server runs down the contexts of
+                    clients that go away
+  slow              the manager sleeps (holds a call thread)
+  stats             server statistics
+
+All data is generated from a key (seed, client id, thread, call number), so
+the server checks what the client sent and the client checks the reply.  A
+difference is counted as a mismatch and the first ones are printed.
+
+Server
+------
+
+  lt_server [-p protseq]... [-e endpoint] [-c max_calls] [-f nofile] [-i secs]
+
+  -p  protocol sequence (default ncacn_ip_tcp; repeat for more)
+  -e  fixed endpoint; without it the server uses dynamic endpoints and
+      registers them with rpcd, which must be running
+  -c  maximum number of concurrent calls (call threads)
+  -f  set the open file limit (RLIMIT_NOFILE)
+  -i  print statistics every secs seconds
+
+SIGINT or SIGTERM stops the server; it prints its statistics at the end.
+
+Client
+------
+
+  lt_client -h host [-e endpoint] [-P tcp|udp] [-t threads] [-d secs | -n calls]
+            [-r rate] [-m mix] [-z size] [-T ms] [-s seed] [-C id]
+            [-W] [-k] [-S] [-Q] [-v]
+
+Every thread has its own binding handle and therefore its own connection
+(association).  -r limits the calls per second of the whole process; -m
+selects operations and weights, e.g. -m struct=4,array=2,null=1.  -S prints
+the server statistics at the end, -Q only prints them.  -k exits without
+closing the contexts (the server must run them down).  -W uses union
+discriminants that do not fit into 16 bits.  See the comment at the top of
+lt_client.c for all options.  The exit status is 0 if all calls succeeded
+and all data was correct.
+
+"make check" (run_check.sh) runs a short test against a local server on
+endpoint 2101 (LT_ENDPOINT) over TCP and UDP (LT_UDP=0 skips UDP) plus a
+context rundown test; rpcd is not needed.
+
+Two hosts
+---------
+
+On the server host, start rpcd (port 135, as root) and
+
+  lt_server -i 10
+
+or, without rpcd, lt_server -e 2101.  On the client host(s), start as many
+clients as needed, each with a different client id:
+
+  lt_client -h server -t 100 -d 600 -r 50 -C 1 -S
+
+Many client processes with many threads each give many connections.  With
+dynamic endpoints the firewall on the server host has to allow port 135 and
+the dynamic port range (or use -e and allow only that port).

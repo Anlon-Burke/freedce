@@ -101,6 +101,7 @@ test-driver
 /freedce/perf/perfb.h
 /freedce/perf/perfc.h
 /freedce/perf/perfg.h
+/freedce/tests/loadtest/loadtest.h
 /freedce/ncklib/transport/dg/conv.h
 /freedce/ncklib/transport/dg/convc.h
 *_cstub.c
@@ -118,6 +119,8 @@ test-driver
 /freedce/demos/samr/samr_server
 /freedce/perf/client
 /freedce/perf/server
+/freedce/tests/loadtest/lt_client
+/freedce/tests/loadtest/lt_server
 /dcethreads/tests/test1
 /dcethreads/tests/test2
 /dcethreads/tests/test3

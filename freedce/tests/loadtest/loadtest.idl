@@ -1,0 +1,255 @@
+/*
+ * loadtest.idl: interface of the load test (lt_client, lt_server).
+ *
+ * Every operation exercises a different part of the NDR marshaling code or
+ * of the runtime.  All data is generated from a seed (see lt_data.c), so
+ * both sides can check what they receive.
+ */
+[
+    uuid(e134c079-3212-474e-9b85-d1b919b28d9d),
+    version(1.0),
+    pointer_default(unique)
+]
+interface loadtest
+{
+const long lt_tag_len = 16;
+const long lt_max_name = 64;
+
+typedef enum { lt_red, lt_green, lt_blue } lt_color_t;
+
+/*
+ * Identifies one call: seed plus client, thread and call number.  flags
+ * select optional data (lt_f_* in lt_data.h) that both sides must know.
+ */
+typedef struct
+{
+    unsigned hyper      seed;
+    unsigned long       client;
+    unsigned long       thread;
+    unsigned long       call;
+    unsigned long       flags;
+} lt_key_t;
+
+/* Scalars of every size, a fixed array and a string. */
+typedef struct
+{
+    hyper               h;
+    unsigned hyper      uh;
+    double              d;
+    float               f;
+    small               s8;
+    unsigned small      u8;
+    short               s16;
+    unsigned short      u16;
+    long                s32;
+    unsigned long       u32;
+    boolean             flag;
+    byte                raw;
+    lt_color_t          color;
+    char                tag[lt_tag_len];
+    [string] char       *name;
+} lt_rec_t;
+
+/* Array element. */
+typedef struct
+{
+    unsigned long       id;
+    unsigned short      kind;
+    byte                data[6];
+    double              value;
+} lt_item_t;
+
+/* Non-encapsulated unions with small, short and long discriminants. */
+typedef [switch_type(small)] union
+{
+    [case(0)]           ;
+    [case(1)]           long l;
+    [case(2)]           double d;
+    [case(3)]           lt_item_t item;
+} lt_u8_t;
+
+typedef [switch_type(short)] union
+{
+    [case(1)]           small b;
+    [case(2)]           hyper h;
+    [case(3), string, ptr] char *s;
+    [default]           long other;
+} lt_u16_t;
+
+typedef [switch_type(long)] union
+{
+    [case(1)]           short w;
+    [case(2, 3)]        lt_item_t item;
+    [case(65536)]       double big;
+    [case(-1)]          unsigned long neg;
+    [default]           ;
+} lt_u32_t;
+
+/* Encapsulated union. */
+typedef union switch (short kind) v
+{
+    case 1:             long l;
+    case 2:             double d;
+    case 3:             lt_item_t item;
+    default:            ;
+} lt_eu_t;
+
+typedef struct
+{
+    small               k8;
+    [switch_is(k8)]     lt_u8_t u8;
+    short               k16;
+    [switch_is(k16)]    lt_u16_t u16;
+    long                k32;
+    [switch_is(k32)]    lt_u32_t u32;
+    lt_eu_t             eu;
+} lt_var_t;
+
+/* Linked list of unique pointers. */
+typedef struct lt_node
+{
+    unsigned long       value;
+    [string] char       *label;
+    struct lt_node      *next;
+} lt_node_t;
+
+/* Graph of full pointers: several slots may point to the same node. */
+typedef struct lt_gnode
+{
+    unsigned long       id;
+    unsigned long       visits;
+    [ptr] struct lt_gnode *next;
+} lt_gnode_t;
+
+typedef [ptr] lt_gnode_t *lt_gnode_p_t;
+
+typedef pipe unsigned long lt_pipe_t;
+
+typedef [context_handle] void *lt_ctx_t;
+
+/* Server statistics. */
+const long lt_n_ops = 16;
+
+typedef struct
+{
+    unsigned hyper      calls[lt_n_ops];
+    unsigned hyper      mismatches;
+    unsigned long       contexts;
+    unsigned hyper      rundowns;
+    unsigned long       threads;
+    unsigned long       fds;
+    unsigned hyper      rss_kb;
+} lt_stats_t;
+
+/* 0 */
+void lt_null
+(
+    [in]        handle_t        h
+);
+
+/* 1 */
+[idempotent] void lt_null_idem
+(
+    [in]        handle_t        h
+);
+
+/* 2: the server checks rec and returns its own record for the key. */
+long lt_struct
+(
+    [in]        handle_t        h,
+    [in]        lt_key_t        *key,
+    [in]        lt_rec_t        *rec,
+    [out]       lt_rec_t        *reply
+);
+
+/* 3: conformant varying array, in and out. */
+long lt_array
+(
+    [in]        handle_t        h,
+    [in]        lt_key_t        *key,
+    [in]        unsigned long   max,
+    [in, out]   unsigned long   *len,
+    [in, out, size_is(max), length_is(*len)] lt_item_t items[]
+);
+
+/* 4: unions. */
+long lt_union
+(
+    [in]        handle_t        h,
+    [in]        lt_key_t        *key,
+    [in]        unsigned long   n,
+    [in, size_is(n)] lt_var_t   vars[],
+    [out, size_is(n)] lt_var_t  reply[]
+);
+
+/* 5: the server checks the list and returns a new one. */
+long lt_list
+(
+    [in]        handle_t        h,
+    [in]        lt_key_t        *key,
+    [in, unique] lt_node_t      *list,
+    [out]       lt_node_t       **reply
+);
+
+/* 6: the server counts the references to every node in visits. */
+long lt_graph
+(
+    [in]        handle_t        h,
+    [in]        lt_key_t        *key,
+    [in]        unsigned long   n,
+    [in, out, size_is(n)] lt_gnode_p_t slots[]
+);
+
+/* 7: the client sends *count elements through the pipe. */
+long lt_pipe_in
+(
+    [in]        handle_t        h,
+    [in]        lt_key_t        *key,
+    [in]        unsigned long   count,
+    [in]        lt_pipe_t       data
+);
+
+/* 8: the server sends count elements through the pipe. */
+long lt_pipe_out
+(
+    [in]        handle_t        h,
+    [in]        lt_key_t        *key,
+    [in]        unsigned long   count,
+    [out]       lt_pipe_t       data
+);
+
+/* 9 */
+void lt_open
+(
+    [in]        handle_t        h,
+    [in]        lt_key_t        *key,
+    [out]       lt_ctx_t        *ctx
+);
+
+/* 10: returns the number of calls on this context so far. */
+unsigned long lt_ctx_op
+(
+    [in]        lt_ctx_t        ctx
+);
+
+/* 11 */
+void lt_close
+(
+    [in, out]   lt_ctx_t        *ctx
+);
+
+/* 12: the manager sleeps (or spins) for ms milliseconds. */
+void lt_slow
+(
+    [in]        handle_t        h,
+    [in]        unsigned long   ms,
+    [in]        boolean         spin
+);
+
+/* 13 */
+void lt_stats
+(
+    [in]        handle_t        h,
+    [out]       lt_stats_t      *stats
+);
+}
