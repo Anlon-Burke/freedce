@@ -206,7 +206,7 @@ struct_addr, struct_offset_vec_ptr, offset_vec_ptr, cs_shadow, shadow_index,
             l_storage_len,
             &convert_type,
             (array_type == IDL_DT_VARYING_ARRAY) ? NULL : &w_storage_len,
-            &IDL_msp->IDL_status);
+            (error_status_t *) &IDL_msp->IDL_status);
 
     if (IDL_msp->IDL_status != error_status_ok)
         RAISE(rpc_x_ss_pipe_comm_error);
@@ -249,7 +249,7 @@ struct_addr, struct_offset_vec_ptr, offset_vec_ptr, cs_shadow, shadow_index,
             l_data_len,
             wdata,
             (array_type == IDL_DT_CONF_ARRAY) ? NULL : &w_data_len,
-            &IDL_msp->IDL_status);
+            (error_status_t *) &IDL_msp->IDL_status);
     if (IDL_msp->IDL_status != error_status_ok)
         RAISE(rpc_x_ss_pipe_comm_error);
 
@@ -453,7 +453,7 @@ static void rpc_ss_ndr_m_cs_farr_or_single
             l_storage_len,
             &convert_type,
             NULL,
-            &IDL_msp->IDL_status);
+            (error_status_t *) &IDL_msp->IDL_status);
     if (IDL_msp->IDL_status != error_status_ok)
         RAISE(rpc_x_ss_pipe_comm_error);
 
@@ -475,7 +475,7 @@ static void rpc_ss_ndr_m_cs_farr_or_single
                 l_storage_len,
                 wdata,
                 NULL,
-                &IDL_msp->IDL_status);
+                (error_status_t *) &IDL_msp->IDL_status);
         if (IDL_msp->IDL_status != error_status_ok)
             RAISE(rpc_x_ss_pipe_comm_error);
         /* Marshall the converted data */

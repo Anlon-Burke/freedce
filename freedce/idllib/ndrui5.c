@@ -109,7 +109,7 @@ void rpc_ss_ndr_u_conf_cs_struct_hdr
             *Z_values,
             &cs_shadow[conf_arr_shadow_index].IDL_convert_type,
             &l_storage_len,
-            &(IDL_msp->IDL_status));
+            (error_status_t *) &IDL_msp->IDL_status);
     if (IDL_msp->IDL_status != error_status_ok)
         RAISE(rpc_x_ss_pipe_comm_error);
 
@@ -244,7 +244,7 @@ void rpc_ss_ndr_unmar_cs_array
                 w_storage_len,
                 &convert_type,
                 ( ! conformant ) ? NULL : &l_storage_len,
-                &IDL_msp->IDL_status);
+                (error_status_t *) &IDL_msp->IDL_status);
         if (IDL_msp->IDL_status != error_status_ok)
             RAISE(rpc_x_ss_pipe_comm_error);
     }
@@ -283,7 +283,7 @@ void rpc_ss_ndr_unmar_cs_array
                 array_addr,
                 ((array_type == IDL_DT_FIXED_ARRAY)
                     || (array_type == IDL_DT_CONF_ARRAY)) ? NULL : &l_data_len,
-                &IDL_msp->IDL_status);
+                (error_status_t *) &IDL_msp->IDL_status);
         if (IDL_msp->IDL_status != error_status_ok)
             RAISE(rpc_x_ss_codeset_conv_error);
     }
@@ -348,7 +348,7 @@ void rpc_ss_ndr_unmar_cs_char
             w_storage_len,
             &convert_type,
             NULL,
-            &IDL_msp->IDL_status);
+            (error_status_t *) &IDL_msp->IDL_status);
     if (IDL_msp->IDL_status != error_status_ok)
         RAISE(rpc_x_ss_pipe_comm_error);
 
@@ -374,7 +374,7 @@ void rpc_ss_ndr_unmar_cs_char
                 w_storage_len,
                 data_addr,
                 NULL,
-                &IDL_msp->IDL_status);
+                (error_status_t *) &IDL_msp->IDL_status);
         if (IDL_msp->IDL_status != error_status_ok)
             RAISE(rpc_x_ss_codeset_conv_error);
     }
@@ -693,7 +693,7 @@ static void rpc_ss_ndr_conf_cs_array_param
                 Z_value,
                 p_convert_type,
                 p_l_storage_len,
-                &IDL_msp->IDL_status);
+                (error_status_t *) &IDL_msp->IDL_status);
     if (IDL_msp->IDL_status != error_status_ok)
         RAISE(rpc_x_ss_pipe_comm_error);
 
