@@ -59,6 +59,12 @@ typedef struct
     double              value;
 } lt_item_t;
 
+/*
+ * A full pointer to a string (a union arm cannot hold a [unique] pointer;
+ * the typedef keeps the attributes in a form both dceidl and MIDL accept).
+ */
+typedef [string, ptr] char *lt_str_t;
+
 /* Non-encapsulated unions with small, short and long discriminants. */
 typedef [switch_type(small)] union
 {
@@ -72,7 +78,7 @@ typedef [switch_type(short)] union
 {
     [case(1)]           small b;
     [case(2)]           hyper h;
-    [case(3), string, ptr] char *s;
+    [case(3)]           lt_str_t s;
     [default]           long other;
 } lt_u16_t;
 

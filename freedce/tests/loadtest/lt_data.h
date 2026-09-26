@@ -8,8 +8,7 @@
 #ifndef LT_DATA_H
 #define LT_DATA_H
 
-#include <stddef.h>
-#include <stdint.h>
+#include "lt_port.h"
 #include "loadtest.h"
 
 /* lt_key_t.flags */
@@ -37,9 +36,6 @@ typedef struct
 void lt_rng_init(lt_rng_t *r, const lt_key_t *key, unsigned int stream);
 uint64_t lt_rng_next(lt_rng_t *r);
 uint32_t lt_rng_below(lt_rng_t *r, uint32_t n);    /* 0 .. n-1 */
-
-uint64_t lt_uhyper_get(const idl_uhyper_int *v);
-void lt_uhyper_set(idl_uhyper_int *v, uint64_t x);
 
 /*
  * Allocator for pointed-to data: malloc on the client, rpc_ss_allocate in
@@ -94,6 +90,6 @@ idl_ulong_int lt_pipe_elt(const lt_key_t *key, unsigned int stream,
 
 /* error text helper */
 void lt_errf(char *err, size_t errlen, const char *fmt, ...)
-    __attribute__((format(printf, 3, 4)));
+    LT_FORMAT(3, 4);
 
 #endif

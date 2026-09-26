@@ -58,6 +58,24 @@ and all data was correct.
 endpoint 2101 (LT_ENDPOINT) over TCP and UDP (LT_UDP=0 skips UDP) plus a
 context rundown test; rpcd is not needed.
 
+Windows client
+--------------
+
+lt_client also builds with the Microsoft RPC runtime (MIDL stubs, rpcrt4),
+to test Windows clients against a DCE server; lt_port.h/lt_port.c hide the
+differences (exceptions, threads, memory of a call, getopt).  With Visual
+Studio and the Windows SDK:
+
+  set VCVARS=<path of vcvars64.bat>
+  build_win.cmd <output directory>
+
+and run it like the Linux client, e.g.
+
+  lt_client.exe -h <server address> -e 2101 -t 16 -d 60 -S
+
+Without -e the endpoint mapper on the server host (rpcd) resolves the
+endpoint.  Windows no longer supports ncadg_ip_udp.
+
 Two hosts
 ---------
 

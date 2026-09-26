@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <dce/rpc.h>
 #include "lt_data.h"
 
 const char *lt_op_names[LT_N_OPS] =
@@ -25,6 +24,27 @@ static uint64_t mix(uint64_t z)
     return z ^ (z >> 31);
 }
 
+#ifdef _WIN32
+
+int64_t lt_hyper_get(const idl_hyper_int *v) { return *v; }
+void lt_hyper_set(idl_hyper_int *v, int64_t x) { *v = x; }
+uint64_t lt_uhyper_get(const idl_uhyper_int *v) { return *v; }
+void lt_uhyper_set(idl_uhyper_int *v, uint64_t x) { *v = x; }
+
+#else
+
+/* DCE: a struct of two 32-bit halves */
+int64_t lt_hyper_get(const idl_hyper_int *v)
+{
+    return (int64_t) (((uint64_t) (uint32_t) v->high << 32) | v->low);
+}
+
+void lt_hyper_set(idl_hyper_int *v, int64_t x)
+{
+    v->low = (idl_ulong_int) x;
+    v->high = (idl_long_int) ((uint64_t) x >> 32);
+}
+
 uint64_t lt_uhyper_get(const idl_uhyper_int *v)
 {
     return ((uint64_t) v->high << 32) | v->low;
@@ -35,6 +55,8 @@ void lt_uhyper_set(idl_uhyper_int *v, uint64_t x)
     v->low = (idl_ulong_int) x;
     v->high = (idl_ulong_int) (x >> 32);
 }
+
+#endif
 
 static uint64_t key_base(const lt_key_t *key, unsigned int stream)
 {
@@ -121,9 +143,7 @@ static void gen_rec_into(const lt_key_t *key, unsigned int stream,
     int      i;
 
     lt_rng_init(&r, key, stream);
-    x = lt_rng_next(&r);
-    rec->h.low = (idl_ulong_int) x;
-    rec->h.high = (idl_long_int) (x >> 32);
+    lt_hyper_set(&rec->h, (int64_t) lt_rng_next(&r));
     lt_uhyper_set(&rec->uh, lt_rng_next(&r));
     rec->d = gen_double(&r);
     rec->f = (float) (int32_t) lt_rng_next(&r) / 16.0f;
@@ -161,8 +181,8 @@ int lt_check_rec(const lt_key_t *key, unsigned int stream, const lt_rec_t *rec,
     if (cond) { if (bad++ == 0) lt_errf(err, errlen, "rec.%s differs", what); }
 
     gen_rec_into(key, stream, &e, namebuf);
-    CHK(rec->h.low != e.h.low || rec->h.high != e.h.high, "h");
-    CHK(rec->uh.low != e.uh.low || rec->uh.high != e.uh.high, "uh");
+    CHK(lt_hyper_get(&rec->h) != lt_hyper_get(&e.h), "h");
+    CHK(lt_uhyper_get(&rec->uh) != lt_uhyper_get(&e.uh), "uh");
     CHK(memcmp(&rec->d, &e.d, sizeof e.d) != 0, "d");
     CHK(memcmp(&rec->f, &e.f, sizeof e.f) != 0, "f");
     CHK(rec->s8 != e.s8, "s8");
@@ -259,13 +279,7 @@ static void gen_var(lt_rng_t *r, const lt_key_t *key, lt_var_t *v, char *sbuf)
     switch (v->k16)
     {
         case 1: v->u16.b = (idl_small_int) lt_rng_next(r); break;
-        case 2:
-        {
-            uint64_t x = lt_rng_next(r);
-            v->u16.h.low = (idl_ulong_int) x;
-            v->u16.h.high = (idl_long_int) (x >> 32);
-            break;
-        }
+        case 2: lt_hyper_set(&v->u16.h, (int64_t) lt_rng_next(r)); break;
         case 3: v->u16.s = (idl_char *) gen_string(r, sbuf, lt_max_name, 0); break;
         default: v->u16.other = (idl_long_int) lt_rng_next(r); break;
     }
@@ -327,7 +341,7 @@ static int var_differs(const lt_var_t *a, const lt_var_t *e, const char **what)
     switch (e->k16)
     {
         case 1: if (a->u16.b != e->u16.b) return 1; break;
-        case 2: if (a->u16.h.low != e->u16.h.low || a->u16.h.high != e->u16.h.high) return 1; break;
+        case 2: if (lt_hyper_get(&a->u16.h) != lt_hyper_get(&e->u16.h)) return 1; break;
         case 3: if (str_differs(a->u16.s, (char *) e->u16.s)) return 1; break;
         default: if (a->u16.other != e->u16.other) return 1; break;
     }
