@@ -1017,7 +1017,8 @@ char                *argv[];
     unsigned32          st;
     idl_boolean         global;
 #define FSIZE 4000
-    unsigned32       d[FSIZE];
+    /* perfb_in() sends data[0..l] (last_is(l)), one element more than l */
+    unsigned32       d[FSIZE + 1];
     int                 i;
     unsigned32          sum, rsum;
     idl_char            result[256];
@@ -1088,6 +1089,7 @@ char                *argv[];
             d[i] = i;
             rsum += d[i];
         }
+        d[FSIZE] = 0;
 
         TRY
         {
