@@ -2039,7 +2039,7 @@ byte_p_t rpc_ss_inquire_pointer_to_node
 #ifdef IDL_PROTOTYPES
 (
     rpc_ss_node_table_t tab,
-    unsigned int *num,
+    idl_ulong_int *num,
     long *has_been_unmarshalled
 )
 #else
@@ -2052,6 +2052,7 @@ byte_p_t rpc_ss_inquire_pointer_to_node
     byte_p_t p = NULL;
     rpc_ss_pvt_node_table_t * str;
     rpc_ss_hash_entry_t * hash_entry;
+    unsigned long node_number;
 
 #ifdef PERFMON
     RPC_SS_INQUIRE_POINTER_TO_NODE_N;
@@ -2060,8 +2061,12 @@ byte_p_t rpc_ss_inquire_pointer_to_node
     /* lkcl: XXX HACK ALERT!  oh dearie me, this turns FULL pointers into unique
      * but without the hassle of "eeuw you can't have a non-encapsulated union
      * with unique pointers in it...
+     *
+     * rework_pointer() works on an unsigned long; *num is only 32 bits wide.
      */
-    rework_pointer(num);
+    node_number = *num;
+    rework_pointer(&node_number);
+    *num = (idl_ulong_int)node_number;
     p = rpc_ss_lookup_node_by_num (tab, *num);
 
     if (p == NULL)
