@@ -597,6 +597,12 @@ char                *argv[];
 	 DO_NOT_CLOBBER(i);
 	 DO_NOT_CLOBBER(ep_reg);
 
+    /*
+     * Line-buffer stdout so that server.log is complete when the server is
+     * killed at the end of the tests.
+     */
+    setvbuf(stdout, NULL, _IOLBF, 0);
+
     while ((c = getopt(argc, argv, "beslrDB:d:p:S:v:")) != EOF)
     {
         switch (c)

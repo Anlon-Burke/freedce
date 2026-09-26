@@ -2575,6 +2575,11 @@ char                *argv[];
     pid_t               cpid = 0;
     pid_t               opid = getpid();
 
+    /*
+     * Line-buffer stdout so that a test killed by a timeout keeps its output.
+     */
+    setvbuf(stdout, NULL, _IOLBF, 0);
+
     if ((clock_ticks = sysconf(_SC_CLK_TCK)) == -1)
         clock_ticks = 1;
 
