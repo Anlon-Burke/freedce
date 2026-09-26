@@ -36,6 +36,8 @@ missing
 mkinstalldirs
 stamp-h
 stamp-h1
+test-driver
+*.in~
 
 # Files that configure writes from their .in templates
 /freedce/config.mk
