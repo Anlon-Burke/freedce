@@ -1572,7 +1572,7 @@ unsigned32              *status;
     if (pass == 2)
     {
         map_match(
-            &nil_uuid, interface, data_rep, 
+            &rpcd_nil_uuid, interface, data_rep, 
             rpc_protocol, rpc_protocol_vers_major, rpc_protocol_vers_minor, protseq,
             max_ents, n_ents, db_entries, map_handle, pass, list_type, &lp, status);
         if (! STATUS_OK(status))

@@ -193,7 +193,7 @@ INTERNAL char           rpcd_version_str[] =
     "rpcd version freedce 1.0.1";
 #endif
 
-GLOBAL   uuid_t         nil_uuid;
+GLOBAL   uuid_t         rpcd_nil_uuid;
 
 
 
@@ -443,7 +443,7 @@ error_status_t  *status;
     rpc_if_rep_p_t      ept_if_rep;
     unsigned_char_p_t   fname;
 
-    uuid_create_nil(&nil_uuid, status);
+    uuid_create_nil(&rpcd_nil_uuid, status);
     if (check_st_bad("Can't create nil uuid", status))
         return;
 
