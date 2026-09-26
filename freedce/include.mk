@@ -25,7 +25,7 @@ endif
 IDL_INCLUDE_DIR=$(top_srcdir)/include/dce
 
 IDLFLAGS=$(IDL_CFLAGS) -cepv -client none -server none -I$(top_builddir)/include -I$(IDL_INCLUDE_DIR)/..
-NCK_IDLFLAGS=-keep object -no_cpp -v -no_mepv -I$(top_builddir)/include -I$(IDL_INCLUDE_DIR)/.. -I$(top_srcdir)/include $(DCETHREADINCLUDES) $(TARGET_OS) -cc_cmd '$(LIBTOOL) --mode=compile $(IDL_CC) -c $(IDL_CFLAGS) '
+NCK_IDLFLAGS=-keep object -no_cpp -v -no_mepv -I$(top_builddir)/include -I$(IDL_INCLUDE_DIR)/.. -I$(top_srcdir)/include $(DCETHREADINCLUDES) $(TARGET_OS) -cc_cmd '$(LIBTOOL) --tag=CC --mode=compile $(IDL_CC) -c $(IDL_CFLAGS) '
 
 %.h: %.idl
 	$(IDL) $(IDLFLAGS) -no_mepv $<
