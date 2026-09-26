@@ -246,6 +246,22 @@ rpc_addr_p_t        addr;
         status = rpc_s_ok;
     }
 
+#if defined(SOL_SOCKET) && defined(SO_REUSEADDR)
+    /*
+     * A server with a well-known endpoint must be able to start again while
+     * the connections of its previous instance are still in TIME_WAIT.  The
+     * kernel lets the bind through only if those connections have
+     * SO_REUSEADDR too, and they inherit it from the listening socket: so set
+     * it before the bind (after a failed bind it is too late).  A listening
+     * socket on the endpoint still makes the bind fail.
+     */
+    if (has_endpoint)
+    {
+        (void) setsockopt(sock, SOL_SOCKET, SO_REUSEADDR,
+                          &setsock_val, sizeof(setsock_val));
+    }
+#endif
+
     /* 
      * If there is no port restriction in this address family, then do a 
      * simple bind. 
@@ -256,17 +272,6 @@ rpc_addr_p_t        addr;
         serr = 
             (bind(sock, (struct sockaddr *)&addr->sa, addr->len) == -1) ? 
 		socket_error : RPC_C_SOCKET_OK;
-#if defined(SOL_SOCKET) && defined(SO_REUSEADDR)
-        if (serr == RPC_C_SOCKET_EADDRINUSE && has_endpoint)
-        {
-            if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR,
-                           &setsock_val, sizeof(setsock_val)) != -1)
-            {
-                serr = (bind(sock, (struct sockaddr *)&addr->sa, addr->len) == -1)
-                    ? socket_error : RPC_C_SOCKET_OK;
-            }
-        }
-#endif
     }                                   /* no port restriction */
 
     else                          
@@ -280,17 +285,6 @@ rpc_addr_p_t        addr;
         {
             serr = (bind(sock, (struct sockaddr *)&addr->sa, addr->len) == -1)?
                 socket_error : RPC_C_SOCKET_OK;
-#if defined(SOL_SOCKET) && defined(SO_REUSEADDR)
-            if (serr == RPC_C_SOCKET_EADDRINUSE)
-            {
-                if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR,
-                               &setsock_val, sizeof(setsock_val)) != -1)
-                {
-                    serr = (bind(sock, (struct sockaddr *)&addr->sa, addr->len) == -1)
-                        ? socket_error : RPC_C_SOCKET_OK;
-                }
-            }
-#endif
         }                               /* well-known endpoint */
         else
 	{
