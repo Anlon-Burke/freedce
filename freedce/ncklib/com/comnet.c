@@ -86,9 +86,11 @@ INTERNAL rpc_listener_state_t       listener_state;
 INTERNAL boolean                    in_server_listen;
 
 /*
- * Condition variable signalled to shutdown "rpc_server_listen" thread.
+ * Condition variable signalled to shutdown "rpc_server_listen" thread,
+ * and the condition it waits for.
  */
 INTERNAL rpc_cond_t                 shutdown_cond;
+INTERNAL boolean                    shutdown_requested;
 
 
 
@@ -395,6 +397,7 @@ unsigned32              *status;
      * Clear the status of the listener state table.
      */
     listener_state.status = rpc_s_ok;
+    shutdown_requested = false;
 
     /*
      * Fire up the cthreads.
@@ -409,11 +412,15 @@ unsigned32              *status;
     RPC_DBG_PRINTF (rpc_e_dbg_general, 2, ("(rpc_server_listen) cthreads started\n"));
 
     /*
-     * Wait until someone tells us to stop listening.
+     * Wait until someone tells us to stop listening (a condition
+     * wait may return without a signal).
      */
     TRY
     {
-        RPC_COND_WAIT (shutdown_cond, listener_state.mutex);
+        while (! shutdown_requested)
+        {
+            RPC_COND_WAIT (shutdown_cond, listener_state.mutex);
+        }
     }
     FINALLY
     {
@@ -514,6 +521,7 @@ unsigned32              *status;
         return;
     }
 
+    shutdown_requested = true;
     RPC_COND_SIGNAL (shutdown_cond, listener_state.mutex);
 
     RPC_MUTEX_UNLOCK (listener_state.mutex);
@@ -1721,6 +1729,7 @@ unsigned32              *status;
     if (! found_server_socket && in_server_listen)
     {
         listener_state.status = rpc_s_no_protseqs_registered; 
+        shutdown_requested = true;
         RPC_COND_SIGNAL (shutdown_cond, listener_state.mutex);
     }
 
