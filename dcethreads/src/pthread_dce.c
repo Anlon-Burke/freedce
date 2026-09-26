@@ -1109,7 +1109,7 @@ pthd4_setasynccancel(int state)
     switch (istat)
     {
     case SUCCESS:
-        return (old_type);
+        return (old_type == PTHREAD_CANCEL_ASYNCHRONOUS ? CANCEL_ON : CANCEL_OFF);
         break;
 
     case EINVAL:
@@ -1156,7 +1156,7 @@ pthd4_setcancel(int state)
     switch (istat)
     {
     case SUCCESS:
-        return (prev_state);
+        return (prev_state == PTHREAD_CANCEL_ENABLE ? CANCEL_ON : CANCEL_OFF);
         break;
 
     case EINVAL:
