@@ -57,4 +57,10 @@ PERF_SKIP=$TCP_SKIP sh $srcdir/perf_tcp.sh 127.0.0.1 . || rc=1
 echo "UDP Tests"
 PERF_SKIP=$UDP_SKIP sh $srcdir/perf_udp.sh 127.0.0.1 . || rc=1
 
+if ! kill -0 $server_pid 2> /dev/null; then
+        echo "The perf server died during the tests:"
+        cat server.log
+        rc=1
+fi
+
 exit $rc

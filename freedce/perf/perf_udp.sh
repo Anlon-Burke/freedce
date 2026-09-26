@@ -43,7 +43,9 @@ esac
 
 # Tests whose number or name is listed in PERF_SKIP (e.g. "3 8" or "15b")
 # are skipped.  Each test is limited to PERF_TIMEOUT seconds (default 120)
-# if timeout(1) is available.
+# if timeout(1) is available.  A test fails if the client exits with an
+# error or prints a "***" message (the client reports most errors that way
+# but still exits with status 0).
 TIMEOUT=
 if command -v timeout > /dev/null 2>&1; then
         TIMEOUT="timeout ${PERF_TIMEOUT:-120}"
@@ -51,6 +53,8 @@ fi
 
 FAILED=""
 SKIPPED=""
+OUT=${TMPDIR:-/tmp}/perf_udp.$$
+trap 'rm -f $OUT' 0
 
 run_test ()
 {
@@ -64,7 +68,12 @@ run_test ()
                 ;;
         esac
         echo "client $name"
-        $TIMEOUT ./client "$@" || FAILED="$FAILED $name"
+        $TIMEOUT ./client "$@" > $OUT 2>&1
+        rc=$?
+        cat $OUT
+        if [ $rc != 0 ] || grep '\*\*\*' $OUT > /dev/null; then
+                FAILED="$FAILED $name"
+        fi
 }
 
 run_test 0a 0 "ncadg_ip_udp:${IP}[2001]" 3 40 y y
