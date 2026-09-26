@@ -72,7 +72,7 @@ if test "$rpc_cv_incdir_$2" = "no"; then
 	done
 fi
 CPPFLAGS="$rpc_func_save_CPPFLAGS"])
-if test "$rpc_cv_incdir_$2" != "no"; then
+if test "$rpc_cv_incdir_$2" != "no"; then	:
 	$4
 else	:
 	$5
