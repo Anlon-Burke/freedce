@@ -29,53 +29,58 @@ Inventory of Goods:
 Prerequisites:
 -------------
 
-Pretty much everything will need to be the "latest versions".
-For example, at time of writing, you will likely need a 2.6 kernel
-with NPTL.  You will need glibc6 version 2.3.2.  You will need Flex
-2.5.31, you will need automake 1.9, you will need autoconf 2.53.
-I think that's about it :)
+A C compiler with C23 support (the IDL compiler uses it; gcc 13 or
+later), a C++ compiler (for the uuid tool), make, autoconf, automake,
+libtool, flex and bison.  Tested on x86_64 with:
 
-The only exception to this general rule is: don't for pity's sake
-use gcc 4, it has much stricter rules and FreeDCE has always been
-built with -Wall (see include.mk if you absolutely _must_ switch
-this off).
+ Ubuntu 26.04:  gcc 15.2, autoconf 2.72, automake 1.18, libtool 2.5.4
+ AlmaLinux 10:  gcc 14.3, autoconf 2.71, automake 1.16.5, libtool 2.4.7
 
-Guidelines for gentoo developers: gentoo doesn't build properly
-with Flex 2.5.31, therefore it is excluded from gentoo.  This is
-rather stupid, because the version of flex that is used to build
-gentoo has nothing to do with the version of flex that you need
-to use for development purposes.  As gentoo merge these two totally
-separate purposes into one (You Must Use The Same Version Of Flex
-For Building Gentoo As Actual Development) you will need to obtain
-the source code for flex 2.5.31 and build it _separately_
-(./configure --prefix=/opt/local) , then specify
-FLEX=/opt/local/bin/flex ./configure .... when building freedce.
-Sorry.  tough luck.  Debian gets round this by having the
-build requirements separate from development requirements,
-and each package is typically built in its own debootstrap
-chrooted environment (!)
+and flex 2.6.4, bison 3.8.2 on both.  The packages:
+
+ Debian, Ubuntu:
+  # apt install build-essential autoconf automake libtool flex bison
+ RHEL 10 and compatible (AlmaLinux 10):
+  # dnf install gcc gcc-c++ make autoconf automake libtool flex bison \
+      diffutils file
 
 How to Build:
 -------------
-This package uses autoconf, so `say' the following at a prompt:
 
- % ./configure
+FreeDCE needs the dcethreads library (directory dcethreads of the
+repository); build and install it first, with the same prefix.  In a git
+checkout, buildconf creates the configure scripts.  From the top
+directory of the repository:
+
+ % cd dcethreads
+ % ./buildconf
+ % ./configure --prefix=/opt/dce
  % make
- % su
- # make install
+ % make install
+ % cd ../freedce
+ % ./buildconf
+ % ./configure --prefix=/opt/dce
+ % make
+ % make install
 
-Note that things will install in /opt/dce by default. To change this, pass the
---prefix argument to configure.
+/opt/dce is the default prefix; pass the same --prefix to both configure
+calls to change it.  "make install" needs write access to the prefix.
+Building out of tree (configure called from an empty directory) works as
+well.  With another autoconf version, buildconf rewrites the comments of
+the tracked templates dcethreads_conf.h.in and dce_config.h.in.
 
-What the install process doesn't do is arrange for the rpcd to run at startup;
-check out the rc.dce-clean and rc.dcerpcd scripts and install them: for RedHat
-use a set of commands like this:
+Tests: "make check" in dcethreads, in freedce/perf (one test needs a
+running rpcd) and in freedce/tests/loadtest (a short load test).
 
- # ln -s /etc/rc.d/init.d/rc.dcerpcd /etc/rc.d/rc0.d/K30dcerpcd
- # ln -s /etc/rc.d/init.d/rc.dce-clear /etc/rc.d/rc3.d/S60dce-clean
- # ln -s /etc/rc.d/init.d/rc.dcerpcd /etc/rc.d/rc3.d/S61dcerpcd
+The installed programs find the libraries through their run path; other
+programs need LD_LIBRARY_PATH=/opt/dce/lib or an entry in
+/etc/ld.so.conf.d.  The endpoint mapper rpcd listens on port 135 and has
+to run as root:
 
-You might also need to add /opt/dce/lib to your /etc/ld.so.conf
+ # /opt/dce/bin/rpcd
+
+(-f keeps it in the foreground.)  The install does not start rpcd at boot;
+freedce/rpcd contains the SysV init scripts rc.dcerpcd and rc.dce-clean.
 
 How to build your own programs that use DCE RPC
 -----------------------------------------------
