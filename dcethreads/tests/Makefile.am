@@ -1,5 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
+# See src/Makefile.am: no default -I for include/dce.
+AUTOMAKE_OPTIONS = nostdinc
 AM_CPPFLAGS = -I$(top_builddir)/include -I$(top_srcdir)/include
 
 EXTRA_PROGRAMS = test1 test2 test3 test3var test4 test5 test6 test7

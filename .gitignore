@@ -112,7 +112,7 @@ test-driver
 # Programs
 /freedce/idl/dceidl
 /freedce/rpcd/rpcd
-/freedce/uuid/uuid
+/freedce/uuid/tool/uuid
 /freedce/demos/echo_server/echo_client
 /freedce/demos/echo_server/echo_server
 /freedce/demos/samr/samr_client
