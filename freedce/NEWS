@@ -1,3 +1,32 @@
+2.0.0 (2026):
+
+64-bit port (LP64, tested on x86_64 Linux) and robustness work for
+ncacn_ip_tcp servers and clients.  The version number changes because the
+ABI changed.
+
+- The RPC runtime, the NDR marshaling code and the IDL compiler work on
+  LP64 (pointer and long sizes, alignment, union discriminants, full
+  pointers, format strings).
+- Builds with current toolchains (C23 IDL compiler; tested with gcc 14 to
+  16, autoconf 2.71 to 2.73 on Ubuntu 26.04, Debian 13, AlmaLinux 10 and
+  Arch Linux), in tree and out of tree, parallel make; "make check" in
+  dcethreads, the perf suite and the new load test (tests/loadtest).
+- dcethreads delivers DCE cancels itself instead of through NPTL
+  cancellation (DCETHREADS_CANCEL=nptl selects the old code); lost wakeup
+  in the condition wait fixed.
+- The UUID functions are part of libdcerpc (there is no DCE libuuid any
+  more; do not link -luuid); libdcerpc symbols are versioned DCERPC_1.1.
+- Connections: poll listener without the FD_SETSIZE limit, accept backoff,
+  immediate restart of servers with a well-known endpoint, context rundown
+  for killed clients and vanished client hosts, idle connection reclaim
+  (RPC_CN_SERVER_IDLE_TIMEOUT), client bind timeout, per-connection
+  keepalive and user timeout (RPC_CN_KEEPALIVE, RPC_CN_USER_TIMEOUT).
+- Many runtime fixes found by the tests, ASan and valgrind (maybe calls,
+  liveness monitoring lock, association group reference counts, status
+  exceptions, UDP cancels).
+
+See README for the build and the runtime settings.
+
 DCOM:
 
 We (well, me mainly) are beginning to support DCOM/Object RPC as documented by Microsoft.

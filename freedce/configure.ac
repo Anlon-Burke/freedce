@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT([freedce],[1.0.1])
+AC_INIT([freedce],[2.0.0])
 AC_CONFIG_SRCDIR(uuid/uuid.c)
 AC_CANONICAL_TARGET
 AC_CONFIG_HEADERS([include/dce/dce_config.h])

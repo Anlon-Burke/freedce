@@ -186,11 +186,17 @@ GLOBAL   boolean32      dflag = false;
 INTERNAL boolean32      foreground = false;
 
 
+#if defined(__LP64__) || defined(_LP64)
+#define RPCD_VERSION_BITS " 64-bit"
+#else
+#define RPCD_VERSION_BITS ""
+#endif
+
 INTERNAL char           rpcd_version_str[] =
 #if ENABLE_DCOM
-    "rpcd/orpcd version freedce 1.0.1";
+    "rpcd/orpcd version freedce " VERSION RPCD_VERSION_BITS;
 #else
-    "rpcd version freedce 1.0.1";
+    "rpcd version freedce " VERSION RPCD_VERSION_BITS;
 #endif
 
 GLOBAL   uuid_t         rpcd_nil_uuid;
