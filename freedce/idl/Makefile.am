@@ -56,8 +56,9 @@ nidl_y.c nidl_y.h: nidl_y.y
 nidl_l.c: nidl_l.l
 	$(YLWRAP) $(srcdir)/nidl_l.l $(LEX_OUTPUT_ROOT).c nidl_l.c -- "$(LEX)" $(AM_LFLAGS) $(LFLAGS) -Pnidl_yy -o$(LEX_OUTPUT_ROOT).c
 
-install-exec-local:
-	test -f $(bindir)/idl || $(LN_S) dceidl $(bindir)/idl
+install-exec-hook:
+	test -e $(DESTDIR)$(bindir)/idl || test -L $(DESTDIR)$(bindir)/idl || \
+	    $(LN_S) dceidl $(DESTDIR)$(bindir)/idl
 
 
 # The built-in message texts and the message catalog are both made from
