@@ -25,9 +25,12 @@ mkdir -p "$build/dcethreads" "$build/freedce"
 # (which would name /opt/dce/lib, where nothing is installed yet)
 rm -f "$stage$prefix/lib/libdcethreads.la"
 
-# freedce against the staged dcethreads
+# freedce against the staged dcethreads; the debug information shall name the
+# installed headers (/opt/dce/include), not the stage
+map="-ffile-prefix-map=$stage="
 (cd "$src/freedce" && ./buildconf)
 (cd "$build/freedce" &&
+ CFLAGS="${CFLAGS--g -O2} $map" CXXFLAGS="${CXXFLAGS--g -O2} $map" \
  "$src/freedce/configure" --prefix=$prefix \
      --with-dcethreads-dir="$stage$prefix" \
      --with-rpcd-dbdir=/var/opt/freedce &&
@@ -37,15 +40,13 @@ rm -f "$stage$prefix/lib/libdcethreads.la"
 # no libtool archives and static libraries in the packages
 rm -f "$stage$prefix"/lib/*.la "$stage$prefix"/lib/*.a
 
-# the stage path must not end up in any run path
-if command -v readelf > /dev/null 2>&1; then
-    for f in "$stage$prefix"/bin/* "$stage$prefix"/lib/*.so.*; do
-        [ -f "$f" ] && [ ! -L "$f" ] || continue
-        if readelf -d "$f" 2>/dev/null | grep -E 'R(UN)?PATH' | grep -q "$stage"; then
-            echo "build-staged.sh: $f has the stage directory in its run path" >&2
-            exit 1
-        fi
-    done
+# the stage path must not end up in any installed file (run paths, debug information,
+# generated headers), as rpm's check-buildroot also requires
+bad=$(grep -rl -a -F "$stage" "$stage$prefix" 2>/dev/null || true)
+if [ -n "$bad" ]; then
+    echo "build-staged.sh: the stage directory $stage is named in:" >&2
+    echo "$bad" >&2
+    exit 1
 fi
 
 install -D -m 644 "$src/freedce/rpcd/freedce-rpcd.service" \

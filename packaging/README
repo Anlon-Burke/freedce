@@ -19,25 +19,38 @@ manual installation in /opt/dce before installing them.
      dpkg-buildpackage -us -uc -b
 
    Packages: freedce (runtime, rpcd), freedce-dev (dceidl, headers),
-   freedce-examples (echo and samr demos).
+   freedce-examples (echo and samr demos).  For a build per release, put
+   the distribution into the Debian revision first (only letters, digits
+   and dots, so that the file names stay unique and plain), e.g.
+   "freedce (2.0.0-1deb13)" or "(2.0.0-1ubuntu24.04)" in debian/changelog.
 
-3. Arch Linux (base-devel):
+3. Fedora, RHEL/AlmaLinux/Rocky 9 and 10, openSUSE (rpm-build,
+   systemd-rpm-macros; EL9 also gcc-toolset-14):
+
+     cp freedce-<version>.tar.gz ~/rpmbuild/SOURCES/
+     rpmbuild -bb packaging/rpm/freedce.spec
+
+   Packages: freedce, freedce-devel, freedce-examples.  openSUSE has no
+   dist tag; give one, e.g. --define "dist .tumbleweed" or ".leap16".
+
+4. Arch Linux (base-devel):
 
      cp packaging/arch/* <dir>; cp freedce-<version>.tar.gz <dir>
      cd <dir> && updpkgsums && makepkg --syncdeps
 
    One package freedce with all parts.
 
-packaging/build-staged.sh is the build both use: dcethreads and freedce,
-prefix /opt/dce, rpcd database in /var/opt/freedce, installed into a
-staging directory.
+packaging/build-staged.sh is the build all of them use: dcethreads and
+freedce, prefix /opt/dce, rpcd database in /var/opt/freedce, installed
+into a staging directory (checked: no file names the stage).
 
 Before the installation, check the downloaded files (in their directory):
 
-     sha256sum -c SHA256SUMS
+     sha256sum -c --ignore-missing freedce-<version>-SHA256SUMS
 
 Then install them with the package manager (apt install ./freedce*.deb,
-pacman -U freedce-*.pkg.tar.zst) and start rpcd:
+dnf install ./freedce-*.rpm, zypper install --allow-unsigned-rpm
+./freedce-*.rpm, pacman -U freedce-*.pkg.tar.zst) and start rpcd:
 
      systemctl enable --now freedce-rpcd
      /opt/dce/bin/echo_server &  /opt/dce/bin/echo_client -h localhost
