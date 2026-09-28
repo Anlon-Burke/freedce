@@ -6,7 +6,7 @@ AC_CONFIG_HEADERS([include/dce/dce_config.h])
 AM_INIT_AUTOMAKE
 AC_PROG_CC
 AC_PREFIX_DEFAULT(/opt/dce)
-AC_SUBST([LT_VERSION],[1:1:0])
+AC_SUBST([LT_VERSION],[2:0:0])
 
 # determine target system
 if test "x$target" = "x"; then
@@ -151,6 +151,16 @@ fi
 AC_ARG_WITH(dcethreads-dir, [  --with-dcethreads-dir   Specify where you have installed dcethreads],
 [THREADS_DIRS="$withval $THREADS_DIRS"])
 
+dnl directory of the rpcd endpoint database (rpcdep.dat)
+RPCD_DBDIR="/tmp/"
+AC_ARG_WITH(rpcd-dbdir, [  --with-rpcd-dbdir=DIR   Directory of the rpcd endpoint database (default /tmp/)],
+[RPCD_DBDIR="$withval"])
+case "$RPCD_DBDIR" in
+*/) ;;
+*) RPCD_DBDIR="$RPCD_DBDIR/" ;;
+esac
+AC_SUBST(RPCD_DBDIR)
+
 dnl the libraries and headers are searched in <dir>/lib and <dir>/include
 THREADS_LIB_DIRS=
 THREADS_INC_DIRS=
@@ -258,8 +268,6 @@ AC_CONFIG_FILES(idllib/Makefile)
 AC_CONFIG_FILES(rpcd/Makefile)
 AC_CONFIG_FILES(config.mk)
 #AC_CONFIG_FILES([Makefile ild/Makefile config.mk])
-AC_OUTPUT
-AC_CONFIG_FILES([freedce.spec])
 AC_OUTPUT
 
 dnl restore original AC_OUTPUT definition

@@ -86,8 +86,11 @@ to run as root:
 
  # /opt/dce/bin/rpcd
 
-(-f keeps it in the foreground.)  The install does not start rpcd at boot;
-freedce/rpcd contains the SysV init scripts rc.dcerpcd and rc.dce-clean.
+(-f keeps it in the foreground.)  rpcd keeps its endpoint database
+(rpcdep.dat) in /tmp/; configure --with-rpcd-dbdir=DIR changes that.  The
+install does not start rpcd at boot; freedce/rpcd contains a systemd unit
+(freedce-rpcd.service, installed by the packages) and the old SysV init
+scripts rc.dcerpcd and rc.dce-clean.
 
 How to build your own programs that use DCE RPC
 -----------------------------------------------

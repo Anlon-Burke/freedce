@@ -1,0 +1,13 @@
+[Unit]
+Description=FreeDCE RPC endpoint mapper (rpcd)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/opt/dce/bin/rpcd -f
+Restart=on-failure
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
