@@ -475,8 +475,9 @@ static void *worker(void *arg)
     {
         int op;
 
+        /* -d: the paced time, or the real clock when calls take longer than planned */
         if (calls_per_thread > 0 ? (long) w->key.call > calls_per_thread
-                                 : next >= end_time)
+                                 : next >= end_time || lt_now() >= end_time)
             break;
         op = pick_op(w);
         if (interval > 0)
