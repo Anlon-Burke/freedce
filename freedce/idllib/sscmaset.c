@@ -1031,6 +1031,18 @@ static error_status_t rpc_ss_map_fault_code
 /*    Convert error code to exception                                         */
 /*                                                                            */
 /******************************************************************************/
+
+/*
+ * Exception objects for statuses that have no exception of their own.
+ * RAISE passes only the address of the object, and the handlers run after
+ * the longjmp out of this function, so the object must not live in its
+ * stack frame.  Each thread has a small ring of them; a slot is reused only
+ * after RPC_SS_UNKNOWN_STATUS_EXCS more such raises in the same thread.
+ */
+#define RPC_SS_UNKNOWN_STATUS_EXCS 8
+static __thread EXCEPTION rpc_ss_unknown_status_excs[RPC_SS_UNKNOWN_STATUS_EXCS];
+static __thread unsigned int rpc_ss_unknown_status_next;
+
 static void rpc_ss_raise_impl_exception
 #ifdef IDL_PROTOTYPES
 (
@@ -1395,11 +1407,13 @@ static void rpc_ss_raise_impl_exception
             break;
         default:
             {
-            EXCEPTION unknown_status_exception;
-            EXCEPTION_INIT(unknown_status_exception);
-            exc_set_status(&unknown_status_exception, result_code);
+            EXCEPTION *unknown_status_exception;
+            unknown_status_exception = &rpc_ss_unknown_status_excs[
+                rpc_ss_unknown_status_next++ % RPC_SS_UNKNOWN_STATUS_EXCS];
+            EXCEPTION_INIT(*unknown_status_exception);
+            exc_set_status(unknown_status_exception, result_code);
             RPC_SS_THREADS_RESTORE_ASYNC( async_cancel_state );
-            RAISE( unknown_status_exception );
+            RAISE( *unknown_status_exception );
             break;
             }
     }
