@@ -73,7 +73,8 @@ dnl   Except in unusual embedded environments, you can safely include all
 dnl   C89 headers unconditionally.])dnl
 # Autoupdate added the next two lines to ensure that your configure
 # script's behavior did not change.  They are probably safe to remove.
-AC_CHECK_INCLUDES_DEFAULT
+dnl (AC_CHECK_INCLUDES_DEFAULT is new in autoconf 2.70; EL9 has 2.69)
+m4_ifdef([AC_CHECK_INCLUDES_DEFAULT], [AC_CHECK_INCLUDES_DEFAULT], [AC_HEADER_STDC])
 AC_PROG_EGREP
 
 AC_HEADER_SYS_WAIT
@@ -113,18 +114,15 @@ AC_DEFINE(YIELD_AFTER_PTHREAD_CREATE, 1)
 
 AC_DEFINE(USE_CANCELATION_WRAPPER, 1)
 
-AC_MSG_CHECKING([sighandler signature]); 
+AC_MSG_CHECKING([sighandler signature]);
+dnl Declare the same object with the type of sa_handler and with the two-argument
+dnl type: this conflicts (a hard error) unless sa_handler takes two arguments.  An
+dnl assignment of the wrong pointer type is only a warning before gcc 14.
 AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
 #include <signal.h>
 
-extern void mne_sig_act(int, int);
-
-void mne_setup()
-{
-
-struct sigaction sa = {0};
-sa.sa_handler = &mne_sig_act;
-}
+extern void (*mne_sig_act)(int, int);
+extern __typeof__(((struct sigaction *) 0)->sa_handler) mne_sig_act;
 
 ]])],
 [AC_MSG_RESULT([SIG 2]) AC_DEFINE(HAVE_SIGHANDLER, 2, [void(*)(int, int)])],

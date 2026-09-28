@@ -335,7 +335,7 @@ _set_dceexc_syncsignals_default()
  */
 
 #if   HAVE_SIGHANDLER == 2
-static void sync_signal_handler(int signal, int code __attribute__((__unused__))
+static void sync_signal_handler(int signal, int code __attribute__((__unused__)))
 #elif HAVE_SIGHANDLER == 1
 static void sync_signal_handler(int signal)
 #else
