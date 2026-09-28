@@ -1,7 +1,12 @@
-I haven't tried running these tests - let me know if you have success.
---Wez.
+"make check" runs the whole suite against a local server (run_tests.sh):
+the server listens on the fixed endpoint 2001 for ncacn_ip_tcp and
+ncadg_ip_udp, then perf_tcp.sh and perf_udp.sh run the client tests.
+The tests that need the endpoint mapper are skipped unless rpcd is
+running; the UDP broadcast test (3) only runs with PERF_BROADCAST=1.
+PERF_SKIP lists more tests to skip, PERF_TIMEOUT limits each test
+(default 120 seconds); see the comments in run_tests.sh and perf_tcp.sh.
 
-# 
+#
 # (c) Copyright 1991 OPEN SOFTWARE FOUNDATION, INC.
 # (c) Copyright 1991 HEWLETT-PACKARD COMPANY
 # (c) Copyright 1991 DIGITAL EQUIPMENT CORPORATION
@@ -44,15 +49,15 @@ perf_tcp.sh server_host_name client_program_directory
 Before executing any of these scripts, a server need to started
 with appropriate protseq_spec.
 
-An example run  of these scripts involve starting the server:
+perf_udp.sh and perf_tcp.sh expect the server on endpoint 2001.  An
+example run of these scripts involves starting the server:
 
-        ./server 1 ncadg_ip_udp
-              ==> returns binding, such as ncadg_ip_udp:130.105.4.102[2001]
+        ./server 1 ep ncadg_ip_udp 2001 ep ncacn_ip_tcp 2001
+              ==> prints its bindings, such as
+                  ncadg_ip_udp:130.105.4.102[2001]
          run_client.sh 'ncadg_ip_udp:130.105.4.102[2001]'
 	 perf_udp.sh server_host_name .
-or 
-        ./server 1 ncacn_ip_tcp
-              ==> returns binding, such as ncacn_ip_tcp:130.105.4.102[2001]
+or
          run_client.sh 'ncacn_ip_tcp:130.105.4.102[2001]'
 	 perf_tcp.sh server_host_name .
 

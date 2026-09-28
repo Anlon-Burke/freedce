@@ -1,14 +1,30 @@
 ===========================================================================
 DCE Threads Compatibility Library for Linux
-A DCE Threads emulation layer ontop of LinuxThreads.
+A DCE threads emulation layer on top of POSIX threads (glibc NPTL).
 ===========================================================================
-Maintainers:	Miroslaw Dobrzanski-Neumann <mirek-dn@freenet.de>	
+Maintainers:	Miroslaw Dobrzanski-Neumann <mirek-dn@freenet.de>
 		Wez Furlong                 <wez+dce@thebrainroom.com>
 
-This packages no longer implements pthreads draft 4.
-Instead, it purely implements dce threading exceptions.
+The OSF DCE code expects DCE threads: the pthreads draft 4 interface with
+DCE exceptions (TRY/CATCH/FINALLY, pthread_cancel_e) and DCE cancel
+semantics (general and asynchronous cancelability, a canceled thread
+catches the exception and continues).  This library provides them on top
+of the system's POSIX threads.  It does not replace the system pthread
+functions; the draft 4 functions have their own names (pthd4_*, and
+pthd4exc_* for the variants that raise exceptions).  The RPC runtime
+calls them through the sys_pthread_* names defined in
+include/dce/pthreads_rename.h.
+
+Cancels are implemented by the library itself, because NPTL does not let
+a thread continue after it has acted on a cancel.  The environment
+variable DCETHREADS_CANCEL=nptl selects the older emulation on top of
+NPTL pthread_cancel() instead (for comparison only).
+
+Build and test: see the README in the top directory ("make check" runs
+the tests in tests/).
 
 For information about copyrights, see the file `COPYING' included with this
 package.
 
-SEE: https://www0.mi.infn.it/~calcolo/OpenVMS/ssb71/6493/6493p001.htm
+Reference for the DCE threads interface: "Guide to DECthreads" (OpenVMS
+documentation), e.g. https://www0.mi.infn.it/~calcolo/OpenVMS/ssb71/6493/6493p001.htm

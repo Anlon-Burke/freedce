@@ -1,12 +1,15 @@
-Just got this out from cvs?
+Working from a git checkout?
 
-you also need the dcethreads package - install that before this one.
+You also need the dcethreads library (directory ../dcethreads) - build and
+install that first.
 
-you will need to generate the configure/automake files:
+You will need to generate the configure/automake files:
 
 % ./buildconf
 
 Now you can run configure and build it.
+
+(Prerequisites and the full build steps: README.)
 
 ---------------------------------------
 $Id: README.MAINT,v 1.2 2000/10/14 19:41:32 wez Exp $

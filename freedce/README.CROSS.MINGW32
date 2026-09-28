@@ -1,3 +1,8 @@
+[Historical notes from 2005, kept for reference.  This cross build is not
+maintained and has not been tried with the 64-bit port; dcethreads-win32
+and pthreads-win32 are not part of this repository, and the build now
+needs a C23 compiler for dceidl (see README).]
+
 okay, there is much blot on landscape to GetThisWorking.
 
 you will first need to have a dceidl unix compiled, and because i haven't

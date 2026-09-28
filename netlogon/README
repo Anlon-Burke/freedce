@@ -5,3 +5,5 @@ FreeDCE must be installed.
 Additionally, Kerberos will be required for Windows 2000
 functionality.
 
+This module is a separate package (autogen.sh, configure); it is not
+part of the FreeDCE build and has not been tried with the 64-bit port.

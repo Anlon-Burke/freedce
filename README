@@ -1,30 +1,33 @@
-======================================
-FreeDCE RPC and DCOM Toolkit for Linux
-======================================
+==============================
+FreeDCE RPC Toolkit for Linux
+==============================
 
-This package provides support for developing DCE RPC and Microsoft RPC
-applications on the Linux platform. The source code and binaries are
-freely-redistributable provided you maintains the copyright notice of the
-source components.
+This package provides support for developing DCE RPC applications on the
+Linux platform, which interoperate with other DCE RPC and Microsoft RPC
+implementations.  The source code and binaries are freely redistributable
+provided you maintain the copyright notices of the source components.
 
-This package could be ported to other platforms as well, provided that you can
-implement the semantics of the DCE Exceptions and DCE Threads on the target
-platforms' thread layer.
+FreeDCE uses the POSIX threads of the GNU C library (NPTL).  The OSF code
+expects DCE threads (the pthreads draft 4 interface) with DCE exceptions
+and DCE cancel semantics; the dcethreads library (directory dcethreads)
+emulates them on top of POSIX threads, so that multithreaded RPC clients
+and servers coexist with other threaded and non-threaded libraries.  It
+is tested on x86_64 (64-bit).
 
-FreeDCE for Linux relies on GNU Libc 2.x and LinuxThreads Pthreads.  DCE
-Threads and DCE Exceptions are emulated using LinuxThreads, allowing for
-multithreaded RPC client and server applications to coexist with other
-threaded and non-threaded library components in the LInux development
-environment.
+The package could be ported to other platforms as well, provided that you
+can implement the semantics of DCE exceptions and DCE threads on the
+target platform's thread layer.
 
 Inventory of Goods:
 -------------------
-* OSF DCE 1.1 IDL compiler
+* OSF DCE 1.1 IDL compiler (dceidl, also installed as idl)
 * DCE RPC runtime and development libraries/headers
 * `uuid' tool for generating and manipulating DCE UUIDs
 * rpcd - the host endpoint mapper for DCE RPC applications
-* Performance, Interoperabilit and Functionality test suite
-* some demonstration code for writing clients and servers
+* perf test suite (freedce/perf) and a load test (freedce/tests/loadtest)
+* demonstration clients and servers (freedce/demos)
+* experimental DCOM support (configure --enable-dcom; off by default, not
+  maintained)
 
 Prerequisites:
 -------------
@@ -35,14 +38,18 @@ libtool, flex and bison.  Tested on x86_64 with:
 
  Ubuntu 26.04:  gcc 15.2, autoconf 2.72, automake 1.18, libtool 2.5.4
  AlmaLinux 10:  gcc 14.3, autoconf 2.71, automake 1.16.5, libtool 2.4.7
+ Debian 13:     gcc 14.2, autoconf 2.72, automake 1.17, libtool 2.5.4
+ Arch Linux:    gcc 16.2, autoconf 2.73, automake 1.19, libtool 2.6.2
 
-and flex 2.6.4, bison 3.8.2 on both.  The packages:
+and flex 2.6.4, bison 3.8.2 on all of them.  The packages:
 
  Debian, Ubuntu:
   # apt install build-essential autoconf automake libtool flex bison
  RHEL 10 and compatible (AlmaLinux 10):
   # dnf install gcc gcc-c++ make autoconf automake libtool flex bison \
       diffutils file
+ Arch Linux:
+  # pacman -S --needed base-devel
 
 How to Build:
 -------------
@@ -85,8 +92,11 @@ freedce/rpcd contains the SysV init scripts rc.dcerpcd and rc.dce-clean.
 How to build your own programs that use DCE RPC
 -----------------------------------------------
 
-CFLAGS+=-D_REENTRANT -D_GNU_SOURCE
-LDFLAGS+= -ldcerpc -ldcethreads -lpthread
+CFLAGS+=-D_REENTRANT -D_GNU_SOURCE -I/opt/dce/include
+LDFLAGS+=-L/opt/dce/lib -Wl,-rpath,/opt/dce/lib
+LIBS+=-ldcerpc -ldcethreads -lpthread
+
+Generate the stubs with the IDL compiler, /opt/dce/bin/dceidl.
 The UUID functions (uuid_create etc.) are part of libdcerpc; do not link
 -luuid (that is the unrelated util-linux library). A program that uses the
 util-linux libuuid itself must call it from a separate shared library: both
@@ -121,8 +131,5 @@ Maintainers:
 Contributors:
  Jim Doyle, jrd@bu.edu
 
-Requirements:
- Download and install the dcethreads package from the same place that you got
- this one from, or try the master site, ftp://freedce.sourceforge.net
-
-
+Project page: https://sourceforge.net/projects/freedce/
+The dcethreads library is part of this repository (see How to Build).
