@@ -25,7 +25,8 @@ samr_client_LDADD=samr_cstub.o $(libs)
 # manual).
 samr.stamp: samr.idl samr.acf
 	@rm -f samr.tmp; touch samr.tmp
-	$(IDL) $(IDL_FLAGS) $(top_srcdir)/demos/samr/samr.idl
+	$(IDL) $(IDL_FLAGS) -cc_cmd "$(CC) $(IDL_FLAGS) $(IDL_CFLAGS) $(CPPFLAGS) $(CFLAGS) -c" \
+		$(top_srcdir)/demos/samr/samr.idl
 	@mv -f samr.tmp $@
 samr.h samr_sstub.o samr_cstub.o: samr.stamp
 	@test -f $@ || rm -f samr.stamp
