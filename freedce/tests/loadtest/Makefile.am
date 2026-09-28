@@ -3,7 +3,7 @@ include $(top_srcdir)/include.mk
 
 IDL_FLAGS=-I$(IDL_INCLUDE_DIR)/.. -I$(top_builddir)/include $(DCETHREADINCLUDES)
 IDLCC=-I$(top_builddir)/include -I$(IDL_INCLUDE_DIR)/.. \
-	-cc_cmd "$(CC) -D_BSD $(IDL_FLAGS) $(IDL_CFLAGS) -c"
+	-cc_cmd "$(CC) -D_BSD $(IDL_FLAGS) $(IDL_CFLAGS) $(CPPFLAGS) $(CFLAGS) -c"
 
 libs=$(top_builddir)/dcelib/libdcerpc.la
 

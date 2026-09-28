@@ -41,7 +41,7 @@ endif
 # manual).
 echo.stamp: echo.idl echo.acf
 	@rm -f echo.tmp; touch echo.tmp
-	$(IDL) -I ../../include -I$(IDL_INCLUDE_DIR)/.. -cc_cmd "$(CC) -D_BSD $(IDL_FLAGS) $(IDL_CFLAGS) -c" \
+	$(IDL) -I ../../include -I$(IDL_INCLUDE_DIR)/.. -cc_cmd "$(CC) -D_BSD $(IDL_FLAGS) $(IDL_CFLAGS) $(CPPFLAGS) $(CFLAGS) -c" \
 		$(IDL_INCS) \
 		$(top_srcdir)/demos/echo_server/echo.idl
 	@mv -f echo.tmp $@

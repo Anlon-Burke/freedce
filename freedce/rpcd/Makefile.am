@@ -43,7 +43,7 @@ objex_sstub.o: $(IDL_INCLUDE_DIR)/objex.idl
 	$(IDL) -keep object -no_cpp -v -no_mepv -cepv -client none \
 		$(STUB_INCS) \
 		-I$(top_builddir)/include -I$(IDL_INCLUDE_DIR)/../ $(DCETHREADINCLUDES) \
-		-cc_cmd "$(CC) -D_BSD $(IDL_CFLAGS) -c" \
+		-cc_cmd "$(CC) -D_BSD $(IDL_CFLAGS) $(CPPFLAGS) $(CFLAGS) -c" \
 		$(IDL_INCLUDE_DIR)/objex.idl
 	@rm -f objex.h
 
@@ -51,7 +51,7 @@ ep_sstub.o: $(IDL_INCLUDE_DIR)/ep.idl
 	$(IDL) -keep object -no_cpp -v -no_mepv -cepv -client none \
 		$(STUB_INCS) \
 		-I$(top_builddir)/include -I$(IDL_INCLUDE_DIR)/../ $(DCETHREADINCLUDES) \
-		-cc_cmd "$(CC) -D_BSD $(IDL_CFLAGS) -c" \
+		-cc_cmd "$(CC) -D_BSD $(IDL_CFLAGS) $(CPPFLAGS) $(CFLAGS) -c" \
 		$(IDL_INCLUDE_DIR)/ep.idl
 	@rm -f ep.h
 

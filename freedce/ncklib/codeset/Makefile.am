@@ -10,7 +10,7 @@ libcodeset_la_SOURCES=cs_s_eval.c cs_s_reg.c cs_s_stub.c
 libcodeset_la_LIBADD=codesets_cstub.lo
 
 codesets_cstub.lo: $(IDL_INCLUDE_DIR)/codesets.idl
-	$(IDL) $(NCK_IDLFLAGS) -server none -cc_cmd '$(LIBTOOL) --tag=CC --mode=compile $(CC) -c ' $<
+	$(IDL) $(NCK_IDLFLAGS) -server none -cc_cmd '$(LIBTOOL) --tag=CC --mode=compile $(CC) -c $(CPPFLAGS) $(CFLAGS) ' $<
 	@rm -f codesets.h
 else
 EXTRA_FILES=$(codeset_files)

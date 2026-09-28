@@ -3,7 +3,7 @@ include $(top_srcdir)/include.mk
 ntsecincludedir=$(includedir)/nt
 
 #IDLFLAGS=-keep all -cc_cmd "gcc -g -g -c" -I$(IDL_INCLUDE_DIR)/.. -I$(top_builddir)/include $(DCETHREADINCLUDES)
-IDL_FLAGS=-client none -server none -cc_cmd "/bin/sh ../../libtool --tag=CC --mode=compile gcc -pipe -g -g -c" -I$(IDL_INCLUDE_DIR)/.. -I$(top_builddir)/include $(DCETHREADINCLUDES)
+IDL_FLAGS=-client none -server none -cc_cmd "/bin/sh ../../libtool --tag=CC --mode=compile $(CC) -pipe $(CPPFLAGS) $(CFLAGS) -c" -I$(IDL_INCLUDE_DIR)/.. -I$(top_builddir)/include $(DCETHREADINCLUDES)
 
 
 install-strip:	install
