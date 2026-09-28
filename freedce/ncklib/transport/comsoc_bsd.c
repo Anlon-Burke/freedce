@@ -980,7 +980,9 @@ rpc_network_if_id_t *network_if_id;
  *   RPC_CN_KEEPALIVE="idle,intvl,count"  (seconds; TCP_KEEPIDLE,
  *                  TCP_KEEPINTVL, TCP_KEEPCNT), default 60,10,6
  *   RPC_CN_USER_TIMEOUT=secs  (TCP_USER_TIMEOUT: unacknowledged data older
- *                  than this aborts the connection), default 120
+ *                  than this aborts the connection), default idle + intvl x
+ *                  count of the keepalive (120), since Linux also ends the
+ *                  keepalive probing by this time instead of by the count
  *
  * 0 for either variable leaves the kernel settings alone.  A live peer
  * answers the keepalive probes, so long-running calls are not affected.
@@ -988,7 +990,7 @@ rpc_network_if_id_t *network_if_id;
 #define RPC_C_CN_KEEPALIVE_IDLE     60
 #define RPC_C_CN_KEEPALIVE_INTVL    10
 #define RPC_C_CN_KEEPALIVE_COUNT    6
-#define RPC_C_CN_USER_TIMEOUT       120
+#define RPC_C_CN_USER_TIMEOUT       120     /* without keepalive settings */
 
 INTERNAL void rpc__socket_bsd_set_tcp_timeouts
 #ifdef _DCE_PROTO_
@@ -1023,7 +1025,7 @@ rpc_socket_t        sock;
             }
         }
     }
-    user_timeout = RPC_C_CN_USER_TIMEOUT;
+    user_timeout = (ka[0] != 0) ? ka[0] + ka[1] * ka[2] : RPC_C_CN_USER_TIMEOUT;
     env = getenv ("RPC_CN_USER_TIMEOUT");
     if (env != NULL && *env != '\0')
     {

@@ -125,7 +125,8 @@ the contexts of the client then end as for a closed connection.
 RPC_CN_KEEPALIVE="idle,intvl,count": seconds of idle time before the first
 probe, seconds between probes, and probes (default 60,10,6).
 RPC_CN_USER_TIMEOUT: seconds after which data the peer has not acknowledged
-aborts the connection (default 120).  0 for either leaves the kernel
+aborts the connection (default idle + intvl x count, i.e. 120; Linux also
+ends the keepalive probing by this time).  0 for either leaves the kernel
 settings (net.ipv4.tcp_keepalive_time/intvl/probes, about 2 hours, and
 net.ipv4.tcp_retries2, about 15 minutes) in effect.  A live peer answers
 the probes, so long-running calls are not affected.
