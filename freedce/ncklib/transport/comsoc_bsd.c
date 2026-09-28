@@ -970,12 +970,111 @@ rpc_network_if_id_t *network_if_id;
 }
 
 /*
+ * Per-socket keepalive and user timeout for the connections of the
+ * Connection based Protocol Services (client and server side), so that a
+ * peer host that vanishes (power loss, network gone, new address) is
+ * detected within minutes instead of after the kernel defaults (2 hours
+ * of keepalive, about 15 minutes of retransmissions for unacknowledged
+ * data), without host-wide settings:
+ *
+ *   RPC_CN_KEEPALIVE="idle,intvl,count"  (seconds; TCP_KEEPIDLE,
+ *                  TCP_KEEPINTVL, TCP_KEEPCNT), default 60,10,6
+ *   RPC_CN_USER_TIMEOUT=secs  (TCP_USER_TIMEOUT: unacknowledged data older
+ *                  than this aborts the connection), default 120
+ *
+ * 0 for either variable leaves the kernel settings alone.  A live peer
+ * answers the keepalive probes, so long-running calls are not affected.
+ */
+#define RPC_C_CN_KEEPALIVE_IDLE     60
+#define RPC_C_CN_KEEPALIVE_INTVL    10
+#define RPC_C_CN_KEEPALIVE_COUNT    6
+#define RPC_C_CN_USER_TIMEOUT       120
+
+INTERNAL void rpc__socket_bsd_set_tcp_timeouts
+#ifdef _DCE_PROTO_
+(
+    rpc_socket_t        sock
+)
+#else
+(sock)
+rpc_socket_t        sock;
+#endif
+{
+    char                *env;
+    char                *p;
+    unsigned long       ka[3];
+    unsigned long       user_timeout;
+    int                 val;
+
+    ka[0] = RPC_C_CN_KEEPALIVE_IDLE;
+    ka[1] = RPC_C_CN_KEEPALIVE_INTVL;
+    ka[2] = RPC_C_CN_KEEPALIVE_COUNT;
+    env = getenv ("RPC_CN_KEEPALIVE");
+    if (env != NULL && *env != '\0')
+    {
+        ka[0] = strtoul (env, &p, 10);
+        if (ka[0] != 0)
+        {
+            ka[1] = (*p == ',') ? strtoul (p + 1, &p, 10) : 0;
+            ka[2] = (*p == ',') ? strtoul (p + 1, &p, 10) : 0;
+            if (ka[1] == 0 || ka[2] == 0)
+            {
+                ka[0] = 0;      /* malformed: kernel settings */
+            }
+        }
+    }
+    user_timeout = RPC_C_CN_USER_TIMEOUT;
+    env = getenv ("RPC_CN_USER_TIMEOUT");
+    if (env != NULL && *env != '\0')
+    {
+        user_timeout = strtoul (env, NULL, 10);
+    }
+
+#if defined(TCP_KEEPIDLE) && defined(TCP_KEEPINTVL) && defined(TCP_KEEPCNT)
+    if (ka[0] != 0)
+    {
+        val = (int) ka[0];
+        if (setsockopt (sock, IPPROTO_TCP, TCP_KEEPIDLE, &val, sizeof (val)) < 0)
+        {
+            RPC_DBG_GPRINTF(("(rpc__socket_bsd_set_tcp_timeouts) TCP_KEEPIDLE error=%d\n",
+                socket_error));
+        }
+        val = (int) ka[1];
+        if (setsockopt (sock, IPPROTO_TCP, TCP_KEEPINTVL, &val, sizeof (val)) < 0)
+        {
+            RPC_DBG_GPRINTF(("(rpc__socket_bsd_set_tcp_timeouts) TCP_KEEPINTVL error=%d\n",
+                socket_error));
+        }
+        val = (int) ka[2];
+        if (setsockopt (sock, IPPROTO_TCP, TCP_KEEPCNT, &val, sizeof (val)) < 0)
+        {
+            RPC_DBG_GPRINTF(("(rpc__socket_bsd_set_tcp_timeouts) TCP_KEEPCNT error=%d\n",
+                socket_error));
+        }
+    }
+#endif
+#ifdef TCP_USER_TIMEOUT
+    if (user_timeout != 0)
+    {
+        unsigned int ms = (unsigned int) (user_timeout * 1000);
+
+        if (setsockopt (sock, IPPROTO_TCP, TCP_USER_TIMEOUT, &ms, sizeof (ms)) < 0)
+        {
+            RPC_DBG_GPRINTF(("(rpc__socket_bsd_set_tcp_timeouts) TCP_USER_TIMEOUT error=%d\n",
+                socket_error));
+        }
+    }
+#endif
+}
+
+/*
  * R P C _ _ S O C K E T _ S E T _ K E E P A L I V E
  *
  * Enable periodic transmissions on a connected socket, when no
  * other data is being exchanged. If the other end does not respond to
  * these messages, the connection is considered broken and the
- * so_error variable is set to ETIMEDOUT.
+ * so_error variable is set to ETIMEDOUT.  Also sets the per-socket
+ * keepalive times and the user timeout (see above).
  * Used only by Connection based Protocol Services.
  *
  * (see BSD UNIX setsockopt(2)).
@@ -997,11 +1096,12 @@ rpc_socket_t        sock;
 
     i = setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE,
             &setsock_val, sizeof(setsock_val));
-    if (i < 0) 
+    if (i < 0)
     {
         RPC_DBG_GPRINTF(("(rpc__socket_bsd_set_keepalive) error=%d\n", socket_error));
         return (socket_error);
     }
+    rpc__socket_bsd_set_tcp_timeouts (sock);
 
     return(RPC_C_SOCKET_OK);
 #else

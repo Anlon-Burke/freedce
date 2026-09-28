@@ -118,9 +118,17 @@ Bind timeout: a client gives up waiting for the answer to its bind after
 seconds by default, at least 5 seconds, no limit with
 rpc_c_binding_infinite_timeout) with rpc_s_connect_timed_out.
 
-TCP keepalive: servers and clients set SO_KEEPALIVE on their connections;
-the kernel settings net.ipv4.tcp_keepalive_time/intvl/probes decide how
-fast a vanished peer is detected (default: after about 2 hours).
+Vanished peers: servers and clients set SO_KEEPALIVE on their connections,
+with per-connection times, so that a peer host that goes away (power loss,
+network gone, new address) is detected after about 2 minutes; the call or
+the contexts of the client then end as for a closed connection.
+RPC_CN_KEEPALIVE="idle,intvl,count": seconds of idle time before the first
+probe, seconds between probes, and probes (default 60,10,6).
+RPC_CN_USER_TIMEOUT: seconds after which data the peer has not acknowledged
+aborts the connection (default 120).  0 for either leaves the kernel
+settings (net.ipv4.tcp_keepalive_time/intvl/probes, about 2 hours, and
+net.ipv4.tcp_retries2, about 15 minutes) in effect.  A live peer answers
+the probes, so long-running calls are not affected.
 
 ----------------------
 
