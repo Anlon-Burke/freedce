@@ -1,0 +1,9 @@
+opt/dce/lib/libdcerpc.so.*
+opt/dce/lib/libdcethreads.so.*
+opt/dce/lib/libnaf_*.so*
+opt/dce/lib/libprot_*.so*
+opt/dce/bin/rpcd
+opt/dce/bin/uuid
+opt/dce/share/doc/freedce
+usr/lib/systemd/system/freedce-rpcd.service
+var/opt/freedce

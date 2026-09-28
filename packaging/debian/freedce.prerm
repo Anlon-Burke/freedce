@@ -1,0 +1,9 @@
+#!/bin/sh
+set -e
+
+# dh_installsystemd --no-start adds no stop; stop rpcd before its files go away
+if [ "$1" = remove ] && [ -d /run/systemd/system ]; then
+    deb-systemd-invoke stop freedce-rpcd.service > /dev/null || true
+fi
+
+#DEBHELPER#

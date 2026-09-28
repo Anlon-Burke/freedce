@@ -1,0 +1,6 @@
+opt/dce/bin/dceidl
+opt/dce/bin/idl
+opt/dce/include
+opt/dce/lib/libdcerpc.so
+opt/dce/lib/libdcethreads.so
+opt/dce/share/freedce

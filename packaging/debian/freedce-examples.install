@@ -1,0 +1,5 @@
+opt/dce/bin/echo_client
+opt/dce/bin/echo_server
+opt/dce/bin/samr_client
+opt/dce/bin/samr_server
+opt/dce/lib/liblsarpc.so*

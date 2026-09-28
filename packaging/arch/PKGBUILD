@@ -1,0 +1,31 @@
+# FreeDCE 2.0.0 (64-bit port) for Arch Linux, installed below /opt/dce.
+# Build: put freedce-$pkgver.tar.gz (packaging/make-tarball.sh) next to this file, then
+#   makepkg --syncdeps
+# The sha256sum below must match that tarball (updpkgsums updates it).
+pkgname=freedce
+pkgver=2.0.0
+pkgrel=1
+pkgdesc="DCE RPC runtime, IDL compiler and endpoint mapper (FreeDCE, 64-bit)"
+arch=('x86_64')
+url="https://sourceforge.net/projects/freedce/"
+license=('LicenseRef-OSF-DCE' 'GPL-2.0-only' 'LGPL-2.0-or-later')
+depends=('glibc' 'gcc-libs')
+makedepends=('autoconf' 'automake' 'libtool' 'flex' 'bison')
+optdepends=('gcc: C preprocessor for the IDL compiler dceidl')
+options=('!lto' '!debug' '!staticlibs')
+install=freedce.install
+source=("$pkgname-$pkgver.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+    cd "$pkgname-$pkgver"
+    sh packaging/build-staged.sh "$srcdir/stage"
+}
+
+package() {
+    cp -a "$srcdir/stage/." "$pkgdir/"
+    install -d "$pkgdir/usr/share/licenses/$pkgname"
+    ln -s /opt/dce/share/doc/freedce/COPYING "$pkgdir/usr/share/licenses/$pkgname/COPYING"
+    ln -s /opt/dce/share/doc/freedce/COPYING.dcethreads \
+        "$pkgdir/usr/share/licenses/$pkgname/COPYING.dcethreads"
+}

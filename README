@@ -92,6 +92,12 @@ install does not start rpcd at boot; freedce/rpcd contains a systemd unit
 (freedce-rpcd.service, installed by the packages) and the old SysV init
 scripts rc.dcerpcd and rc.dce-clean.
 
+Packages: packaging/ builds .deb packages (Debian, Ubuntu) and an Arch Linux
+package from a source tarball; see packaging/README.  They install below
+/opt/dce as well, with the systemd unit freedce-rpcd.service (not enabled)
+and the rpcd database in /var/opt/freedce.  Check downloaded packages with
+"sha256sum -c SHA256SUMS" before installing them.
+
 How to build your own programs that use DCE RPC
 -----------------------------------------------
 

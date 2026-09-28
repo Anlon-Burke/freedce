@@ -1,0 +1,41 @@
+Source: freedce
+Section: libs
+Priority: optional
+Maintainer: Anlon-Burke <Anlon-Burke@users.noreply.github.com>
+Build-Depends: debhelper-compat (= 13), autoconf, automake, libtool, flex, bison, g++
+Standards-Version: 4.7.0
+Homepage: https://sourceforge.net/projects/freedce/
+Rules-Requires-Root: no
+
+Package: freedce
+Architecture: amd64
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: DCE RPC runtime and endpoint mapper (FreeDCE, 64-bit)
+ FreeDCE is the OSF DCE 1.1 RPC runtime for Linux, interoperable with other
+ DCE RPC and Microsoft RPC implementations (ncacn_ip_tcp, ncadg_ip_udp).
+ .
+ This package contains the runtime libraries (libdcerpc, libdcethreads and
+ the protocol modules), the endpoint mapper rpcd with a systemd unit
+ (freedce-rpcd.service, not enabled by default) and the uuid tool, all
+ below /opt/dce.
+
+Package: freedce-dev
+Section: libdevel
+Architecture: amd64
+Depends: freedce (= ${binary:Version}), cpp | gcc, ${shlibs:Depends}, ${misc:Depends}
+Description: DCE RPC development files and IDL compiler (FreeDCE, 64-bit)
+ FreeDCE is the OSF DCE 1.1 RPC runtime for Linux.
+ .
+ This package contains the IDL compiler dceidl (also as idl), the headers
+ and IDL files and the development links of libdcerpc and libdcethreads,
+ below /opt/dce.
+
+Package: freedce-examples
+Section: net
+Architecture: amd64
+Depends: freedce (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Description: DCE RPC example clients and servers (FreeDCE, 64-bit)
+ FreeDCE is the OSF DCE 1.1 RPC runtime for Linux.
+ .
+ This package contains the echo and samr demonstration clients and servers,
+ below /opt/dce.

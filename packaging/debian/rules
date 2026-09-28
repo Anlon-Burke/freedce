@@ -1,0 +1,37 @@
+#!/usr/bin/make -f
+# The build itself is packaging/build-staged.sh (shared with the other package formats);
+# it builds and installs everything below debian/tmp, from where the *.install files pick
+# it up.  It runs in the install step, because dh_prep empties debian/tmp before that.
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+
+override_dh_auto_build:
+
+override_dh_auto_install:
+	sh packaging/build-staged.sh debian/tmp
+
+override_dh_auto_test:
+
+override_dh_auto_clean:
+	rm -rf _build debian/tmp
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym
+
+# no debug packages, so no dwz multifile in /usr/lib/debug either
+override_dh_dwz:
+
+# /opt/dce/lib is not in the ldconfig path: no ldconfig trigger
+override_dh_makeshlibs:
+	dh_makeshlibs --no-scripts
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l$(CURDIR)/debian/freedce/opt/dce/lib
+
+override_dh_installsystemd:
+	dh_installsystemd --no-enable --no-start --name=freedce-rpcd

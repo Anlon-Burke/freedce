@@ -1,0 +1,43 @@
+Packages of FreeDCE
+===================
+
+The packages install everything below /opt/dce (libraries, programs,
+headers), the systemd unit freedce-rpcd.service (not enabled) and the
+directory /var/opt/freedce for the endpoint database of rpcd.  Remove a
+manual installation in /opt/dce before installing them.
+
+1. Source tarball (from a git checkout, the committed revision):
+
+     packaging/make-tarball.sh <output dir> [revision]
+
+   gives freedce-<version>.tar.gz and its .sha256.
+
+2. Debian, Ubuntu (debhelper, dpkg-dev):
+
+     tar xzf freedce-<version>.tar.gz && cd freedce-<version>
+     cp -r packaging/debian debian
+     dpkg-buildpackage -us -uc -b
+
+   Packages: freedce (runtime, rpcd), freedce-dev (dceidl, headers),
+   freedce-examples (echo and samr demos).
+
+3. Arch Linux (base-devel):
+
+     cp packaging/arch/* <dir>; cp freedce-<version>.tar.gz <dir>
+     cd <dir> && updpkgsums && makepkg --syncdeps
+
+   One package freedce with all parts.
+
+packaging/build-staged.sh is the build both use: dcethreads and freedce,
+prefix /opt/dce, rpcd database in /var/opt/freedce, installed into a
+staging directory.
+
+Before the installation, check the downloaded files (in their directory):
+
+     sha256sum -c SHA256SUMS
+
+Then install them with the package manager (apt install ./freedce*.deb,
+pacman -U freedce-*.pkg.tar.zst) and start rpcd:
+
+     systemctl enable --now freedce-rpcd
+     /opt/dce/bin/echo_server &  /opt/dce/bin/echo_client -h localhost

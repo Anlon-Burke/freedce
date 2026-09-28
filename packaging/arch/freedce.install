@@ -1,0 +1,7 @@
+pre_remove() {
+    systemctl --no-reload disable --now freedce-rpcd.service > /dev/null 2>&1 || true
+}
+
+post_remove() {
+    echo "The rpcd endpoint database stays in /var/opt/freedce; remove it by hand if wanted."
+}

@@ -1,0 +1,5 @@
+freedce (2.0.0-1) unstable; urgency=medium
+
+  * First packages of FreeDCE 2.0.0 (64-bit port), below /opt/dce.
+
+ -- Anlon-Burke <Anlon-Burke@users.noreply.github.com>  Tue, 29 Sep 2026 00:00:00 +0200
