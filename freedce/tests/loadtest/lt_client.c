@@ -765,5 +765,6 @@ int main(int argc, char *argv[])
         lt_quick_exit(rc);      /* the server has to run down the contexts */
     for (i = 0; i < n_threads; i++)
         lt_unbind(&workers[i].h);
+    free(workers);
     return rc;
 }

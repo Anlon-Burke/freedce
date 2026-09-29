@@ -269,6 +269,7 @@ get_client_rpc_binding(binding_handle, hostname, interface_spec, protocol)
         chk_dce_err(status, "binding2string()", "get_client_rpc_binding", 1);
 
   printf("fully resolving binding for server is: %s\n", resolved_binding);
+  rpc_string_free((unsigned char **)&resolved_binding, &status);
 
 
   return 1;
