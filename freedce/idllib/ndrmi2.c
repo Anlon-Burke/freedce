@@ -856,7 +856,7 @@ static void rpc_ss_ndr_m_v_or_o_arr_ptees
     IDL_msp_t IDL_msp;
 #endif
 {
-    idl_ulong_int element_defn_index;
+    idl_ulong_int element_defn_index = 0;
     idl_ulong_int element_size;
     idl_byte base_type;
     idl_byte *element_defn_ptr;

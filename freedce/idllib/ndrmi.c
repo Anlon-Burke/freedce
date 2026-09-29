@@ -352,7 +352,7 @@ void rpc_ss_ndr_marsh_struct
                                                                         union */
     idl_ushort_int v1_size;     /* Number of elements in open [v1_array] */
     idl_boolean add_null;
-    idl_ulong_int shadow_length;    /* Number of elements in a cs_shadow */
+    idl_ulong_int shadow_length = 0; /* Number of elements in a cs_shadow */
     IDL_cs_shadow_elt_t *cs_shadow = NULL;
     unsigned32 i;
 

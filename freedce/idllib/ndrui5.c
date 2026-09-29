@@ -165,7 +165,7 @@ void rpc_ss_ndr_unmar_cs_array
     idl_byte *cs_type_defn_ptr;
     idl_ulong_int routine_index;
     idl_byte ln_type;           /* Data type of [length_is] item */
-    idl_ulong_int ln_index;     /* Index in shadow of [length_is] item */
+    idl_ulong_int ln_index = 0; /* Index in shadow of [length_is] item */
     idl_ulong_int sz_index;     /* Index in shadow of [size_is] item */
     IDL_rtn_func_t *routine_ptr;
     /* Parameters for ..._net_size */

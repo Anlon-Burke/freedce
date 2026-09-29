@@ -1588,7 +1588,7 @@ void rpc_ss_ndr_unmar_interp
                                 /* Length of the cs-shadow for parameter list */
     IDL_cs_shadow_elt_t *struct_cs_shadow;
                                     /* cs-shadow for the conformant structure */
-    idl_ulong_int struct_shadow_length;
+    idl_ulong_int struct_shadow_length = 0;
                         /* Length of the cs-shadow for a conformant structure */
 
     if (IDL_msp->IDL_pickling_handle == NULL)
