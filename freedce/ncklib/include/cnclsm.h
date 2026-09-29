@@ -214,6 +214,10 @@ PRIVATE unsigned32     rpc__cn_call_sm_protocol_error _DCE_PROTOTYPE_ ((
  *    unsigned32                st;
  *
  * RPC_CN_POST_CALL_SM_EVENT (assoc, event, fragbuf, st);
+ *
+ * Only the association's current call gets the event.  A PDU with
+ * another call id (e.g. a cancel or orphaned PDU for an earlier maybe
+ * call, which neither DCE nor MS RPC clients send) is dropped.
  */
 
 #define RPC_CN_POST_CALL_SM_EVENT(assoc, event_id, fragbuf, st) \
@@ -234,11 +238,22 @@ PRIVATE unsigned32     rpc__cn_call_sm_protocol_error _DCE_PROTOTYPE_ ((
         } \
         else \
         { \
+            RPC_DBG_PRINTF (rpc_e_dbg_general, RPC_C_CN_DBG_GENERAL, \
+                ("CN: assoc->%p PDU type %d for call id %x dropped, current call id %x\n", \
+                 (assoc), \
+                 RPC_CN_PKT_PTYPE (RPC_CN_FRAGBUF_PKT_HDR (fragbuf)), \
+                 RPC_CN_PKT_CALL_ID (RPC_CN_FRAGBUF_PKT_HDR (fragbuf)), \
+                 RPC_CN_PKT_CALL_ID ((rpc_cn_packet_p_t) RPC_CN_CREP_SEND_HDR (crep)))); \
             (*fragbuf->fragbuf_dealloc)(fragbuf); \
         } \
     } \
     else \
     { \
+        RPC_DBG_PRINTF (rpc_e_dbg_general, RPC_C_CN_DBG_GENERAL, \
+            ("CN: assoc->%p PDU type %d for call id %x dropped, no current call\n", \
+             (assoc), \
+             RPC_CN_PKT_PTYPE (RPC_CN_FRAGBUF_PKT_HDR (fragbuf)), \
+             RPC_CN_PKT_CALL_ID (RPC_CN_FRAGBUF_PKT_HDR (fragbuf)))); \
         (*fragbuf->fragbuf_dealloc)(fragbuf); \
     } \
 }
