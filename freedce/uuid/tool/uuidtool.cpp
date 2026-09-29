@@ -94,6 +94,7 @@ bool opt_testdceuuid, opt_testmsguid;
 // main()
 //===========================================================================
 
+int
 main(int argc, char * argv[])
 {
 

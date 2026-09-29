@@ -55,6 +55,7 @@ uuid::uuid()
 
 uuid::uuid(const char * uuid_string)
 {
+  s_uuid = 0;
   if (uuid_string && strlen(uuid_string))
     {
       s_uuid = strdup(uuid_string);      
@@ -74,6 +75,7 @@ uuid::uuid(const char * uuid_string)
 
 uuid::uuid(const uuid_t c_uuid)
 {
+  s_uuid = 0;
   i_uuid = c_uuid;
 
   uuid_to_string(&i_uuid, (unsigned char **)&s_uuid, &e);
@@ -88,8 +90,8 @@ uuid::uuid(const uuid_t c_uuid)
 uuid::uuid(const uuid& x)
 {
   i_uuid = x.i_uuid;
-  if (x.s_uuid)
-    s_uuid = strdup(x.s_uuid);
+  e = x.e;
+  s_uuid = x.s_uuid ? strdup(x.s_uuid) : 0;
 }
 
 //
@@ -99,14 +101,16 @@ uuid::uuid(const uuid& x)
 uuid&
 uuid::operator = (const uuid& rhs)
 {
-  i_uuid = rhs.i_uuid;
-  if (s_uuid)
+  if (this != &rhs)
     {
+      char * s = rhs.s_uuid ? strdup(rhs.s_uuid) : 0;
+
       free(s_uuid);
-      s_uuid = strdup(rhs.s_uuid);
+      s_uuid = s;
+      i_uuid = rhs.i_uuid;
+      e = rhs.e;
     }
-  else
-    s_uuid = NULL;
+  return *this;
 }
 
 
@@ -171,7 +175,7 @@ uuid::operator != (const uuid& x)
 int
 uuid::operator > (const uuid& x)
 {
-  unsigned32 c;
+  signed32 c;
 
   c = uuid_compare(&i_uuid, (uuid_t *)&x.i_uuid, &e);
   if (e == uuid_s_ok) return (c > 0);
@@ -181,7 +185,7 @@ uuid::operator > (const uuid& x)
 int
 uuid::operator < (const uuid& x)
 {
-  unsigned32 c;
+  signed32 c;
 
   c = uuid_compare(&i_uuid, (uuid_t *)&x.i_uuid, &e);
   if (e == uuid_s_ok) return (c < 0);
@@ -250,7 +254,7 @@ uuid::C_uuid()
 std::ostream& 
 uuid::operator << (std::ostream &os)
 {
-  return os << s_uuid;
+  return os << (s_uuid ? s_uuid : "");
 }
 
 void
