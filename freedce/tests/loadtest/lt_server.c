@@ -323,6 +323,17 @@ void lt_stats(handle_t h __attribute__((unused)), lt_stats_t *s)
     get_stats(s);
 }
 
+void lt_maybe(handle_t h __attribute__((unused)), lt_key_t *key,
+              idl_ulong_int len, lt_item_t items[])
+{
+    char err[256] = "";
+    int  bad;
+
+    COUNT(LT_OP_MAYBE);
+    bad = lt_check_items(key, LT_REQ, len, items, err, sizeof err);
+    report(LT_OP_MAYBE, key, bad, err);
+}
+
 static void print_stats(void)
 {
     lt_stats_t s;

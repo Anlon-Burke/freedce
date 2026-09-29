@@ -14,9 +14,10 @@
  *   -n calls     make calls calls per thread
  *   -r rate      calls per second of this process in total (default: no limit)
  *   -m mix       operation weights, e.g. "struct=4,array=2,null=1" (default:
- *                every operation except slow with weight 1); operations:
- *                null null_idem struct array union list graph pipe_in
- *                pipe_out ctx_op slow
+ *                every operation except slow and maybe with weight 1);
+ *                operations: null null_idem struct array union list graph
+ *                pipe_in pipe_out ctx_op slow maybe (a maybe call with
+ *                MAYBE_ITEMS array elements, several fragments over TCP)
  *   -z size      maximum number of array/union/graph elements (default 16);
  *                pipes carry up to 64 * size elements
  *   -T ms        duration of the slow operation (default 100)
@@ -47,13 +48,14 @@
 #define MAX_THREADS     4096
 #define N_BUCKETS       32      /* latency histogram: bucket b < 2^b us */
 #define MAX_EXC_NAMES   16
+#define MAYBE_ITEMS     600     /* about 14 KB: several 4 KB fragments */
 
 /* operations that can be in the mix (the others run once per thread) */
 static const int mix_ops[] =
 {
     LT_OP_NULL, LT_OP_NULL_IDEM, LT_OP_STRUCT, LT_OP_ARRAY, LT_OP_UNION,
     LT_OP_LIST, LT_OP_GRAPH, LT_OP_PIPE_IN, LT_OP_PIPE_OUT, LT_OP_CTX_OP,
-    LT_OP_SLOW
+    LT_OP_SLOW, LT_OP_MAYBE
 };
 #define N_MIX_OPS (int) (sizeof mix_ops / sizeof mix_ops[0])
 
@@ -299,6 +301,15 @@ static int call_op(worker_t *w, int op)
         case LT_OP_SLOW:
             lt_slow(w->h, slow_ms, 0);
             break;
+
+        case LT_OP_MAYBE:
+        {
+            lt_item_t *items = (*lt_alloc)(MAYBE_ITEMS * sizeof *items);
+
+            lt_gen_items(key, LT_REQ, MAYBE_ITEMS, items);
+            lt_maybe(w->h, (lt_key_t *) key, MAYBE_ITEMS, items);
+            break;
+        }
     }
 
     if (sbad != 0)
@@ -736,7 +747,8 @@ int main(int argc, char *argv[])
         parse_mix(mix);
     else
         for (i = 0; i < N_MIX_OPS; i++)
-            weights[mix_ops[i]] = mix_ops[i] == LT_OP_SLOW ? 0 : 1;
+            weights[mix_ops[i]] =
+                mix_ops[i] == LT_OP_SLOW || mix_ops[i] == LT_OP_MAYBE ? 0 : 1;
     for (i = 0, weight_sum = 0; i < LT_N_OPS; i++)
         weight_sum += weights[i];
     if (weight_sum == 0)

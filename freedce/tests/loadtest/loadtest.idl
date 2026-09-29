@@ -258,4 +258,16 @@ void lt_stats
     [in]        handle_t        h,
     [out]       lt_stats_t      *stats
 );
+
+/*
+ * 14: maybe call with an array in; the client does not wait, so its next
+ * call can arrive on the same connection while this one still runs.
+ */
+[maybe] void lt_maybe
+(
+    [in]        handle_t        h,
+    [in]        lt_key_t        *key,
+    [in]        unsigned long   len,
+    [in, size_is(len)] lt_item_t items[]
+);
 }

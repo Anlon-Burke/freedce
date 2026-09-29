@@ -19,6 +19,9 @@ The interface (loadtest.idl) has one operation per area:
                     clients that go away
   slow              the manager sleeps (holds a call thread)
   stats             server statistics
+  maybe             [maybe] call with an array in (about 14 KB); the next
+                    call of the thread follows on the same connection
+                    without waiting for it
 
 All data is generated from a key (seed, client id, thread, call number), so
 the server checks what the client sent and the client checks the reply.  A
@@ -47,7 +50,8 @@ Client
 
 Every thread has its own binding handle and therefore its own connection
 (association).  -r limits the calls per second of the whole process; -m
-selects operations and weights, e.g. -m struct=4,array=2,null=1.  -S prints
+selects operations and weights, e.g. -m struct=4,array=2,null=1 (slow and
+maybe are only used when -m names them).  -S prints
 the server statistics at the end, -Q only prints them.  -k exits without
 closing the contexts (the server must run them down).  -P local uses
 ncalrpc (needs -e; the host is not used, e.g. -h .).  -W uses union
