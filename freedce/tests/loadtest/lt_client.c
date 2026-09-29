@@ -73,7 +73,7 @@ typedef struct
     lt_rng_t    rng;
     lt_key_t    key;
     op_stats_t  ops[LT_N_OPS];
-    struct { char name[65]; uint64_t count; } exc[MAX_EXC_NAMES];
+    struct { char name[129]; uint64_t count; } exc[MAX_EXC_NAMES];
     double      down_since;     /* start of the current outage, 0 if none */
     uint64_t    outages, unrecovered;
     double      longest;        /* longest outage in seconds */
@@ -105,17 +105,19 @@ static void report(worker_t *w, int op, const char *what, const char *text)
 
 static void count_exception(worker_t *w, const char *name)
 {
+    /* names are stored truncated: compare only the stored length */
+    const size_t len = sizeof w->exc[0].name - 1;
     int i;
 
     for (i = 0; i < MAX_EXC_NAMES; i++)
     {
         if (w->exc[i].count == 0)
         {
-            strncpy(w->exc[i].name, name, 64);
+            snprintf(w->exc[i].name, sizeof w->exc[i].name, "%s", name);
             w->exc[i].count = 1;
             return;
         }
-        if (strcmp(w->exc[i].name, name) == 0)
+        if (strncmp(w->exc[i].name, name, len) == 0)
         {
             w->exc[i].count++;
             return;
@@ -327,7 +329,7 @@ static void end_outage(worker_t *w)
  */
 static void call_done(worker_t *w, int op, double t0, int failed)
 {
-    char exc[80];
+    char exc[160];
 
     if (!failed)
     {
@@ -362,7 +364,7 @@ static void call_done(worker_t *w, int op, double t0, int failed)
 static void run_op(worker_t *w, int op)
 {
     op_stats_t *s = &w->ops[op];
-    char       exc[80];
+    char       exc[160];
     double     t0 = lt_now();
     uint64_t   us;
     int        b;
@@ -396,7 +398,7 @@ static void run_op(worker_t *w, int op)
 /* lt_open and lt_close, counted but not timed */
 static void run_ctx(worker_t *w, int op)
 {
-    char         exc[80];
+    char         exc[160];
     double       t0 = lt_now();
     volatile int failed = 0;    /* set in the handler */
 
@@ -609,7 +611,7 @@ static int print_server_stats(void)
     lt_stats_t   s;
     uint64_t     total = 0;
     int          i;
-    char         exc[80];
+    char         exc[160];
     volatile int rc = 0;     /* set in the handler */
 
     if (lt_bind(protseq, host, endpoint, &h) != 0)
