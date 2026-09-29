@@ -132,7 +132,7 @@ INTERNAL void receive_packet _DCE_PROTOTYPE_ ((
     ));
 
 /*
- * R P C _ C N _ S E N D _ F A U L T 
+ * R P C _ C N _ S E N D _ F A U L T
  *
  * This macro will cause a fault PDU to be sent back to the client
  * and will terminate the RPC.
@@ -148,6 +148,36 @@ INTERNAL void receive_packet _DCE_PROTOTYPE_ ((
     RPC_CN_LOCK (); \
     RPC_BINDING_RELEASE (&binding_r, \
                          &st); \
+}
+
+/*
+ * R P C _ C N _ C H E C K _ F R A G _ L E N
+ *
+ * Reject a fragment whose length (taken from the packet header) is larger
+ * than a fragment buffer.  receive_packet() uses the fragment length to size
+ * its recvmsg() read, so a larger value would make that read write past the
+ * end of the buffer.  Deallocate the fragbuf and return a protocol error.
+ */
+#define RPC_CN_CHECK_FRAG_LEN(assoc, frag_length, fbp, st) \
+{ \
+    if ((frag_length) > rpc_g_cn_large_frag_size) \
+    { \
+        /* \
+         * "(receive_packet) assoc->%x frag_length %d in header > \
+         *                fragbuf data size %d" \
+         */ \
+        RPC_DCE_SVC_PRINTF (( \
+            DCE_SVC(RPC__SVC_HANDLE, "%x%d%d"), \
+            rpc_svc_cn_pkt, \
+            svc_c_sev_warning, \
+            rpc_m_frag_toobig, \
+            (assoc), \
+            (frag_length), \
+            rpc_g_cn_large_frag_size )); \
+        *(st) = rpc_s_protocol_error; \
+        (*(fbp)->fragbuf_dealloc)(fbp); \
+        return; \
+    } \
 }
 
 
@@ -1247,6 +1277,15 @@ unsigned32              *st;
         }
 
         /*
+         * Reject a fragment that is larger than a fragment buffer before
+         * frag_length is used to size the read below.  This fragbuf may be
+         * a reused overflow buffer whose leftover bytes carry the header,
+         * so this is the only place the length of such a fragment is
+         * checked (see RPC_CN_CHECK_FRAG_LEN).
+         */
+        RPC_CN_CHECK_FRAG_LEN (assoc, frag_length, fbp, st);
+
+        /*
          * Figure out how many bytes we need.
          */
         need_bytes = frag_length - fbp->data_size;
@@ -1477,34 +1516,15 @@ unsigned32              *st;
 			RPC_CN_PKT_VERS_MINOR ((rpc_cn_packet_p_t)fbp->data_p) ));
                 }
             }
-            
+#endif
+
             /*
              * Sanity check the fragment size.
-             * Signal an error if this fragment is bigger than a fragbuf.
+             * Signal an error if this fragment is bigger than a fragbuf;
+             * otherwise the recvmsg() above would write past the end of
+             * the buffer on the next iteration.
              */
-            if (frag_length > rpc_g_cn_large_frag_size)
-            {
-                /*
-		 * "(receive_packet) assoc->%x frag_length %d in header >
-		 *                fragbuf data size %d"
-		 */
-                RPC_DCE_SVC_PRINTF ((
-		    DCE_SVC(RPC__SVC_HANDLE, "%x%d%d"),
-		    rpc_svc_cn_pkt,
-		    svc_c_sev_warning,
-		    rpc_m_frag_toobig,
-                    assoc,
-                    frag_length, 
-                    rpc_g_cn_large_frag_size ));
-                *st = rpc_s_protocol_error;
-
-	        /*
-	         * Deallocate the fragbuf which we were using.
-	         */
-	        (*fbp->fragbuf_dealloc)(fbp);
-                return;
-            }
-#endif
+            RPC_CN_CHECK_FRAG_LEN (assoc, frag_length, fbp, st);
         }
 
         /*
