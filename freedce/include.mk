@@ -9,7 +9,7 @@ dce_includes=-I$(top_builddir)/include -I$(top_srcdir)/include $(DCETHREADINCLUD
 
 # DRAT.  DO_NOT_CLOBBER (gcc being too smart) no longer works
 #CFLAGS= -g -Wall -W -O -pipe -Werror
-AM_CFLAGS=-g -Wall -W -pipe
+AM_CFLAGS=-g -Wall -W -pipe $(DCE_WARN_CFLAGS)
 
 AM_CPPFLAGS=$(dce_includes)
 

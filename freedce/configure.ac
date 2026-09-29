@@ -118,6 +118,23 @@ no)
 esac
 AC_SUBST(IDL_C23_CFLAGS)
 
+# The OSF code keeps its K&R function definitions; gcc 16 warns about each
+# of them with -W.  Turn that warning off if the compiler knows it (the
+# positive form is tested: gcc accepts any unknown -Wno- option).  It comes
+# before CFLAGS, so -Wold-style-definition given in CFLAGS still wins.
+AC_CACHE_CHECK([whether the C compiler knows -Wold-style-definition],
+	[rpc_cv_old_style_definition],
+[rpc_save_CFLAGS="$CFLAGS"
+CFLAGS="$CFLAGS -Werror -Wold-style-definition"
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],
+	[rpc_cv_old_style_definition=yes], [rpc_cv_old_style_definition=no])
+CFLAGS="$rpc_save_CFLAGS"])
+DCE_WARN_CFLAGS=
+if test "$rpc_cv_old_style_definition" = yes; then
+	DCE_WARN_CFLAGS=-Wno-old-style-definition
+fi
+AC_SUBST(DCE_WARN_CFLAGS)
+
 AC_PATH_PROG(GENCAT, gencat)
 AC_PATH_PROG(SED, sed)
 AC_SUBST(GENCAT)
