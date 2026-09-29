@@ -225,16 +225,13 @@ PRIVATE void ru_sleep(nsecs)
 unsigned32      nsecs;
 {
 #ifdef HAVE_OS_WIN32
-	_sleep(nsecs / 1000);
+	_sleep(nsecs * 1000);
 #else
-	/*
     struct timespec  sleeptime;
-	extern int pthd4_delay_np(struct timespec *);
+
     sleeptime.tv_sec = nsecs;
     sleeptime.tv_nsec = 0;
-    pthd4_delay_np(&sleeptime);
-    */
-	usleep(nsecs / 1000);
+    sys_pthread_delay_np(&sleeptime);
 #endif
 }
 
