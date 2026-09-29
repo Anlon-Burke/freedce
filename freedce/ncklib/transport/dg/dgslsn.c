@@ -39,6 +39,7 @@
 */
 
 #include <dg.h>
+#include <comp.h>
 #include <dgsct.h>
 #include <dgpkt.h>
 #include <dgcall.h>
@@ -1374,15 +1375,37 @@ rpc_dg_recvq_elt_p_t rqe;
         && rqe->hdrp->fragnum == scall->fwd2_rqe->hdrp->fragnum)
     {
         rpc_dg_fpkt_p_t fpkt = (rpc_dg_fpkt_p_t) scall->fwd2_rqe->pkt;
-        struct sockaddr *sp = (struct sockaddr *) &rqe->from.sa;
+        struct sockaddr *fsp = (struct sockaddr *) &fpkt->fhdr.addr;
 
-        rqe->from.len = fpkt->fhdr.len;
-        *sp = fpkt->fhdr.addr;
-        rpc__naf_addr_overcopy((rpc_addr_p_t) &rqe->from, &scall->c.addr, &st);
+        /*
+         * The forwarded address (length and family) is taken from the
+         * stashed first-half packet, whose contents are untrusted.  Only
+         * jam it into the current rqe if it is well-formed: an out-of-range
+         * length or an unsupported address family would later be used to
+         * index the naf dispatch table (rpc_g_naf_id) out of bounds and to
+         * size an address copy (see rpc__naf_addr_overcopy).  If it is bad,
+         * keep the real sender address, which is harmless.
+         */
+        if (fpkt->fhdr.len > 0
+            && fpkt->fhdr.len <= sizeof rqe->from.sa
+            && fsp->sa_family < RPC_C_NAF_ID_MAX
+            && RPC_NAF_INQ_SUPPORTED((unsigned32) fsp->sa_family))
+        {
+            struct sockaddr *sp = (struct sockaddr *) &rqe->from.sa;
 
-        rqe->hdrp->drep[0] = fpkt->fhdr.drep[0];
-        rqe->hdrp->drep[1] = fpkt->fhdr.drep[1];
-        rqe->hdrp->drep[2] = fpkt->fhdr.drep[2];
+            rqe->from.len = fpkt->fhdr.len;
+            *sp = fpkt->fhdr.addr;
+            rpc__naf_addr_overcopy((rpc_addr_p_t) &rqe->from, &scall->c.addr, &st);
+
+            rqe->hdrp->drep[0] = fpkt->fhdr.drep[0];
+            rqe->hdrp->drep[1] = fpkt->fhdr.drep[1];
+            rqe->hdrp->drep[2] = fpkt->fhdr.drep[2];
+        }
+        else
+        {
+            RPC_DBG_GPRINTF(("(do_request) Bad forwarded address (len %u, family %u)\n",
+                    fpkt->fhdr.len, (unsigned32) fsp->sa_family));
+        }
 
         rpc__dg_pkt_free_rqe(scall->fwd2_rqe, &scall->c);
         scall->fwd2_rqe = NULL;

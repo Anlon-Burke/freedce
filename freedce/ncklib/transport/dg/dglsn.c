@@ -38,6 +38,7 @@
 */
 
 #include <dg.h>
+#include <comp.h>
 #include <dgpkt.h>
 #include <dgsct.h>
 #include <dgcall.h>
@@ -1749,7 +1750,25 @@ rpc_dg_recvq_elt_p_t rqe;
             struct sockaddr *sp = (struct sockaddr *) &rqe->from.sa;
             unsigned16 i, j;
             unsigned16 fwd_len;
-        
+
+            /*
+             * A forwarded packet carries a forwarding header (fhdr) between
+             * the packet header and the real body.  If the datagram is not
+             * even large enough to hold both headers, the fwd_len value
+             * computed below would underflow (pkt_len and fwd_len are
+             * unsigned), and the slide-up copy would read and write past the
+             * end of the packet buffer.  Drop such a packet.
+             */
+            if (rqe->pkt_len <
+                (RPC_C_DG_RAW_PKT_HDR_SIZE + sizeof(rpc_dg_fpkt_hdr_t)))
+            {
+                RPC_DBG_GPRINTF(("(recv_pkt) Forwarded packet too short (pkt_len %u)\n",
+                        rqe->pkt_len));
+                rqe->frag_len = 0;
+                rqe->hdrp = NULL;
+                return (0);
+            }
+
             /*
              * Jam the source address and drep from the top of the body into
              * the right places, then slide the real body up.  The proceed
@@ -1761,7 +1780,28 @@ rpc_dg_recvq_elt_p_t rqe;
             rqe->hdrp->drep[0] = fpkt->fhdr.drep[0];
             rqe->hdrp->drep[1] = fpkt->fhdr.drep[1];
             rqe->hdrp->drep[2] = fpkt->fhdr.drep[2];
-            fwd_len = rqe->pkt_len - 
+
+            /*
+             * The forwarded address (length and family) is taken straight
+             * from the packet body.  Sanity check it as we do for the "from"
+             * address of an ordinary packet: an out-of-range length or an
+             * unsupported address family would later be used to index the
+             * naf dispatch table (rpc_g_naf_id) out of bounds and to size an
+             * address copy (see rpc__naf_addr_overcopy).
+             */
+            if (rqe->from.len <= 0
+                || rqe->from.len > sizeof rqe->from.sa
+                || sp->sa_family >= RPC_C_NAF_ID_MAX
+                || ! RPC_NAF_INQ_SUPPORTED((unsigned32) sp->sa_family))
+            {
+                RPC_DBG_GPRINTF(("(recv_pkt) Bad forwarded address (len %u, family %u)\n",
+                        rqe->from.len, (unsigned32) sp->sa_family));
+                rqe->frag_len = 0;
+                rqe->hdrp = NULL;
+                return (0);
+            }
+
+            fwd_len = rqe->pkt_len -
                 (RPC_C_DG_RAW_PKT_HDR_SIZE + sizeof(rpc_dg_fpkt_hdr_t));
             rqe->frag_len -= sizeof(rpc_dg_fpkt_hdr_t);
             rqe->pkt_len -= sizeof(rpc_dg_fpkt_hdr_t);
