@@ -264,6 +264,37 @@ void rpc_ss_init_allocate_once(
 #endif
 }
 
+/*
+ * Default client allocate and free routines.  malloc takes a size_t, the
+ * stub allocator type an idl_size_t (32 bits): calling malloc through a
+ * pointer of that type would be undefined behavior.
+ */
+static idl_void_p_t rpc_ss_default_alloc
+#ifdef IDL_PROTOTYPES
+(
+    idl_size_t size
+)
+#else
+( size )
+    idl_size_t size;
+#endif
+{
+    return (idl_void_p_t)malloc( (size_t)size );
+}
+
+static void rpc_ss_default_free
+#ifdef IDL_PROTOTYPES
+(
+    idl_void_p_t ptr
+)
+#else
+( ptr )
+    idl_void_p_t ptr;
+#endif
+{
+    free( ptr );
+}
+
 /******************************************************************************/
 /*                                                                            */
 /*    Do we currently have thread context data?                               */
@@ -311,17 +342,8 @@ static void rpc_ss_client_get_thread_ctx
 
         RPC_SS_THREADS_MUTEX_CREATE (&(p_support_ptrs->mutex));
 
-        p_support_ptrs->p_allocate = (idl_void_p_t (*)(
-#       ifdef IDL_PROTOTYPES
-            idl_size_t size
-#       endif
-            ))malloc;
-
-        p_support_ptrs->p_free = (void (*)(
-#       ifdef IDL_PROTOTYPES
-            idl_void_p_t ptr
-#       endif
-            ))free;
+        p_support_ptrs->p_allocate = rpc_ss_default_alloc;
+        p_support_ptrs->p_free = rpc_ss_default_free;
 
         thread_indirection_ptr = (rpc_ss_thread_indirection_t *)
                         malloc(sizeof(rpc_ss_thread_indirection_t));
