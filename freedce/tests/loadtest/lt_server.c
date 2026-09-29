@@ -1,12 +1,14 @@
 /*
  * lt_server.c: server of the load test.
  *
- * usage: lt_server [-p protseq]... [-e endpoint] [-c max_calls] [-f nofile]
+ * usage: lt_server [-p protseq|all]... [-e endpoint] [-c max_calls] [-f nofile]
  *                  [-i secs]
  *
  * Without -e the server uses dynamic endpoints and registers them with the
  * endpoint mapper (rpcd); with -e it listens on that endpoint for every
- * protocol sequence and does not need rpcd.  SIGINT/SIGTERM stop it.
+ * protocol sequence and does not need rpcd.  "-p all" uses all protocol
+ * sequences of the host (rpc_server_use_all_protseqs; not with -e).
+ * SIGINT/SIGTERM stop it.
  */
 #include <dirent.h>
 #include <errno.h>
@@ -367,7 +369,7 @@ static void *signal_thread(void *arg __attribute__((unused)))
 
 static void usage(void)
 {
-    fprintf(stderr, "usage: lt_server [-p protseq]... [-e endpoint] [-c max_calls] "
+    fprintf(stderr, "usage: lt_server [-p protseq|all]... [-e endpoint] [-c max_calls] "
                     "[-f nofile] [-i secs]\n");
     exit(2);
 }
@@ -435,7 +437,13 @@ int main(int argc, char *argv[])
 
     for (i = 0; i < n_protseqs; i++)
     {
-        if (endpoint != NULL)
+        if (strcmp(protseqs[i], "all") == 0)
+        {
+            if (endpoint != NULL)
+                usage();
+            rpc_server_use_all_protseqs(max_calls, &st);
+        }
+        else if (endpoint != NULL)
             rpc_server_use_protseq_ep((unsigned_char_p_t) protseqs[i], max_calls,
                                       (unsigned_char_p_t) endpoint, &st);
         else
