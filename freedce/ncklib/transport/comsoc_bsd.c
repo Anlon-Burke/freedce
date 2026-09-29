@@ -51,6 +51,10 @@
 #endif
 #include <rpcmem.h>
 #include <comsoc.h>
+#ifndef HAVE_OS_WIN32
+#include <sys/stat.h>
+#include <uxdnaf.h>
+#endif
 /*#include <dce/cma_ux_wrappers.h>*/
 
 #ifdef HAVE_OS_WIN32
@@ -172,6 +176,288 @@ rpc_socket_t        *sock;
     return ((*sock == -1) ? socket_error : RPC_C_SOCKET_OK);
 }
 
+#ifndef HAVE_OS_WIN32
+/*
+ * ncalrpc (AF_UNIX) sockets
+ *
+ * A socket is a file: RPC_C_UXD_DIR/<endpoint> (uxdnaf.c).  Binding a
+ * server socket creates the directory if needed (mode 1777, like
+ * /tmp/.X11-unix), gives a socket without an endpoint a UUID as its name,
+ * replaces a stale socket file of a server that did not remove it (killed),
+ * and lets every local user connect (mode 0666, like a TCP port).  The
+ * files bound by this process are removed when their socket is closed and
+ * at exit.  Clients do not bind their sockets (rpc__cn_network_req_connect).
+ */
+typedef struct uxd_file_s
+{
+    struct uxd_file_s   *next;
+    rpc_socket_t        sock;
+    char                path[sizeof (((struct sockaddr_un *) 0)->sun_path)];
+} uxd_file_t;
+
+INTERNAL uxd_file_t     *uxd_files = NULL;
+INTERNAL rpc_mutex_t    uxd_files_mutex = RPC_MUTEX_INITIALIZER;
+INTERNAL boolean        uxd_atexit_done = false;
+
+/*
+ * At exit: remove the socket files that are still bound (without the
+ * mutex: another thread may hold it forever when the process ends).
+ */
+INTERNAL void uxd_unlink_all (void)
+{
+    uxd_file_t          *f;
+
+    for (f = uxd_files; f != NULL; f = f->next)
+    {
+        (void) unlink (f->path);
+    }
+}
+
+INTERNAL void uxd_remember
+#ifdef _DCE_PROTO_
+(
+    rpc_socket_t        sock,
+    char                *path
+)
+#else
+(sock, path)
+rpc_socket_t        sock;
+char                *path;
+#endif
+{
+    uxd_file_t          *f;
+
+    RPC_MEM_ALLOC (f, uxd_file_t *, sizeof (*f), RPC_C_MEM_UTIL, RPC_C_MEM_WAITOK);
+    if (f == NULL)
+    {
+        return;
+    }
+    f->sock = sock;
+    strncpy (f->path, path, sizeof (f->path) - 1);
+    f->path[sizeof (f->path) - 1] = '\0';
+
+    RPC_MUTEX_LOCK (uxd_files_mutex);
+    f->next = uxd_files;
+    uxd_files = f;
+    if (! uxd_atexit_done)
+    {
+        uxd_atexit_done = true;
+        (void) atexit (uxd_unlink_all);
+    }
+    RPC_MUTEX_UNLOCK (uxd_files_mutex);
+}
+
+/*
+ * Before a socket is closed: remove its file if this process bound it.
+ */
+INTERNAL void uxd_forget
+#ifdef _DCE_PROTO_
+(
+    rpc_socket_t        sock
+)
+#else
+(sock)
+rpc_socket_t        sock;
+#endif
+{
+    uxd_file_t          **fp, *f = NULL;
+
+    if (uxd_files == NULL)
+    {
+        return;
+    }
+    RPC_MUTEX_LOCK (uxd_files_mutex);
+    for (fp = &uxd_files; *fp != NULL; fp = &(*fp)->next)
+    {
+        if ((*fp)->sock == sock)
+        {
+            f = *fp;
+            *fp = f->next;
+            break;
+        }
+    }
+    RPC_MUTEX_UNLOCK (uxd_files_mutex);
+
+    if (f != NULL)
+    {
+        (void) unlink (f->path);
+        RPC_MEM_FREE (f, RPC_C_MEM_UTIL);
+    }
+}
+
+/*
+ * The directory of a socket path must exist.  RPC_C_UXD_DIR is created if
+ * it is missing, and is trusted only if it is a directory (no symbolic
+ * link) of root or of this user that others cannot change except with the
+ * sticky bit.
+ */
+INTERNAL rpc_socket_error_t uxd_check_dir
+#ifdef _DCE_PROTO_
+(
+    char                *path
+)
+#else
+(path)
+char                *path;
+#endif
+{
+    char                dir[sizeof (((struct sockaddr_un *) 0)->sun_path)];
+    char                *p;
+    struct stat         st;
+
+    strncpy (dir, path, sizeof (dir) - 1);
+    dir[sizeof (dir) - 1] = '\0';
+    p = strrchr (dir, '/');
+    if (p == NULL || p == dir)
+    {
+        return (RPC_C_SOCKET_OK);
+    }
+    *p = '\0';
+
+    if (strcmp (dir, RPC_C_UXD_DIR) != 0)
+    {
+        return (RPC_C_SOCKET_OK);       /* an endpoint given as a path */
+    }
+
+    if (mkdir (dir, 0700) == 0)
+    {
+        (void) chmod (dir, 01777);      /* the mode without the umask */
+    }
+    if (lstat (dir, &st) == -1)
+    {
+        return (socket_error);
+    }
+    if (! S_ISDIR (st.st_mode) ||
+        (st.st_uid != 0 && st.st_uid != geteuid ()) ||
+        ((st.st_mode & (S_IWGRP | S_IWOTH)) != 0 && (st.st_mode & S_ISVTX) == 0))
+    {
+        RPC_DBG_GPRINTF (("(uxd_check_dir) %s: not a directory of root or of this user, or writable without the sticky bit\n",
+            dir));
+        return (RPC_C_SOCKET_EACCESS);
+    }
+    return (RPC_C_SOCKET_OK);
+}
+
+/*
+ * A socket file nobody listens on any more (its server was killed).
+ */
+INTERNAL boolean uxd_stale
+#ifdef _DCE_PROTO_
+(
+    struct sockaddr_un  *sun
+)
+#else
+(sun)
+struct sockaddr_un  *sun;
+#endif
+{
+    struct stat         st;
+    int                 s;
+    boolean             stale;
+
+    if (lstat (sun->sun_path, &st) == -1 || ! S_ISSOCK (st.st_mode))
+    {
+        return (false);
+    }
+    s = socket (AF_UNIX, SOCK_STREAM, 0);
+    if (s == -1)
+    {
+        return (false);
+    }
+    (void) fcntl (s, F_SETFL, O_NONBLOCK);  /* a full backlog: EAGAIN */
+    stale = (connect (s, (struct sockaddr *) sun, sizeof (*sun)) == -1 &&
+             errno == ECONNREFUSED);
+    (void) close (s);
+    return (stale);
+}
+
+INTERNAL rpc_socket_error_t uxd_bind
+#ifdef _DCE_PROTO_
+(
+    rpc_socket_t        sock,
+    rpc_addr_p_t        addr
+)
+#else
+(sock, addr)
+rpc_socket_t        sock;
+rpc_addr_p_t        addr;
+#endif
+{
+    rpc_socket_error_t  serr;
+    unsigned32          status, temp_status;
+    unsigned_char_p_t   endpoint;
+    rpc_addr_p_t        temp_addr = NULL;
+    uuid_t              uuid;
+    struct sockaddr_un  *sun;
+
+    /*
+     * Without an endpoint: bind a copy with a UUID as the endpoint, so that
+     * the caller's address keeps "no endpoint" (the name is read back with
+     * getsockname, like a dynamic port).
+     */
+    rpc__naf_addr_inq_endpoint (addr, &endpoint, &status);
+    if (status != rpc_s_ok)
+    {
+        return (RPC_C_SOCKET_EIO);
+    }
+    if (endpoint[0] == '\0')
+    {
+        rpc_string_free (&endpoint, &temp_status);
+        uuid_create (&uuid, &status);
+        if (status == rpc_s_ok)
+        {
+            uuid_to_string (&uuid, &endpoint, &status);
+        }
+        if (status != rpc_s_ok)
+        {
+            return (RPC_C_SOCKET_EIO);
+        }
+        rpc__naf_addr_copy (addr, &temp_addr, &status);
+        if (status == rpc_s_ok)
+        {
+            rpc__naf_addr_set_endpoint (endpoint, &temp_addr, &status);
+        }
+        if (status != rpc_s_ok)
+        {
+            rpc_string_free (&endpoint, &temp_status);
+            if (temp_addr != NULL)
+            {
+                rpc__naf_addr_free (&temp_addr, &temp_status);
+            }
+            return (RPC_C_SOCKET_EIO);
+        }
+        addr = temp_addr;
+    }
+    rpc_string_free (&endpoint, &temp_status);
+    sun = (struct sockaddr_un *) &addr->sa;
+
+    serr = uxd_check_dir (sun->sun_path);
+    if (! RPC_SOCKET_IS_ERR (serr) &&
+        bind (sock, (struct sockaddr *) sun, addr->len) == -1)
+    {
+        serr = socket_error;
+        if (serr == RPC_C_SOCKET_EADDRINUSE && uxd_stale (sun))
+        {
+            (void) unlink (sun->sun_path);
+            serr = (bind (sock, (struct sockaddr *) sun, addr->len) == -1) ?
+                socket_error : RPC_C_SOCKET_OK;
+        }
+    }
+    if (! RPC_SOCKET_IS_ERR (serr))
+    {
+        (void) chmod (sun->sun_path, 0666);
+        uxd_remember (sock, sun->sun_path);
+    }
+
+    if (temp_addr != NULL)
+    {
+        rpc__naf_addr_free (&temp_addr, &temp_status);
+    }
+    return (serr);
+}
+#endif  /* HAVE_OS_WIN32 */
+
+
 /*
  * R P C _ _ S O C K E T _ C L O S E
  *
@@ -193,6 +479,9 @@ rpc_socket_t        sock;
     rpc_socket_error_t  serr;
 
     RPC_LOG_SOCKET_CLOSE_NTR;
+#ifndef HAVE_OS_WIN32
+    uxd_forget (sock);
+#endif
     serr = (close(sock) == -1) ? socket_error : RPC_C_SOCKET_OK;
     RPC_LOG_SOCKET_CLOSE_XIT;
     return (serr);
@@ -225,6 +514,15 @@ rpc_addr_p_t        addr;
     int setsock_val = 1;
 
     RPC_LOG_SOCKET_BIND_NTR;
+
+#ifndef HAVE_OS_WIN32
+    if (addr->sa.family == RPC_C_NAF_ID_UXD)
+    {
+        serr = uxd_bind (sock, addr);
+        RPC_LOG_SOCKET_BIND_XIT;
+        return (serr);
+    }
+#endif
 
     /*
      * Check if the address has a well-known endpoint.

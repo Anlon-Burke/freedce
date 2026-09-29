@@ -71,9 +71,6 @@
 #  define RPC__UXD_NETWORK_SPRINTF   rpc__uxd_network_sprintf
 #endif
 
-/*#define PIPE_PREFIX "/tmp/.ncalrpc/"*/
-#define PIPE_PREFIX "/usr/local/samba/var/locks/.msrpc/"
-
 
 /***********************************************************************
  *
@@ -683,14 +680,14 @@ unsigned32              *status;
 **  DESCRIPTION:
 **      
 **    Receive the null terminated ascii character string,  rpc_endpoint
-**    and convert to the Internet Protocol byte order format.  Insert
-**    into the RPC address, pointed to by argument rpc_addr.  The only
-**    acceptible endpoint for IP is numeric asci string, or a NULL string.
+**    and convert it to the socket path in the RPC address, pointed to
+**    by argument rpc_addr: a name (no "/") is a socket in the directory
+**    RPC_C_UXD_DIR, an absolute path is taken as it is.
 **
 **  INPUTS:
 **
-**      endpoint        String containing endpoint to insert into RPC address.
-**                      For IP must contain an ASCII numeric value, or NULL.
+**      endpoint        String containing endpoint to insert into RPC address:
+**                      a name, an absolute path, or NULL.
 **
 **  INPUTS/OUTPUTS:
 **
@@ -705,8 +702,9 @@ unsigned32              *status;
 **
 **          rpc_s_invalid_naf_id  Argument, endpoint contains an 
 **                                  unauthorized pointer value.
-**          rpc_s_invalid_endpoint_format Endpoint Argument can not be 
-**                                  converted (not numeric).
+**          rpc_s_invalid_endpoint_format Endpoint Argument can not be
+**                                  converted (relative path, "." or
+**                                  "..", or too long for sun_path).
 **
 **  IMPLICIT INPUTS:
 **
@@ -737,49 +735,48 @@ unsigned32              *status;
 #endif
 {
     rpc_uxd_addr_p_t     uxd_addr = (rpc_uxd_addr_p_t) *rpc_addr;
-    int                 ret = 1;
+    char                *ep = (char *) endpoint;
+    size_t              len;
 
-    
+
     CODING_ERROR (status);
-    
+
     /*
-     * check to see if this is a request to remove the endpoint
+     * check to see if this is a request to remove the endpoint (a server
+     * socket without one gets a unique name when it is bound, see
+     * rpc__socket_bind)
      */
-    if (endpoint == NULL || strlen ((char *) endpoint) == 0)
+    if (ep == NULL || strlen (ep) == 0)
     {
-		char *f;
-		f = tempnam(PIPE_PREFIX, ".epm");
-        if (f == NULL)
-        {
-            *status = rpc_s_no_memory;
-            return;
-        }
-        RPC__UXD_ENDPOINT_SPRINTF(uxd_addr->sa.sun_path, "%s", f);
-        free(f);
-        /*uxd_addr->sa.sun_path[0] = 0;*/
+        memset (uxd_addr->sa.sun_path, 0, sizeof (uxd_addr->sa.sun_path));
         *status = rpc_s_ok;
         return;
     }
 
-    if (strlen((char*)endpoint) >= sizeof(uxd_addr->sa.sun_path) - strlen(PIPE_PREFIX))
-    {
-        *status = rpc_s_invalid_endpoint_format;
-        return;
-    }
-
     /*
-     * convert the endpoint string to network format
-     * and insert in RPC address
+     * a path, or a name in the socket directory (not "." or "..");
+     * sizeof (RPC_C_UXD_DIR) counts the "/" between them
      */
+    if (ep[0] == '/')
+        len = strlen (ep);
+    else if (strchr (ep, '/') == NULL && strcmp (ep, ".") != 0 &&
+             strcmp (ep, "..") != 0)
+        len = sizeof (RPC_C_UXD_DIR) + strlen (ep);
+    else
+        len = sizeof (uxd_addr->sa.sun_path);
 
-    if (ret != 1)
+    if (len >= sizeof (uxd_addr->sa.sun_path))
     {
         *status = rpc_s_invalid_endpoint_format;
         return;
     }
 
-    RPC__UXD_NETWORK_SPRINTF(uxd_addr->sa.sun_path, "%s%s",
-			 PIPE_PREFIX, endpoint);
+    memset (uxd_addr->sa.sun_path, 0, sizeof (uxd_addr->sa.sun_path));
+    if (ep[0] == '/')
+        RPC__UXD_NETWORK_SPRINTF(uxd_addr->sa.sun_path, "%s", ep);
+    else
+        RPC__UXD_NETWORK_SPRINTF(uxd_addr->sa.sun_path, "%s/%s",
+                                 RPC_C_UXD_DIR, ep);
 
     *status = rpc_s_ok;
 }
@@ -828,19 +825,13 @@ unsigned32              *status;
 **
 **  SIDE EFFECTS:
 **
-**    CAUTION -- since this routine has no way of knowing the exact
-**      length of the endpoint string which will be derived.  It
-**      is asumed that the caller has provided, rpc_c_endpoint_max
-**      (or at least "enough") space for the endpoint string.
+**    The endpoint is allocated here (free it with rpc_string_free): the
+**      name of a socket in the directory RPC_C_UXD_DIR, otherwise the
+**      path of the socket.
 **--
 **/
 
-/*
-		char *f;
-		f = tempnam("/tmp", ".epm");
-        RPC__UXD_ENDPOINT_SPRINTF(uxd_addr->sa.sun_path, "%s", f);
-		*/
-INTERNAL void addr_inq_endpoint 
+INTERNAL void addr_inq_endpoint
 #ifdef _DCE_PROTO_
 (
     rpc_addr_p_t            rpc_addr,
@@ -854,44 +845,37 @@ unsigned_char_t         **endpoint;
 unsigned32              *status;
 #endif
 {
-#define     RPC_C_ENDPOINT_UXD_MAX  108    
     rpc_uxd_addr_p_t     uxd_addr = (rpc_uxd_addr_p_t) rpc_addr;
     char          *ep;
+    size_t        len;
 
 
     CODING_ERROR (status);
 
     /*
-     * convert endpoint to local platform byte order format
+     * the socket path (empty if no endpoint is present); a socket in
+     * the directory RPC_C_UXD_DIR is given by its name only
      */
     ep = uxd_addr->sa.sun_path;
+    len = strnlen (ep, sizeof (uxd_addr->sa.sun_path));
 
-    /*
-     * if no endpoint present, return null string. Otherwise,
-     * return the endpoint string.
-     */    
-    if (ep[0]  ==  0)
+    if (len > sizeof (RPC_C_UXD_DIR) &&
+        strncmp (ep, RPC_C_UXD_DIR "/", sizeof (RPC_C_UXD_DIR)) == 0)
     {
-        RPC_MEM_ALLOC(
-            *endpoint,
-            unsigned_char_p_t,
-            sizeof(unsigned32),     /* can't stand to get just 1 byte */
-            RPC_C_MEM_STRING,
-            RPC_C_MEM_WAITOK);
-		*endpoint[0] = 0;
-    }
-    else
-    {
-        RPC_MEM_ALLOC(
-            *endpoint,
-            unsigned_char_p_t,
-            RPC_C_ENDPOINT_UXD_MAX,
-            RPC_C_MEM_STRING,
-            RPC_C_MEM_WAITOK);
-        RPC__UXD_ENDPOINT_SPRINTF((char *) *endpoint, "%s", ep+strlen(PIPE_PREFIX));
+        ep += sizeof (RPC_C_UXD_DIR);
+        len -= sizeof (RPC_C_UXD_DIR);
     }
 
-    *status = rpc_s_ok;    
+    RPC_MEM_ALLOC(
+        *endpoint,
+        unsigned_char_p_t,
+        len + sizeof(unsigned32),   /* can't stand to get just 1 byte */
+        RPC_C_MEM_STRING,
+        RPC_C_MEM_WAITOK);
+    memcpy (*endpoint, ep, len);
+    (*endpoint)[len] = 0;
+
+    *status = rpc_s_ok;
 }
 
 /*
@@ -1988,6 +1972,12 @@ unsigned32              *status;
         *status = rpc_s_no_memory;
         return;
     }
+
+    /*
+     * getpeername fills in only the used part of sun_path (nothing for
+     * an unbound client socket)
+     */
+    memset (*rpc_addr, 0, sizeof (rpc_uxd_addr_t));
 
     /*
      * insert individual parameters into RPC address

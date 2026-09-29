@@ -72,6 +72,16 @@ typedef struct rpc_addr_uxd_t
     struct sockaddr_un      sa;
 } rpc_uxd_addr_t, *rpc_uxd_addr_p_t;
 
+/*
+ * Directory of the ncalrpc sockets (configure --with-ncalrpc-dir): the
+ * endpoint "foo" is the socket RPC_C_UXD_DIR/foo, an endpoint that starts
+ * with "/" is the path of the socket itself.  A server socket without an
+ * endpoint gets a UUID as its name when it is bound (rpc__socket_bind).
+ */
+#ifndef RPC_C_UXD_DIR
+#define RPC_C_UXD_DIR "/tmp/.ncalrpc"
+#endif
+
 
 /*
  * Max Local DG Fragment Size:

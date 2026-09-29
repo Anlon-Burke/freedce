@@ -1215,9 +1215,18 @@ unsigned32              *st;
         }
 
         /*
-         * Next, bind the socket to the RPC address.
+         * Next, bind the socket to the RPC address.  Not an AF_UNIX
+         * (ncalrpc) socket: a client needs no name there, and binding
+         * would create a socket file for every connection.
          */
-        serr = rpc__socket_bind (assoc->cn_ctlblk.cn_sock, temp_rpc_addr);
+        if (naf_id == RPC_C_NAF_ID_UXD)
+        {
+            serr = RPC_C_SOCKET_OK;
+        }
+        else
+        {
+            serr = rpc__socket_bind (assoc->cn_ctlblk.cn_sock, temp_rpc_addr);
+        }
         rpc__naf_addr_free(&temp_rpc_addr, &temp_status);
         if (RPC_SOCKET_IS_ERR (serr))
         {

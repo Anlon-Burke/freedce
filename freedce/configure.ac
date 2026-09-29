@@ -178,6 +178,21 @@ case "$RPCD_DBDIR" in
 esac
 AC_SUBST(RPCD_DBDIR)
 
+dnl directory of the ncalrpc sockets: endpoint "foo" is the socket <dir>/foo
+NCALRPC_DIR="/tmp/.ncalrpc"
+AC_ARG_WITH(ncalrpc-dir, [  --with-ncalrpc-dir=DIR  Directory of the ncalrpc sockets (default /tmp/.ncalrpc)],
+[NCALRPC_DIR="$withval"])
+NCALRPC_DIR=`echo "$NCALRPC_DIR" | sed 's,//*$,,'`
+case "$NCALRPC_DIR" in
+/?*) ;;
+*) AC_MSG_ERROR([--with-ncalrpc-dir needs an absolute directory]) ;;
+esac
+dnl sun_path has 108 bytes: leave room for "/" and a UUID endpoint (36)
+if test `expr "$NCALRPC_DIR" : '.*'` -gt 64; then
+    AC_MSG_ERROR([--with-ncalrpc-dir: at most 64 characters])
+fi
+AC_SUBST(NCALRPC_DIR)
+
 dnl the libraries and headers are searched in <dir>/lib and <dir>/include
 THREADS_LIB_DIRS=
 THREADS_INC_DIRS=

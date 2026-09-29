@@ -200,7 +200,11 @@ unsigned32              *status;
      * interfaces the local host has and construct an RPC address for
      * each one of them.
      */
-    loc_uxd_addr.len = sizeof (rpc_uxd_addr_t);
+    /*
+     * getsockname fills in only the used part of sun_path
+     */
+    memset (&loc_uxd_addr, 0, sizeof (loc_uxd_addr));
+    loc_uxd_addr.len = sizeof (loc_uxd_addr.sa);
     RPC_SOCKET_FIX_ADDRLEN(&loc_uxd_addr);
 
     if (getsockname (desc, (struct sockaddr *)&loc_uxd_addr.sa,
