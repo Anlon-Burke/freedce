@@ -20,10 +20,11 @@ if test ! -d $ac_pwd/include/dce; then
 fi
 osdepheaders=`cd $ac_abs_confdir/include/dce/$target_os && echo *.h`
 for header in $osdepheaders ; do
-	if test "x$target_os/$header" = "x$ac_abs_confdir/include/dce/$header"; then
-		echo "error: source and target location for os dependend"
-		echo "       include sources are the same"
-		exit 1;
+	# in a build in the source tree the link must not replace a source header
+	# (a copy of the linked file, where ln made one, is fine)
+	if test -f include/dce/$header && test ! -h include/dce/$header \
+	   && ! cmp -s include/dce/$header $ac_abs_confdir/include/dce/$target_os/$header; then
+		AC_MSG_ERROR([include/dce/$header is a file: the link to $target_os/$header would replace it])
 	else
 		ln -sf $ac_abs_confdir/include/dce/$target_os/$header include/dce/$header
 	fi
@@ -41,10 +42,9 @@ if test ! -d $ac_abs_confdir/include/dce/$target_cpu; then
 fi
 cpudepheaders=`cd $ac_abs_confdir/include/dce/$target_cpu && echo *.h`
 for header in $cpudepheaders ; do
-	if test "x$target_cpu/$header" = "x$ac_abs_confdir/include/dce/$header"; then
-		echo "error: source and target location for cpu dependend"
-		echo "       include sources are the same"
-		exit 1;
+	if test -f include/dce/$header && test ! -h include/dce/$header \
+	   && ! cmp -s include/dce/$header $ac_abs_confdir/include/dce/$target_cpu/$header; then
+		AC_MSG_ERROR([include/dce/$header is a file: the link to $target_cpu/$header would replace it])
 	else
 		ln -sf $ac_abs_confdir/include/dce/$target_cpu/$header include/dce/$header
 	fi
