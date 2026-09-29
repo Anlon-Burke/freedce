@@ -92,6 +92,10 @@ INTERNAL void get_ep_binding _DCE_PROTOTYPE_((
         unsigned32              * /*status*/
     ));
 
+INTERNAL boolean ep_binding_usable _DCE_PROTOTYPE_((
+        rpc_binding_handle_t    binding
+    ));
+
 INTERNAL void tower_to_if_id _DCE_PROTOTYPE_((
         twr_p_t                 tower,
         rpc_if_id_t             *if_id,
@@ -318,6 +322,7 @@ unsigned32                  *status;
     rpc_binding_handle_t        ep_binding;
     unsigned32                  i, j;
     unsigned32                  curr_hand = 0, curr_tower = 0, curr_obj = 0; 
+    unsigned32                  ep_hand;
     unsigned32                  st;
     rpc_tower_ref_vector_p_t    tower_vec;
 
@@ -345,6 +350,7 @@ unsigned32                  *status;
      */                                      
 
     curr_hand = binding_vec->count;
+    ep_hand = binding_vec->count;
     for (i = 0; i < binding_vec->count; i++) 
     {
         if (binding_vec->binding_h[i] != NULL) 
@@ -357,6 +363,10 @@ unsigned32                  *status;
             }
 
             curr_hand = i;
+            if (ep_binding_usable(binding_vec->binding_h[i]))
+            {
+                ep_hand = i;
+            }
         }
     }
 
@@ -371,10 +381,16 @@ unsigned32                  *status;
     }          
                                              
     /*
-     * Otherwise, use the a valid handle to converse with the EP mapper.
+     * Otherwise, use the a valid handle to converse with the EP mapper:
+     * one whose protocol sequence the EP mapper listens on (e.g. not the
+     * ncalrpc binding that rpc_server_use_all_protseqs adds), or if there
+     * is none, the last one.
      */
-    
-    get_ep_binding(binding_vec->binding_h[curr_hand], &ep_binding, status);
+    if (ep_hand >= binding_vec->count)
+    {
+        ep_hand = curr_hand;
+    }
+    get_ep_binding(binding_vec->binding_h[ep_hand], &ep_binding, status);
     if (*status != rpc_s_ok)
         return;
 
@@ -616,6 +632,7 @@ unsigned32                  *status;
     unsigned32                  i, j, k, st;
     rpc_tower_ref_vector_p_t    tower_vec;
     unsigned32                  curr_hand;
+    unsigned32                  ep_hand;
     unsigned32                  lstatus;
 
     CODING_ERROR (status);
@@ -642,6 +659,7 @@ unsigned32                  *status;
      */                                      
 
     curr_hand = binding_vec->count;
+    ep_hand = binding_vec->count;
     for (i = 0; i < binding_vec->count; i++)
     {
         if (binding_vec->binding_h[i] != NULL) 
@@ -654,6 +672,10 @@ unsigned32                  *status;
     }
 
             curr_hand = i;
+            if (ep_binding_usable(binding_vec->binding_h[i]))
+            {
+                ep_hand = i;
+            }
         }
     }
 
@@ -668,10 +690,16 @@ unsigned32                  *status;
     }          
                                              
     /*
-     * Otherwise, use the a valid handle to converse with the EP mapper.
+     * Otherwise, use the a valid handle to converse with the EP mapper:
+     * one whose protocol sequence the EP mapper listens on (e.g. not the
+     * ncalrpc binding that rpc_server_use_all_protseqs adds), or if there
+     * is none, the last one.
      */
-
-    get_ep_binding(binding_vec->binding_h[curr_hand], &ep_binding, status);
+    if (ep_hand >= binding_vec->count)
+    {
+        ep_hand = curr_hand;
+    }
+    get_ep_binding(binding_vec->binding_h[ep_hand], &ep_binding, status);
     if (*status != rpc_s_ok)
         return;
 
@@ -1409,6 +1437,63 @@ unsigned32              *status;
 }
 
 
+/*
+**++
+**
+**  ROUTINE NAME:       ep_binding_usable
+**
+**  SCOPE:              INTERNAL
+**
+**  DESCRIPTION:
+**
+**  Can the endpoint mapper be reached through a copy of this binding?
+**  Only for the protocol sequences the ept interface has a well-known
+**  endpoint for (the ones rpcd listens on); e.g. not for ncalrpc.
+**
+**  INPUTS:
+**
+**      binding         A server binding handle.
+**
+**  INPUTS/OUTPUTS:     none
+**
+**  OUTPUTS:            none
+**
+**  IMPLICIT INPUTS:    none
+**
+**  IMPLICIT OUTPUTS:   none
+**
+**  FUNCTION VALUE:     true if the endpoint mapper has a well-known
+**                      endpoint for the binding's protocol sequence
+**
+**  SIDE EFFECTS:       none
+**
+**--
+**/
+
+INTERNAL boolean ep_binding_usable
+#ifdef _DCE_PROTO_
+(
+    rpc_binding_handle_t    binding
+)
+#else
+(binding)
+rpc_binding_handle_t    binding;
+#endif
+{
+    unsigned_char_p_t       endpoint;
+    unsigned32              st, tmp_st;
+
+    rpc__if_inq_endpoint ((rpc_if_rep_p_t) ept_v3_0_c_ifspec,
+        ((rpc_binding_rep_p_t) binding)->rpc_addr->rpc_protseq_id,
+        &endpoint, &st);
+    if (st != rpc_s_ok)
+    {
+        return (false);
+    }
+    rpc_string_free (&endpoint, &tmp_st);
+    return (true);
+}
+
 /*
 **++
 **
