@@ -7,7 +7,9 @@
 #   1. 8 threads, every operation, 10 s over TCP
 #   2. 4 threads, every operation, 5 s over UDP (skipped with LT_UDP=0)
 #   3. 4 threads, every operation, 5 s over ncalrpc (skipped with LT_NCALRPC=0)
-#   4. context rundown: a client exits without closing its 4 contexts;
+#   4. maybe calls mixed with other calls on the same connections, 8 threads
+#      x 400 calls over TCP; the server must have run all of them
+#   5. context rundown: a client exits without closing its 4 contexts;
 #      the server has to run them down within 60 s
 # The server must still run at the end and must not have found differences.
 
@@ -62,6 +64,27 @@ if [ "$LT_NCALRPC" != 0 ]; then
         echo "ncalrpc: 4 threads, 5 s"
         ./lt_client -h . -e $EP -P local -t 4 -d 5 || rc=1
 fi
+
+echo "Maybe calls: 8 threads, 400 calls each over TCP"
+before=`server_value calls`
+./lt_client -h $HOST -e $EP -t 8 -n 400 -m maybe=2,array=1,struct=1 || rc=1
+# every call must have run on the server (the maybe calls may still be
+# running; each query is a call too)
+q=1
+while :; do
+        now=`server_value calls`
+        if [ -n "$before" ] && [ -n "$now" ] &&
+           [ `expr $now - $before` -ge `expr 3200 + $q` ]; then
+                break
+        fi
+        q=`expr $q + 1`
+        if [ $q -gt 20 ]; then
+                echo "*** calls lost: server ran `expr $now - $before - $q + 1` of 3200"
+                rc=1
+                break
+        fi
+        sleep 0.5
+done
 
 echo "Context rundown"
 before=`server_value rundowns`

@@ -72,7 +72,9 @@ and the threads whose last outage lasted until the end.
 
 "make check" (run_check.sh) runs a short test against a local server on
 endpoint 2101 (LT_ENDPOINT) over TCP, UDP and ncalrpc (LT_UDP=0 and
-LT_NCALRPC=0 skip them) plus a context rundown test; rpcd is not needed.
+LT_NCALRPC=0 skip them), maybe calls mixed with other calls on the same
+connections (the server must run all of them) and a context rundown test;
+rpcd is not needed.
 
 Windows client
 --------------
