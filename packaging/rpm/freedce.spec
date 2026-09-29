@@ -15,7 +15,7 @@
 
 Name:           freedce
 Version:        2.0.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        DCE RPC runtime and endpoint mapper (FreeDCE, 64-bit)
 License:        LicenseRef-OSF-DCE AND GPL-2.0-only AND LGPL-2.0-or-later
 URL:            https://sourceforge.net/projects/freedce/
@@ -132,5 +132,11 @@ export QA_RPATHS=$(( 0x0002 ))
 /opt/dce/lib/liblsarpc.so*
 
 %changelog
+* Tue Sep 29 2026 Anlon-Burke <Anlon-Burke@users.noreply.github.com> - 2.0.0-2
+- Second preview: built-in texts for the status codes, fixes found with
+  ASan/UBSan, zeroed pad bytes in bind_ack, rpc_ep_register with
+  rpc_server_use_all_protseqs, configurable dcethreads wake-up signal,
+  uuid tool fixes, more robust parallel and cross builds.
+
 * Tue Sep 29 2026 Anlon-Burke <Anlon-Burke@users.noreply.github.com> - 2.0.0-1
 - First packages of FreeDCE 2.0.0 (64-bit port), below /opt/dce.

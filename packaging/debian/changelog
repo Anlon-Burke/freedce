@@ -1,3 +1,13 @@
+freedce (2.0.0-2) unstable; urgency=medium
+
+  * Second preview: built-in texts for the status codes, fixes found with
+    ASan/UBSan (connection iovector, stub thread context, allocator
+    wrappers), zeroed pad bytes in bind_ack, rpc_ep_register with
+    rpc_server_use_all_protseqs, configurable dcethreads wake-up signal,
+    uuid tool fixes, more robust parallel and cross builds.
+
+ -- Anlon-Burke <Anlon-Burke@users.noreply.github.com>  Tue, 29 Sep 2026 18:00:00 +0200
+
 freedce (2.0.0-1) unstable; urgency=medium
 
   * First packages of FreeDCE 2.0.0 (64-bit port), below /opt/dce.
