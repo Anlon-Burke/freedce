@@ -267,7 +267,13 @@ rpc_dg_scall_p_t scall;
      */
 
     if (rqe->hdrp->seq > scall->c.call_seq)
+    {
+        RPC_DBG_PRINTF(rpc_e_dbg_cancel, 10,
+                ("(do_quit_body) Cancel for a newer call (current seq %lu); Dropped [%s]\n",
+                (unsigned long) scall->c.call_seq,
+                rpc__dg_act_seq_string(rqe->hdrp)));
         return;
+    }
 
     /*
      * The cancel is for a currently running / previous call.
