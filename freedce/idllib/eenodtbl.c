@@ -61,12 +61,33 @@ void rpc_ss_build_indirection_struct
 #endif
 {
     rpc_ss_thread_indirection_t *helper_thread_indirection_ptr;
+    rpc_ss_thread_support_ptrs_t *old_support_ptrs;
 
-    /* If a context exists, destroy it */
+    /*
+     * If a context exists, destroy it.  A context the thread owns
+     * (free_referents; e.g. the one rpc_ss_client_get_thread_ctx creates when a
+     * client stub or the endpoint lookup needs one) also owns its support
+     * structure and memory handle: release them as well, or every
+     * rpc_ss_enable_allocate after such a call leaks them.  Keep them if they
+     * are reused here or the memory handle still holds memory the application
+     * may use (nested rpc_ss_enable_allocate).
+     */
     RPC_SS_THREADS_KEY_GET_CONTEXT( rpc_ss_thread_supp_key,
                                        &helper_thread_indirection_ptr );
     if ( helper_thread_indirection_ptr != NULL )
     {
+        old_support_ptrs = helper_thread_indirection_ptr->indirection;
+        if ( helper_thread_indirection_ptr->free_referents
+             && old_support_ptrs != NULL
+             && old_support_ptrs != p_thread_support_ptrs
+             && old_support_ptrs->p_mem_h != p_mem_handle
+             && old_support_ptrs->p_mem_h->memory == NULL
+             && old_support_ptrs->p_mem_h->node_table == NULL )
+        {
+            free( (idl_void_p_t)old_support_ptrs->p_mem_h );
+            RPC_SS_THREADS_MUTEX_DELETE( &(old_support_ptrs->mutex) );
+            free( old_support_ptrs );
+        }
         free( helper_thread_indirection_ptr );
     }
 
