@@ -290,6 +290,15 @@ idl_ulong_int rpc_ss_ndr_mul
     idl_ulong_int b
 #endif
 );
+void rpc_ss_ndr_check_conf
+(
+#ifdef IDL_PROTOTYPES
+    idl_byte *bounds_defn_ptr,
+    idl_ulong_int dimensionality,
+    idl_ulong_int *Z_values,
+    IDL_msp_t IDL_msp
+#endif
+);
 idl_ulong_int rpc_ss_ndr_allocation_size
 (
 #ifdef IDL_PROTOTYPES

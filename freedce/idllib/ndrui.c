@@ -78,6 +78,67 @@ idl_ulong_int rpc_ss_ndr_mul
 
 /******************************************************************************/
 /*                                                                            */
+/*  Check the conformance read from the data stream for a conformant array    */
+/*  parameter against its declared [size_is]/[max_is] bound.                  */
+/*                                                                            */
+/*  The array is allocated and unmarshalled using the conformance from the    */
+/*  wire, but the manager routine uses the declared size (the [size_is] or    */
+/*  [max_is] value).  A wire conformance smaller than the declared size would  */
+/*  let the manager read past the end of the array, so a smaller value is     */
+/*  rejected as bad data.  bounds_defn_ptr points at the bounds info of the   */
+/*  array definition (before it is advanced over).                           */
+/*                                                                            */
+/******************************************************************************/
+void rpc_ss_ndr_check_conf
+#ifdef IDL_PROTOTYPES
+(
+    idl_byte *bounds_defn_ptr,
+    idl_ulong_int dimensionality,
+    idl_ulong_int *Z_values
+                    /* Conformance values read from the data stream */,
+    IDL_msp_t IDL_msp
+)
+#else
+(bounds_defn_ptr, dimensionality, Z_values, IDL_msp)
+    idl_byte *bounds_defn_ptr;
+    idl_ulong_int dimensionality;
+    idl_ulong_int *Z_values;
+    IDL_msp_t IDL_msp;
+#endif
+{
+    IDL_bound_pair_t normal_bounds[IDL_NORMAL_DIMS];
+    IDL_bound_pair_t *bounds_list;
+    idl_ulong_int normal_decl_Z[IDL_NORMAL_DIMS];
+    idl_ulong_int *decl_Z;
+    unsigned32 i;
+
+    if (dimensionality > IDL_NORMAL_DIMS)
+    {
+        bounds_list = NULL;
+        decl_Z = NULL;
+    }
+    else
+    {
+        bounds_list = normal_bounds;
+        decl_Z = normal_decl_Z;
+    }
+    rpc_ss_build_bounds_list( &bounds_defn_ptr, NULL, NULL, NULL,
+                              dimensionality, &bounds_list, IDL_msp );
+    rpc_ss_Z_values_from_bounds( bounds_list, dimensionality, &decl_Z, IDL_msp );
+    for (i = 0; i < dimensionality; i++)
+    {
+        if (Z_values[i] < decl_Z[i])
+            RAISE(rpc_x_invalid_bound);
+    }
+    if (dimensionality > IDL_NORMAL_DIMS)
+    {
+        rpc_ss_mem_item_free( &IDL_msp->IDL_mem_handle, (byte_p_t)bounds_list );
+        rpc_ss_mem_item_free( &IDL_msp->IDL_mem_handle, (byte_p_t)decl_Z );
+    }
+}
+
+/******************************************************************************/
+/*                                                                            */
 /*  Calculate storage allocation size                                         */
 /*                                                                            */
 /******************************************************************************/
@@ -1898,6 +1959,15 @@ void rpc_ss_ndr_unmar_interp
                     else
                         Z_values = normal_Z_values;
                     rpc_ss_ndr_unmar_Z_values( conf_dims, &Z_values, IDL_msp );
+                    /*
+                     * Check the wire conformance against the declared
+                     * [size_is]/[max_is] bound before it is used to allocate
+                     * and unmarshal, so the manager cannot read past the
+                     * array (see rpc_ss_ndr_check_conf).
+                     */
+                    rpc_ss_ndr_check_conf(
+                            IDL_msp->IDL_type_vec + array_defn_index + 1,
+                            conf_dims, Z_values, IDL_msp );
                     if (IDL_msp->IDL_side == IDL_server_side_k)
                     {
                         p_param_addr = &IDL_param_vector[param_index];
@@ -1951,6 +2021,14 @@ void rpc_ss_ndr_unmar_interp
                         range_list = normal_range_list;
                     }
                     rpc_ss_ndr_unmar_Z_values( conf_dims, &Z_values, IDL_msp );
+                    /*
+                     * Check the wire conformance against the declared
+                     * [size_is]/[max_is] bound before it is used to allocate
+                     * and unmarshal (see rpc_ss_ndr_check_conf).
+                     */
+                    rpc_ss_ndr_check_conf(
+                            IDL_msp->IDL_type_vec + defn_index + 1,
+                            conf_dims, Z_values, IDL_msp );
                     /* Advance array_defn_ptr over data limit info */
                     array_defn_ptr += conf_dims * IDL_DATA_LIMIT_PAIR_WIDTH;
                     if (IDL_msp->IDL_side == IDL_server_side_k)
