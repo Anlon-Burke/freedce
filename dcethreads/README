@@ -20,6 +20,16 @@ a thread continue after it has acted on a cancel.  The environment
 variable DCETHREADS_CANCEL=nptl selects the older emulation on top of
 NPTL pthread_cancel() instead (for comparison only).
 
+A cancel interrupts a thread that waits in a system call (select, poll,
+read, ...) with a real-time signal, SIGRTMAX-2 (signal 62 on Linux) by
+default.  The signal is kept blocked in the threads the library knows and
+only unblocked atomically while they wait (ppoll/pselect), so a wake-up
+cannot get lost; the application must not use this signal itself.  The
+environment variable DCETHREADS_WAKE_SIG=<number> selects another
+real-time signal (SIGRTMIN..SIGRTMAX; other values keep the default).
+In gdb, "handle SIG62 nostop noprint pass" keeps gdb from stopping at
+every cancel.
+
 Build and test: see the README in the top directory ("make check" runs
 the tests in tests/).
 

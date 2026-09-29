@@ -20,9 +20,11 @@
 #include <signal.h>
 
 /*
- * Signal used to interrupt a thread that waits in a system call.  It is
- * kept blocked in DCE threads and only unblocked atomically while they
- * wait (ppoll/pselect), so a wake-up can never get lost.
+ * Default signal used to interrupt a thread that waits in a system call.
+ * It is kept blocked in DCE threads and only unblocked atomically while
+ * they wait (ppoll/pselect), so a wake-up can never get lost.  The
+ * environment variable DCETHREADS_WAKE_SIG selects another real-time
+ * signal.
  */
 #ifndef PTHD4_WAKE_SIG
 #define PTHD4_WAKE_SIG (SIGRTMAX - 2)

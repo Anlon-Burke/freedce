@@ -128,6 +128,13 @@ built into libdcerpc (freedce/ncklib/rpc/dce_error_texts.txt and
 mkerrtab.awk); a message catalog (dcerpc.cat) found through NLSPATH takes
 precedence.
 
+Signals: dcethreads delivers DCE cancels with a real-time signal,
+SIGRTMAX-2 (signal 62 on Linux) by default.  It is blocked in the threads
+of DCE programs and only unblocked while they wait, so a program must not
+use it for its own purposes; DCETHREADS_WAKE_SIG=<number> selects another
+real-time signal (SIGRTMIN..SIGRTMAX).  In gdb, use
+"handle SIG62 nostop noprint pass", or gdb stops at every cancel.
+
 Runtime settings (ncacn_ip_tcp)
 -------------------------------
 

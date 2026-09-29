@@ -34,6 +34,7 @@
 
 int pthd4__own_cancel = 0;
 
+static int                   wake_sig;      /* set by cancel_init_once() */
 static pthread_once_t        cancel_once = PTHREAD_ONCE_INIT;
 static pthread_key_t         state_key;
 static pthread_mutex_t       registry_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -135,9 +136,21 @@ static void
 cancel_init_once(void)
 {
     const char       *mode = getenv("DCETHREADS_CANCEL");
+    const char       *sig = getenv("DCETHREADS_WAKE_SIG");
     struct sigaction  sa;
 
     pthd4__own_cancel = !(mode != NULL && strcmp(mode, "nptl") == 0);
+
+    /* a real-time signal number; anything else keeps the default */
+    wake_sig = PTHD4_WAKE_SIG;
+    if (sig != NULL && *sig != '\0')
+    {
+        char *end;
+        long  n = strtol(sig, &end, 10);
+
+        if (*end == '\0' && n >= SIGRTMIN && n <= SIGRTMAX)
+            wake_sig = (int)n;
+    }
 
     pthread_key_create(&state_key, state_destructor);
 
@@ -145,7 +158,7 @@ cancel_init_once(void)
     sa.sa_handler = wake_handler;
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = 0;                /* no SA_RESTART: interrupt the call */
-    sigaction(PTHD4_WAKE_SIG, &sa, NULL);
+    sigaction(wake_sig, &sa, NULL);
 
     pthread_atfork(atfork_prepare, atfork_parent, atfork_child);
 }
@@ -184,7 +197,7 @@ state_attach(pthd4_cancel_state_t *s)
     pthread_mutex_unlock(&registry_lock);
 
     sigemptyset(&set);
-    sigaddset(&set, PTHD4_WAKE_SIG);
+    sigaddset(&set, wake_sig);
     pthread_sigmask(SIG_BLOCK, &set, NULL);
 
     if (pthd4__own_cancel)
@@ -304,7 +317,7 @@ pthd4__cancel_post(pthread_t thread)
 
     if (!pthread_equal(thread, pthread_self()))
     {
-        pthread_kill(thread, PTHD4_WAKE_SIG);
+        pthread_kill(thread, wake_sig);
     }
     pthread_mutex_unlock(&registry_lock);
     return 0;
@@ -546,7 +559,7 @@ pthd4__wait(pthd4_cancel_state_t *s, struct pollfd *fds, nfds_t nfds,
 
     /* unblock the wake-up signal only while waiting */
     pthread_sigmask(SIG_SETMASK, NULL, &mask);
-    sigdelset(&mask, PTHD4_WAKE_SIG);
+    sigdelset(&mask, wake_sig);
     r = ppoll(fds, nfds, timeout, &mask);
 
     if (r < 0 && errno == EINTR && take_cancel(s))
@@ -575,7 +588,7 @@ pthd4__select(pthd4_cancel_state_t *s, int nfds, fd_set *readfds,
     }
 
     pthread_sigmask(SIG_SETMASK, NULL, &mask);
-    sigdelset(&mask, PTHD4_WAKE_SIG);
+    sigdelset(&mask, wake_sig);
     r = pselect(nfds, readfds, writefds, exceptfds,
                 timeout != NULL ? &ts : NULL, &mask);
 
