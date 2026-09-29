@@ -647,9 +647,15 @@ _exc_pop_buf(_exc_buf * buf)
  * 		a) statement with no effect
  *		b) value computed but not used
  *		and so on
+ *   3. the variable may still be uninitialized, so it must not be read
+ *      (var = *&var did, and gcc 16 warns about it)
+ *
+ * Modern compilers do not keep a variable in memory just because its address
+ * is taken here; a variable that is modified in a TRY block and used after
+ * a CATCH must be volatile.
  */
 
-#define DO_NOT_CLOBBER(var) var = *&var
+#define DO_NOT_CLOBBER(var) ((void) &(var))
 
 
 /*
