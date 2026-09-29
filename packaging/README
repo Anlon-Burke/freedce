@@ -2,9 +2,11 @@ Packages of FreeDCE
 ===================
 
 The packages install everything below /opt/dce (libraries, programs,
-headers), the systemd unit freedce-rpcd.service (not enabled) and the
-directory /var/opt/freedce for the endpoint database of rpcd.  Remove a
-manual installation in /opt/dce before installing them.
+headers), the systemd unit freedce-rpcd.service (not enabled), the
+directory /var/opt/freedce for the endpoint database of rpcd and a
+tmpfiles.d entry for the ncalrpc socket directory /run/freedce/ncalrpc
+(mode 1777).  Remove a manual installation in /opt/dce before installing
+them.
 
 1. Source tarball (from a git checkout, the committed revision):
 

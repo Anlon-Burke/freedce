@@ -79,6 +79,7 @@ export QA_RPATHS=$(( 0x0002 ))
 
 %post
 %service_add_post freedce-rpcd.service
+%tmpfiles_create freedce.conf
 
 %preun
 %service_del_preun freedce-rpcd.service
@@ -88,6 +89,7 @@ export QA_RPATHS=$(( 0x0002 ))
 %else
 %post
 %systemd_post freedce-rpcd.service
+%tmpfiles_create freedce.conf
 
 %preun
 %systemd_preun freedce-rpcd.service
@@ -114,6 +116,7 @@ export QA_RPATHS=$(( 0x0002 ))
 %license /opt/dce/share/doc/freedce/COPYING
 %license /opt/dce/share/doc/freedce/COPYING.dcethreads
 %{_unitdir}/freedce-rpcd.service
+%{_tmpfilesdir}/freedce.conf
 %dir /var/opt/freedce
 
 %files devel

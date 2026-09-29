@@ -101,12 +101,24 @@ install does not start rpcd at boot; freedce/rpcd contains a systemd unit
 (freedce-rpcd.service, installed by the packages) and the old SysV init
 scripts rc.dcerpcd and rc.dce-clean.
 
+ncalrpc (local RPC over Unix domain sockets): the endpoint "foo" is the
+socket /tmp/.ncalrpc/foo; configure --with-ncalrpc-dir=DIR changes the
+directory.  An endpoint that starts with "/" is the path of the socket
+itself, and a server without an endpoint gets a UUID as its socket name.
+The runtime creates the directory if it is missing (mode 1777) but does
+not use one that belongs to another user than root or the server's user:
+if servers of several users use ncalrpc, create it as root first.  Every
+local user can connect to the sockets; the files are removed when the
+server closes them or exits.  rpcd does not listen on ncalrpc, so a
+client needs the endpoint (e.g. "ncalrpc:[foo]").
+
 Packages: packaging/ builds .deb packages (Debian, Ubuntu), .rpm packages
 (Fedora, RHEL/AlmaLinux/Rocky 9 and 10, openSUSE) and an Arch Linux
 package from a source tarball; see packaging/README.  They install below
-/opt/dce as well, with the systemd unit freedce-rpcd.service (not enabled)
-and the rpcd database in /var/opt/freedce.  Check downloaded packages with
-"sha256sum -c SHA256SUMS" before installing them.
+/opt/dce as well, with the systemd unit freedce-rpcd.service (not enabled),
+the rpcd database in /var/opt/freedce and the ncalrpc directory
+/run/freedce/ncalrpc (created by systemd-tmpfiles).  Check downloaded
+packages with "sha256sum -c SHA256SUMS" before installing them.
 
 How to build your own programs that use DCE RPC
 -----------------------------------------------

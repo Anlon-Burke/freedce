@@ -1,7 +1,8 @@
 #!/bin/sh
 # Build dcethreads and freedce from an unpacked source tree (e.g. the tarball of
 # make-tarball.sh) and install them into a staging directory for the packages:
-# prefix /opt/dce, rpcd database in /var/opt/freedce, systemd unit, documentation.
+# prefix /opt/dce, rpcd database in /var/opt/freedce, ncalrpc sockets in /run/freedce/ncalrpc
+# (created at boot by tmpfiles.d), systemd unit, documentation.
 # CFLAGS/LDFLAGS from the environment (dpkg-buildflags, makepkg) are used.
 # Usage: packaging/build-staged.sh <stage dir> [make jobs]
 set -e
@@ -33,7 +34,8 @@ map="-ffile-prefix-map=$stage="
  CFLAGS="${CFLAGS--g -O2} $map" CXXFLAGS="${CXXFLAGS--g -O2} $map" \
  "$src/freedce/configure" --prefix=$prefix \
      --with-dcethreads-dir="$stage$prefix" \
-     --with-rpcd-dbdir=/var/opt/freedce &&
+     --with-rpcd-dbdir=/var/opt/freedce \
+     --with-ncalrpc-dir=/run/freedce/ncalrpc &&
  make -j"$jobs" &&
  make install DESTDIR="$stage")
 
@@ -52,6 +54,11 @@ fi
 install -D -m 644 "$src/freedce/rpcd/freedce-rpcd.service" \
     "$stage/usr/lib/systemd/system/freedce-rpcd.service"
 install -d -m 755 "$stage/var/opt/freedce"
+# /run is empty after a boot: systemd-tmpfiles creates the ncalrpc directory (mode 1777,
+# like /tmp/.X11-unix; not below /tmp, where Fedora and Arch remove old files)
+install -d -m 755 "$stage/usr/lib/tmpfiles.d"
+echo "d /run/freedce/ncalrpc 1777 root root -" > "$stage/usr/lib/tmpfiles.d/freedce.conf"
+chmod 644 "$stage/usr/lib/tmpfiles.d/freedce.conf"
 install -D -m 644 "$src/README" "$stage$prefix/share/doc/freedce/README"
 install -m 644 "$src/freedce/NEWS" "$stage$prefix/share/doc/freedce/NEWS"
 install -m 644 "$src/freedce/COPYING" "$stage$prefix/share/doc/freedce/COPYING"

@@ -7,3 +7,4 @@ opt/dce/bin/uuid
 opt/dce/share/doc/freedce
 usr/lib/systemd/system/freedce-rpcd.service
 var/opt/freedce
+usr/lib/tmpfiles.d/freedce.conf
