@@ -904,6 +904,17 @@ unsigned32              *st;
     RPC_LOG_CN_CALL_TRANSCEIVE_NTR;
     CODING_ERROR (st);
 
+    /*
+     * An empty output element unless data is received (as in the DG
+     * protocol): the stubs test buff_dealloc and data_len after every
+     * return, also after a maybe call, a fault or an empty response.
+     */
+    out_call_args->buff_dealloc = NULL;
+    out_call_args->buff_addr = NULL;
+    out_call_args->buff_len = 0;
+    out_call_args->data_addr = NULL;
+    out_call_args->data_len = 0;
+
     call_rep = (rpc_cn_call_rep_p_t) call_r;
 
     RPC_DBG_PRINTF (rpc_e_dbg_general, RPC_C_CN_DBG_GENERAL,
@@ -1246,6 +1257,16 @@ unsigned32              *st;
     RPC_CN_DBG_RTN_PRINTF(rpc__cn_call_receive);
     RPC_LOG_CN_CALL_RECEIVE_NTR;
     CODING_ERROR (st);
+
+    /*
+     * An empty output element unless data is received (see
+     * rpc__cn_call_transceive)
+     */
+    call_args->buff_dealloc = NULL;
+    call_args->buff_addr = NULL;
+    call_args->buff_len = 0;
+    call_args->data_addr = NULL;
+    call_args->data_len = 0;
 
     call_rep = (rpc_cn_call_rep_p_t) call_r;
 
