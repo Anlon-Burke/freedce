@@ -366,8 +366,8 @@ unsigned32              *st;
     {
         int i;
         for( i=1; i<RPC_C_MAX_IOVEC_LEN; i++ ) {
-            call_rep->buffered_output.iov.elt[i].buff_addr = NULL;
-            call_rep->buffered_output.iov.elt[i].buff_dealloc = NULL;
+            RPC_CN_CREP_IOV (call_rep)[i].buff_addr = NULL;
+            RPC_CN_CREP_IOV (call_rep)[i].buff_dealloc = NULL;
         }
     }
 

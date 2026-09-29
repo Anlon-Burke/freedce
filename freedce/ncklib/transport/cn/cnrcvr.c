@@ -849,8 +849,8 @@ rpc_cn_assoc_p_t        assoc;
                 {
                 int i;
                 for( i=1; i<RPC_C_MAX_IOVEC_LEN; i++ ) {
-                    call_r->buffered_output.iov.elt[i].buff_addr = NULL;
-                    call_r->buffered_output.iov.elt[i].buff_dealloc = NULL;
+                    RPC_CN_CREP_IOV (call_r)[i].buff_addr = NULL;
+                    RPC_CN_CREP_IOV (call_r)[i].buff_dealloc = NULL;
                 }
                 }
 

@@ -356,8 +356,21 @@ typedef struct
 
 typedef struct
 {
-    rpc_iovector_t                      iov;
-    rpc_iovector_elt_t                  iov_elmts[ RPC_C_MAX_IOVEC_LEN - 1];
+    /*
+     * iov is passed as an rpc_iovector_t, but rpc_iovector_t declares
+     * elt[] with one element.  iov_all has the same layout with room for
+     * all RPC_C_MAX_IOVEC_LEN elements: index them through iov_all (see
+     * RPC_CN_CREP_IOV), indexing iov.elt beyond 0 is undefined.
+     */
+    union
+    {
+        rpc_iovector_t                  iov;
+        struct
+        {
+            unsigned16                  num_elt;
+            rpc_iovector_elt_t          elt[ RPC_C_MAX_IOVEC_LEN ];
+        }                               iov_all;
+    };
     unsigned32                          total_acc_byte_count;
     unsigned32                          cur_iov_index;
     unsigned32                          num_free_bytes;
@@ -439,7 +452,7 @@ typedef struct rpc_cn_call_rep_s_t
     (((rpc_cn_fragbuf_p_t)((cp)->prot_header))->data_p)
 #define RPC_CN_CREP_ACC_BYTCNT(cp) \
     (((cp)->buffered_output).total_acc_byte_count)
-#define RPC_CN_CREP_IOV(cp)                (((cp)->buffered_output).iov.elt)
+#define RPC_CN_CREP_IOV(cp)                (((cp)->buffered_output).iov_all.elt)
 #define RPC_CN_CREP_IOVLEN(cp)             (((cp)->buffered_output).iov.num_elt)
 #define RPC_CN_CREP_CUR_IOV_INDX(cp)       (((cp)->buffered_output).cur_iov_index)
 #define RPC_CN_CREP_FREE_BYTES(cp)         (((cp)->buffered_output).num_free_bytes)
