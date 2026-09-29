@@ -48,12 +48,18 @@ typedef struct
 } pthd4_start_t;
 
 /*
- * The wake-up signal only has to interrupt a blocking system call; the
- * handler itself has nothing to do.
+ * The wake-up signal only has to interrupt a blocking system call.  It is
+ * unblocked only while a thread waits in pthd4__wait() or pthd4__select(),
+ * and the handler notes for them that it was this signal that ended the
+ * wait (static TLS, so it can be used in a signal handler).
  */
+static __thread volatile sig_atomic_t woken
+    __attribute__((__tls_model__("initial-exec")));
+
 static void
 wake_handler(int sig __attribute__((__unused__)))
 {
+    woken = 1;
 }
 
 /* Drop one reference; the caller holds registry_lock. */
@@ -545,22 +551,85 @@ pthd4__take_cancel(pthd4_cancel_state_t *s)
     return take_cancel(s);
 }
 
+/* Absolute CLOCK_MONOTONIC time rel from now. */
+static void
+deadline_after(struct timespec *end, const struct timespec *rel)
+{
+    clock_gettime(CLOCK_MONOTONIC, end);
+    end->tv_sec += rel->tv_sec;
+    end->tv_nsec += rel->tv_nsec;
+    if (end->tv_nsec >= 1000000000L)
+    {
+        end->tv_sec++;
+        end->tv_nsec -= 1000000000L;
+    }
+}
+
+/* Time left until the CLOCK_MONOTONIC time end, zero if it has passed. */
+static void
+time_left(const struct timespec *end, struct timespec *left)
+{
+    struct timespec now;
+
+    clock_gettime(CLOCK_MONOTONIC, &now);
+    if (!timespec_before(&now, end))
+    {
+        left->tv_sec = 0;
+        left->tv_nsec = 0;
+        return;
+    }
+    left->tv_sec = end->tv_sec - now.tv_sec;
+    left->tv_nsec = end->tv_nsec - now.tv_nsec;
+    if (left->tv_nsec < 0)
+    {
+        left->tv_sec--;
+        left->tv_nsec += 1000000000L;
+    }
+}
+
+/*
+ * pthd4__wait() and pthd4__select() wait with the wake-up signal
+ * unblocked.  If that signal ends the wait but no cancel can be delivered
+ * (the cancel is disabled, or the signal is left over from a cancel that
+ * was already taken at another cancellation point, e.g. by
+ * pthread_testcancel()), they wait again for the rest of the time: the
+ * caller must not see an EINTR it did not cause.  (A left-over signal
+ * made sleep() return at once, before a cancel that was on its way.)
+ */
 int
 pthd4__wait(pthd4_cancel_state_t *s, struct pollfd *fds, nfds_t nfds,
             const struct timespec *timeout)
 {
-    sigset_t mask;
-    int      r;
+    struct timespec end, left;
+    sigset_t        mask;
+    int             r;
 
-    if (take_cancel(s))
+    if (timeout != NULL)
     {
-        return PTHD4_WAIT_CANCEL;
+        deadline_after(&end, timeout);
     }
 
     /* unblock the wake-up signal only while waiting */
     pthread_sigmask(SIG_SETMASK, NULL, &mask);
     sigdelset(&mask, wake_sig);
-    r = ppoll(fds, nfds, timeout, &mask);
+
+    for (;;)
+    {
+        if (take_cancel(s))
+        {
+            return PTHD4_WAIT_CANCEL;
+        }
+        if (timeout != NULL)
+        {
+            time_left(&end, &left);
+        }
+        woken = 0;
+        r = ppoll(fds, nfds, timeout != NULL ? &left : NULL, &mask);
+        if (!(r < 0 && errno == EINTR && woken))
+        {
+            break;
+        }
+    }
 
     if (r < 0 && errno == EINTR && take_cancel(s))
     {
@@ -573,24 +642,39 @@ int
 pthd4__select(pthd4_cancel_state_t *s, int nfds, fd_set *readfds,
               fd_set *writefds, fd_set *exceptfds, struct timeval *timeout)
 {
-    struct timespec ts;
+    struct timespec ts, end;
     sigset_t        mask;
     int             r;
 
-    if (take_cancel(s))
-    {
-        pthd4__raise_cancel();
-    }
     if (timeout != NULL)
     {
         ts.tv_sec = timeout->tv_sec;
         ts.tv_nsec = timeout->tv_usec * 1000;
+        deadline_after(&end, &ts);
     }
 
     pthread_sigmask(SIG_SETMASK, NULL, &mask);
     sigdelset(&mask, wake_sig);
-    r = pselect(nfds, readfds, writefds, exceptfds,
-                timeout != NULL ? &ts : NULL, &mask);
+
+    for (;;)
+    {
+        if (take_cancel(s))
+        {
+            pthd4__raise_cancel();
+        }
+        if (timeout != NULL)
+        {
+            time_left(&end, &ts);
+        }
+        /* the sets are unchanged when pselect() fails */
+        woken = 0;
+        r = pselect(nfds, readfds, writefds, exceptfds,
+                    timeout != NULL ? &ts : NULL, &mask);
+        if (!(r < 0 && errno == EINTR && woken))
+        {
+            break;
+        }
+    }
 
     if (r < 0 && errno == EINTR && take_cancel(s))
     {

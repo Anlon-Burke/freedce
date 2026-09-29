@@ -4,8 +4,8 @@
 AUTOMAKE_OPTIONS = nostdinc
 AM_CPPFLAGS = -I$(top_builddir)/include -I$(top_srcdir)/include
 
-EXTRA_PROGRAMS = test1 test2 test3 test3var test4 test5 test6 test7
-TESTS=test1 test2 test3 test3var test4 invert-test5 test6 test7
+EXTRA_PROGRAMS = test1 test2 test3 test3var test4 test5 test6 test7 test8
+TESTS=test1 test2 test3 test3var test4 invert-test5 test6 test7 test8
 EXTRA_DIST=inverttest
 
 DEFS = -DCOMPILING_DCETHREADS# -I. -I$(srcdir)
@@ -57,6 +57,9 @@ test6_LDADD = $(THREADLIB)
 
 test7_SOURCES=test7.c
 test7_LDADD = $(THREADLIB)
+
+test8_SOURCES=test8.c
+test8_LDADD = $(THREADLIB)
 
 #test_atfork1_SOURCES=test_atfork1.c
 #test_atfork1_LDADD = $(THREADLIB)
