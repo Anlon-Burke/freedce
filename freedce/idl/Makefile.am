@@ -43,15 +43,25 @@ CLEANFILES=acf_y.o acf_y.c acf_l.o acf_l.c acf_y.h nidl_y.o nidl_y.c nidl_l.o ni
 
 # Override the standard YACC/LEX rules so we can build two scanners into
 # the idl compiler.
+#
+# One yacc run creates the parser and its header.  The header rule only
+# re-creates the parser if the header is missing, so that yacc runs once,
+# also with "make -j" (see "Multiple Outputs" in the automake manual).
 
-acf_y.c acf_y.h:	acf_y.y
+acf_y.c:	acf_y.y
 	$(YLWRAP) $(srcdir)/acf_y.y y.tab.c acf_y.c y.tab.h acf_y.h -- "$(YACC)" $(AM_YFLAGS) $(YFLAGS) -p acf_yy -d
+acf_y.h: acf_y.c
+	@test -f $@ || rm -f acf_y.c
+	@test -f $@ || $(MAKE) $(AM_MAKEFLAGS) acf_y.c
 
 acf_l.c: acf_l.l
 	$(YLWRAP) $(srcdir)/acf_l.l $(LEX_OUTPUT_ROOT).c acf_l.c -- "$(LEX)" $(AM_LFLAGS) $(LFLAGS) -Pacf_yy -o$(LEX_OUTPUT_ROOT).c
 
-nidl_y.c nidl_y.h: nidl_y.y
+nidl_y.c: nidl_y.y
 	$(YLWRAP) $(srcdir)/nidl_y.y y.tab.c nidl_y.c y.tab.h nidl_y.h -- "$(YACC)" $(AM_YFLAGS) $(YFLAGS) -p nidl_yy -d
+nidl_y.h: nidl_y.c
+	@test -f $@ || rm -f nidl_y.c
+	@test -f $@ || $(MAKE) $(AM_MAKEFLAGS) nidl_y.c
 
 nidl_l.c: nidl_l.l
 	$(YLWRAP) $(srcdir)/nidl_l.l $(LEX_OUTPUT_ROOT).c nidl_l.c -- "$(LEX)" $(AM_LFLAGS) $(LFLAGS) -Pnidl_yy -o$(LEX_OUTPUT_ROOT).c
