@@ -639,17 +639,21 @@ void rpc_ss_ndr_marsh_struct
                 IDL_DISCARD_LONG_FROM_VECTOR(defn_vec_ptr);
                                                 /* Pointee definition */
                 offset_vec_ptr++;
-                /* Aligned 4-byte place holder */
+                /* Aligned 4-byte place holder: a non-null referent id
+                    (receivers skip it; MIDL also sends one) */
                 IDL_MARSH_ALIGN_MP( IDL_msp, 4 );
                 rpc_ss_ndr_marsh_check_buffer( 4, IDL_msp );
+                rpc_marshall_ulong_int(IDL_msp->IDL_mp, 0x00020000);
                 IDL_msp->IDL_mp += 4;
                 IDL_msp->IDL_left_in_buff -= 4;
                 break;
             case IDL_DT_IGNORE:
                 offset_vec_ptr++;
-                /* Aligned 4-byte place holder */
+                /* Aligned 4-byte place holder: null, as MIDL sends an
+                    [ignore] pointer */
                 IDL_MARSH_ALIGN_MP( IDL_msp, 4 );
                 rpc_ss_ndr_marsh_check_buffer( 4, IDL_msp );
+                rpc_marshall_ulong_int(IDL_msp->IDL_mp, 0);
                 IDL_msp->IDL_mp += 4;
                 IDL_msp->IDL_left_in_buff -= 4;
                 break;

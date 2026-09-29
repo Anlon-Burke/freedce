@@ -2574,7 +2574,9 @@ unsigned32                      *st;
      * context elements in the list.
      */
     pres_result_list->n_results = pres_cont_list->n_context_elem;
-    
+    pres_result_list->reserved = 0;
+    pres_result_list->reserved2 = 0;
+
     /*
      * For each element in the presentation context list determine
      * if the server stub supports a common transfer syntaxes.
@@ -2686,8 +2688,10 @@ unsigned32                      *st;
                         RPC_LIST_ADD_TAIL (assoc->syntax_list, pres_context, rpc_cn_syntax_p_t);
                         
                         pres_result_list->pres_results[i].result =
-                        RPC_C_CN_PCONT_ACCEPTANCE; 
-                        
+                        RPC_C_CN_PCONT_ACCEPTANCE;
+                        pres_result_list->pres_results[i].reason =
+                        RPC_C_CN_PPROV_REASON_NOT_SPECIFIED;
+
                         pres_result_list->pres_results[i].transfer_syntax = 
                         pres_cont_list->pres_cont_elem[i].transfer_syntaxes[j];
                         

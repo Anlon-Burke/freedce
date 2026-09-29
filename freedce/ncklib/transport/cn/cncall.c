@@ -443,6 +443,7 @@ unsigned32              *st;
     RPC_CN_PKT_ALERT_COUNT(header_p) = 0;
     RPC_CN_PKT_FRAG_LEN (header_p) = 0;
     RPC_CN_PKT_CALL_ID (header_p) = rpc_g_cn_call_id++;
+    RPC_CN_PKT_ALLOC_HINT (header_p) = 0;       /* no hint */
     RPC_CN_PKT_OPNUM (header_p) = opnum;
 
     /*
