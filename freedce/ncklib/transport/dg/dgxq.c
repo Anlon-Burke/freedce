@@ -540,6 +540,14 @@ rpc_dg_xmitq_p_t xq;
     RPC_DG_HDR_SET_DREP(&xq->hdr);
 
     xq->hdr.auth_proto = 0;
+
+    /*
+     * The fragment and serial numbers are set when a fragment is sent;
+     * a fack or quack sent before that copies the header as it is.
+     */
+    xq->hdr.fragnum = 0;
+    xq->hdr.serial_hi = 0;
+    xq->hdr.serial_lo = 0;
 }
 
 
