@@ -271,6 +271,7 @@ PRIVATE void rpc__cn_assoc_syntax_free _DCE_PROTOTYPE_ ((
 PRIVATE void rpc__cn_assoc_syntax_negotiate _DCE_PROTOTYPE_ ((
     rpc_cn_assoc_p_t                 /* assoc */,
     rpc_cn_pres_cont_list_p_t        /* pres_cont_list */,
+    unsigned32                        /* pres_cont_list_len */,
     unsigned32                      * /* size */,
     rpc_cn_pres_result_list_t       * /* pres_result_list */,
     unsigned32                      * /* st */ ));

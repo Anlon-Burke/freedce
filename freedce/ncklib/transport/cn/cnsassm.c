@@ -1613,7 +1613,7 @@ pointer_t       sm;
         memset ((unsigned8 *) resp_header + end, 0, header_size - end);
     }
 
-    pres_cont_list = (rpc_cn_pres_cont_list_t *) 
+    pres_cont_list = (rpc_cn_pres_cont_list_t *)
         ((unsigned8 *) req_header + RPC_CN_PKT_SIZEOF_ALT_CTX_HDR);
 
     pres_result_list = (rpc_cn_pres_result_list_t *)
@@ -1623,6 +1623,10 @@ pointer_t       sm;
 
     rpc__cn_assoc_syntax_negotiate (assoc,
                                     pres_cont_list,
+                                    (((rpc_cn_fragbuf_t *)event_param)->data_size
+                                       > RPC_CN_PKT_SIZEOF_ALT_CTX_HDR)
+                                     ? ((rpc_cn_fragbuf_t *)event_param)->data_size
+                                         - RPC_CN_PKT_SIZEOF_ALT_CTX_HDR : 0,
                                     &result_list_len,
                                     pres_result_list,
                                     &assoc->assoc_status);
@@ -2140,13 +2144,17 @@ pointer_t       sm;
                  * not fit in the balance of the fragbuf. Fall through and
                  * send an rpc_bind_nak.
                  */
-                pres_cont_list = (rpc_cn_pres_cont_list_t *) 
+                pres_cont_list = (rpc_cn_pres_cont_list_t *)
                     ((unsigned8 *) req_header + RPC_CN_PKT_SIZEOF_BIND_HDR);
-                
+
                 result_list_len = rpc_g_cn_large_frag_size - header_size;
 
                 rpc__cn_assoc_syntax_negotiate (assoc,
                                                 pres_cont_list,
+                                                (((rpc_cn_fragbuf_t *)event_param)->data_size
+                                                   > RPC_CN_PKT_SIZEOF_BIND_HDR)
+                                                 ? ((rpc_cn_fragbuf_t *)event_param)->data_size
+                                                     - RPC_CN_PKT_SIZEOF_BIND_HDR : 0,
                                                 &result_list_len,
                                                 pres_result_list,
                                                 &assoc->assoc_status);

@@ -2734,19 +2734,21 @@ unsigned32              *st;
 **--
 **/
 
-PRIVATE void rpc__cn_assoc_syntax_negotiate 
+PRIVATE void rpc__cn_assoc_syntax_negotiate
 #ifdef _DCE_PROTO_
 (
   rpc_cn_assoc_p_t                assoc,
   rpc_cn_pres_cont_list_p_t       pres_cont_list,
+  unsigned32                      pres_cont_list_len,
   unsigned32                      *size,
   rpc_cn_pres_result_list_t       *pres_result_list,
   unsigned32                      *st
 )
 #else
-(assoc, pres_cont_list, size, pres_result_list, st)
+(assoc, pres_cont_list, pres_cont_list_len, size, pres_result_list, st)
 rpc_cn_assoc_p_t                assoc;
 rpc_cn_pres_cont_list_p_t       pres_cont_list;
+unsigned32                      pres_cont_list_len;
 unsigned32                      *size;
 rpc_cn_pres_result_list_t       *pres_result_list;
 unsigned32                      *st;
@@ -2788,6 +2790,31 @@ unsigned32                      *st;
      */
     for (i = 0; i < pres_cont_list->n_context_elem; i++)
     {
+        /*
+         * n_context_elem and each element's n_transfer_syn come from the
+         * received packet, so a value larger than the packet would make the
+         * accesses below read past the end of the fragment buffer.  Before
+         * touching context element i, make sure its fixed part (up to the
+         * transfer syntax list) and then its transfer syntaxes lie within
+         * the received presentation context list; reject the request as a
+         * protocol error otherwise.
+         */
+        if ((unsigned8 *)&pres_cont_list->pres_cont_elem[i].transfer_syntaxes[0]
+                > (unsigned8 *)pres_cont_list + pres_cont_list_len)
+        {
+            *st = rpc_s_protocol_error;
+            *size = 0;
+            return;
+        }
+        if ((unsigned8 *)&pres_cont_list->pres_cont_elem[i].transfer_syntaxes
+                [pres_cont_list->pres_cont_elem[i].n_transfer_syn]
+                > (unsigned8 *)pres_cont_list + pres_cont_list_len)
+        {
+            *st = rpc_s_protocol_error;
+            *size = 0;
+            return;
+        }
+
         /*
          * Find the interface specification for the abstract syntax
          * (really interface UUID and version). The interface spec
