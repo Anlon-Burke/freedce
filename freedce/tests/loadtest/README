@@ -41,15 +41,16 @@ SIGINT or SIGTERM stops the server; it prints its statistics at the end.
 Client
 ------
 
-  lt_client -h host [-e endpoint] [-P tcp|udp] [-t threads] [-d secs | -n calls]
-            [-r rate] [-m mix] [-z size] [-T ms] [-s seed] [-C id]
-            [-W] [-k] [-R] [-S] [-Q] [-v]
+  lt_client -h host [-e endpoint] [-P tcp|udp|local] [-t threads]
+            [-d secs | -n calls] [-r rate] [-m mix] [-z size] [-T ms]
+            [-s seed] [-C id] [-W] [-k] [-R] [-S] [-Q] [-v]
 
 Every thread has its own binding handle and therefore its own connection
 (association).  -r limits the calls per second of the whole process; -m
 selects operations and weights, e.g. -m struct=4,array=2,null=1.  -S prints
 the server statistics at the end, -Q only prints them.  -k exits without
-closing the contexts (the server must run them down).  -W uses union
+closing the contexts (the server must run them down).  -P local uses
+ncalrpc (needs -e; the host is not used, e.g. -h .).  -W uses union
 discriminants that do not fit into 16 bits.  See the comment at the top of
 lt_client.c for all options.  The exit status is 0 if all calls succeeded
 and all data was correct.
@@ -66,8 +67,8 @@ first failed call to the end of the next successful one), the longest one,
 and the threads whose last outage lasted until the end.
 
 "make check" (run_check.sh) runs a short test against a local server on
-endpoint 2101 (LT_ENDPOINT) over TCP and UDP (LT_UDP=0 skips UDP) plus a
-context rundown test; rpcd is not needed.
+endpoint 2101 (LT_ENDPOINT) over TCP, UDP and ncalrpc (LT_UDP=0 and
+LT_NCALRPC=0 skip them) plus a context rundown test; rpcd is not needed.
 
 Windows client
 --------------

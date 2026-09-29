@@ -3,10 +3,11 @@
 # Short load test against a local lt_server ("make check").
 #
 # The server listens on a fixed endpoint (LT_ENDPOINT, default 2101) for
-# ncacn_ip_tcp and ncadg_ip_udp, so rpcd is not needed.  Steps:
+# ncacn_ip_tcp, ncadg_ip_udp and ncalrpc, so rpcd is not needed.  Steps:
 #   1. 8 threads, every operation, 10 s over TCP
 #   2. 4 threads, every operation, 5 s over UDP (skipped with LT_UDP=0)
-#   3. context rundown: a client exits without closing its 4 contexts;
+#   3. 4 threads, every operation, 5 s over ncalrpc (skipped with LT_NCALRPC=0)
+#   4. context rundown: a client exits without closing its 4 contexts;
 #      the server has to run them down within 60 s
 # The server must still run at the end and must not have found differences.
 
@@ -29,7 +30,10 @@ server_value ()
         ./lt_client -h $HOST -e $EP -Q | sed -n "s/.* $1 \([0-9]*\).*/\1/p"
 }
 
-./lt_server -p ncacn_ip_tcp -p ncadg_ip_udp -e $EP > lt_server.log 2>&1 &
+# ncalrpc first: its socket exists when TCP and UDP listen
+LOCAL="-p ncalrpc"
+[ "$LT_NCALRPC" = 0 ] && LOCAL=
+./lt_server $LOCAL -p ncacn_ip_tcp -p ncadg_ip_udp -e $EP > lt_server.log 2>&1 &
 server_pid=$!
 trap 'kill $server_pid 2> /dev/null' 0 1 2 15
 
@@ -52,6 +56,11 @@ echo "TCP: 8 threads, 10 s"
 if [ "$LT_UDP" != 0 ]; then
         echo "UDP: 4 threads, 5 s"
         ./lt_client -h $HOST -e $EP -P udp -t 4 -d 5 || rc=1
+fi
+
+if [ "$LT_NCALRPC" != 0 ]; then
+        echo "ncalrpc: 4 threads, 5 s"
+        ./lt_client -h . -e $EP -P local -t 4 -d 5 || rc=1
 fi
 
 echo "Context rundown"

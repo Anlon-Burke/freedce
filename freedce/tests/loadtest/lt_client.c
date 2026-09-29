@@ -8,7 +8,7 @@
  *   -h host      server host (name or address)
  *   -e endpoint  server endpoint; without it the endpoint mapper (rpcd) on
  *                the host resolves it
- *   -P protocol  tcp (default) or udp
+ *   -P protocol  tcp (default), udp, or local (ncalrpc; needs -e, host ".")
  *   -t threads   number of threads, each with its own binding (default 1)
  *   -d secs      run for secs seconds (default 10), or
  *   -n calls     make calls calls per thread
@@ -643,7 +643,7 @@ static int print_server_stats(void)
 static void usage(void)
 {
     fprintf(stderr,
-        "usage: lt_client -h host [-e endpoint] [-P tcp|udp] [-t threads]\n"
+        "usage: lt_client -h host [-e endpoint] [-P tcp|udp|local] [-t threads]\n"
         "                 [-d secs | -n calls] [-r rate] [-m mix] [-z size] [-T ms]\n"
         "                 [-s seed] [-C id] [-a first] [-W] [-k] [-R] [-S] [-Q] [-v]\n");
     exit(2);
@@ -703,6 +703,8 @@ int main(int argc, char *argv[])
                     protseq = "ncacn_ip_tcp";
                 else if (strcmp(lt_optarg, "udp") == 0)
                     protseq = "ncadg_ip_udp";
+                else if (strcmp(lt_optarg, "local") == 0)
+                    protseq = "ncalrpc";
                 else
                     usage();
                 break;
