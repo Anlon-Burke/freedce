@@ -200,6 +200,45 @@ INTERNAL boolean grp_new_busy (rpc_addr_p_t rpc_addr)
 }
 
 /*
+ * C A L L _ F R A G
+ *
+ * The first fragment on the receive queue of an association that
+ * belongs to the given call, or NULL.  A client association has one
+ * call at a time.  After a maybe call the queue of a server association
+ * can hold the fragments of several calls, so a server call takes only
+ * those with its call id, and the dummy fragment that wakes up waiters.
+ */
+#define CALL_ID(call_rep) \
+    RPC_CN_PKT_CALL_ID ((rpc_cn_packet_p_t) RPC_CN_CREP_SEND_HDR (call_rep))
+
+INTERNAL rpc_cn_fragbuf_p_t call_frag
+(
+    rpc_cn_assoc_p_t        assoc,
+    rpc_cn_call_rep_p_t     call_rep
+)
+{
+    rpc_cn_fragbuf_p_t  fragbuf;
+
+    RPC_LIST_FIRST (assoc->msg_list, fragbuf, rpc_cn_fragbuf_p_t);
+    if (!call_rep->common.is_server)
+    {
+        return (fragbuf);
+    }
+    while (fragbuf != NULL)
+    {
+        if ((fragbuf->data_p == NULL)
+            ||
+            (RPC_CN_PKT_CALL_ID ((rpc_cn_packet_p_t) fragbuf->data_p)
+             == CALL_ID (call_rep)))
+        {
+            return (fragbuf);
+        }
+        RPC_LIST_NEXT (fragbuf, fragbuf, rpc_cn_fragbuf_p_t);
+    }
+    return (NULL);
+}
+
+/*
  * R P C _ _ C N _ A S S O C _ A C B _ A L L O C
  */
 
@@ -1304,9 +1343,15 @@ unsigned32              *st;
          * Otherwise, don't flush the receive queue - it means that this
          * call rep belongs to an orphaned or being about to finish call.
          * The call rep in the assoc refers to a queued call to be executed.
+         * Never flush it for a server call: rpc__cn_assoc_pop_call has
+         * freed what was left of its own fragments, and after a maybe
+         * call the queue can still hold the fragments of other calls
+         * whose call threads have not run yet.
          */
-        if (call_rep == assoc->call_rep
-            || (assoc->call_rep == NULL && call_rep->assoc == NULL))
+        if ((! call_rep->common.is_server)
+            &&
+            (call_rep == assoc->call_rep
+             || (assoc->call_rep == NULL && call_rep->assoc == NULL)))
         {
 
             /*
@@ -1542,6 +1587,34 @@ rpc_cn_call_rep_p_t  call_rep;
         }
 
         /*
+         * A server call can end before it has read all its fragments
+         * (e.g. it was rejected or orphaned).  Free the rest, so that
+         * they neither stay queued nor are read by a later call.
+         */
+        if (call_rep->common.is_server)
+        {
+            rpc_cn_fragbuf_p_t  fragbuf, next_fragbuf;
+
+            RPC_LIST_FIRST (assoc->msg_list, fragbuf, rpc_cn_fragbuf_p_t);
+            while (fragbuf != NULL)
+            {
+                RPC_LIST_NEXT (fragbuf, next_fragbuf, rpc_cn_fragbuf_p_t);
+                if ((fragbuf->data_p != NULL)
+                    &&
+                    (RPC_CN_PKT_CALL_ID ((rpc_cn_packet_p_t) fragbuf->data_p)
+                     == CALL_ID (call_rep)))
+                {
+                    RPC_LIST_REMOVE (assoc->msg_list, fragbuf);
+                    if (fragbuf->fragbuf_dealloc != NULL)
+                    {
+                        (*fragbuf->fragbuf_dealloc)(fragbuf);
+                    }
+                }
+                fragbuf = next_fragbuf;
+            }
+        }
+
+        /*
          * Break the connection from the call rep back to the association.
          */
         call_rep->assoc = NULL;
@@ -1690,11 +1763,13 @@ boolean32               signal;
     /*
      * Notify any waiting threads that there's a buffer on this
      * association if the caller indicated it and there are waiters.
+     * Wake them all: after a maybe call several server calls may
+     * wait, each for a fragment of its own.
      */
     if (signal && assoc->assoc_msg_waiters)
     {
-        RPC_COND_SIGNAL (assoc->assoc_msg_cond, 
-                         rpc_g_global_mutex);
+        RPC_COND_BROADCAST (assoc->assoc_msg_cond,
+                            rpc_g_global_mutex);
     }
     RPC_LOG_CN_ASSOC_Q_FRAG_XIT;
 }
@@ -1760,8 +1835,8 @@ rpc_cn_assoc_p_t        assoc;
      */
     if (assoc->assoc_msg_waiters)
     {
-        RPC_COND_SIGNAL (assoc->assoc_msg_cond, 
-                         rpc_g_global_mutex);
+        RPC_COND_BROADCAST (assoc->assoc_msg_cond,
+                            rpc_g_global_mutex);
     }
 }
 
@@ -2002,6 +2077,136 @@ unsigned32              *st;
 #endif
 {
     rpc__cn_assoc_receive_frag_until (assoc, fragbuf, NULL, st);
+}
+
+
+/******************************************************************************/
+/*
+**++
+**
+**  ROUTINE NAME:       rpc__cn_assoc_receive_call_frag
+**
+**  SCOPE:              PRIVATE - declared in cnassoc.h
+**
+**  DESCRIPTION:
+**
+**  This routine will receive the next fragment of a given call over
+**  the connection attached to an association.  After a maybe call the
+**  client can send the next request without waiting, so the queue of a
+**  server association can hold the fragments of several calls, and with
+**  more than one call thread these calls run at the same time.  A server
+**  call takes only its own fragments (see call_frag).
+**
+**  INPUTS:
+**
+**      assoc           The association to receive from.
+**      call_rep        The call the fragment is for.
+**      fragbuf         The place to put the received fragment.
+**
+**  INPUTS/OUTPUTS:     none
+**
+**  OUTPUTS:
+**
+**      st              The return status of this routine.
+**                      rpc_s_ok
+**                      rpc_s_call_orphaned
+**
+**  IMPLICIT INPUTS:    none
+**
+**  IMPLICIT OUTPUTS:   none
+**
+**  FUNCTION VALUE:     none
+**
+**  SIDE EFFECTS:       none
+**
+**--
+**/
+
+PRIVATE void rpc__cn_assoc_receive_call_frag
+#ifdef _DCE_PROTO_
+(
+  rpc_cn_assoc_p_t        assoc,
+  rpc_cn_call_rep_p_t     call_rep,
+  rpc_cn_fragbuf_p_t      *fragbuf,
+  unsigned32              *st
+)
+#else
+(assoc, call_rep, fragbuf, st)
+rpc_cn_assoc_p_t        assoc;
+rpc_cn_call_rep_p_t     call_rep;
+rpc_cn_fragbuf_p_t      *fragbuf;
+unsigned32              *st;
+#endif
+{
+    volatile boolean32  retry_op;
+    rpc_cn_fragbuf_p_t  frag;
+
+    RPC_CN_DBG_RTN_PRINTF(rpc__cn_assoc_receive_call_frag);
+    CODING_ERROR(st);
+
+    retry_op = true;
+    while (((frag = call_frag (assoc, call_rep)) == NULL)
+           &&
+           (assoc->assoc_status == rpc_s_ok))
+    {
+        /*
+         * Nothing of this call is queued.  If a later call has become
+         * the association's current call, all fragments of this one
+         * were queued before the later call's first one and none will
+         * follow: they were flushed and the call is orphaned.
+         */
+        if (call_rep != assoc->call_rep)
+        {
+            RPC_DBG_PRINTF (rpc_e_dbg_orphan, RPC_C_CN_DBG_ORPHAN,
+                            ("CN: call_rep->%p no longer on its association ... orphaned\n",
+                             call_rep));
+            *fragbuf = NULL;
+            *st = rpc_s_call_orphaned;
+            return;
+        }
+
+        assoc->assoc_msg_waiters++;
+
+        /*
+         * Since this is a cancellable operation we'll set
+         * up an exception handler.
+         */
+        TRY
+        {
+            RPC_COND_WAIT (assoc->assoc_msg_cond,
+                           rpc_g_global_mutex);
+        }
+        CATCH (pthread_cancel_e)
+        {
+            RPC_DBG_PRINTF (rpc_e_dbg_cancel, RPC_C_CN_DBG_CANCEL,
+                            ("(rpc__cn_assoc_receive_call_frag) call_rep->%p assoc->%p cancel caught\n",
+                             call_rep,
+                             assoc));
+            rpc__cn_call_local_cancel (call_rep,
+                                       &retry_op,
+                                       st);
+        }
+        ENDTRY
+
+        assoc->assoc_msg_waiters--;
+
+        /*
+         * If a cancel was caught and the operation should not be
+         * retried just return now. The error status is already set up.
+         */
+        if (!retry_op)
+        {
+            *fragbuf = NULL;
+            return;
+        }
+    }
+
+    if (frag != NULL)
+    {
+        RPC_LIST_REMOVE (assoc->msg_list, frag);
+    }
+    *fragbuf = frag;
+    *st = assoc->assoc_status;
 }
 
 

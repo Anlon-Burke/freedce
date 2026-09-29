@@ -1389,6 +1389,17 @@ pointer_t       sm;
      * Copy the opnum field into the local call rep.
      */
     call_rep->opnum = RPC_CN_PKT_OPNUM (request_header_p);
+
+    /*
+     * Put the call id into the response header also for a maybe call,
+     * which gets no response: the later fragments of the request are
+     * passed to this call only if their call id matches the one in
+     * this header (RPC_CN_POST_CALL_SM_EVENT), and after a maybe call
+     * the association can hold the fragments of more than one call.
+     * The call rep is reused, so the header holds an old call id.
+     */
+    RPC_CN_PKT_CALL_ID ((rpc_cn_packet_p_t) RPC_CN_CREP_SEND_HDR (call_rep)) =
+        RPC_CN_PKT_CALL_ID (request_header_p);
     if (!(RPC_CN_PKT_FLAGS (request_header_p) & RPC_C_CN_FLAGS_MAYBE))
     {
         
@@ -2656,7 +2667,7 @@ pointer_t       sm;
          */
         if (assoc->assoc_msg_waiters > 0)
         {
-            RPC_COND_SIGNAL (assoc->assoc_msg_cond, rpc_g_global_mutex);
+            RPC_COND_BROADCAST (assoc->assoc_msg_cond, rpc_g_global_mutex);
         }
 
         RPC_CALL_LOCK (((rpc_call_rep_t *) call_rep));

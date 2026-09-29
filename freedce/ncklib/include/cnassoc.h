@@ -227,6 +227,16 @@ PRIVATE void rpc__cn_assoc_receive_frag _DCE_PROTOTYPE_ ((
     unsigned32                  * /* st */ ));
 
 /*
+ * R P C _ _ C N _ A S S O C _ R E C E I V E _ C A L L _ F R A G
+ */
+
+PRIVATE void rpc__cn_assoc_receive_call_frag _DCE_PROTOTYPE_ ((
+    rpc_cn_assoc_p_t             /* assoc */,
+    rpc_cn_call_rep_p_t          /* call_rep */,
+    rpc_cn_fragbuf_p_t          * /* frag_buf */,
+    unsigned32                  * /* st */ ));
+
+/*
  * R P C _ _ C N _ A S S O C _ S E N D _ F R A G
  */
 
