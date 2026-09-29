@@ -361,6 +361,12 @@ unsigned32              *st;
     call_rep->prot_tlr = NULL;
 
     /*
+     * No association yet: rpc__cn_assoc_acb_dealloc looks at this
+     * field when opening the association fails.
+     */
+    call_rep->assoc = NULL;
+
+    /*
      * Clear out the io vectors
      */
     {
