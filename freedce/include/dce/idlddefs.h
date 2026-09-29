@@ -510,6 +510,8 @@ idl_ulong_int rpc_ss_arm_switch_value
     int advance;\
     advance = (int)\
         ((-(IDL_msp->IDL_mp - (idl_byte *)0)) & ((alignment)-1)); \
+    if ((idl_ulong_int)advance > IDL_msp->IDL_left_in_buff) \
+        RAISE(rpc_x_invalid_bound); \
     IDL_msp->IDL_mp += advance; \
     IDL_msp->IDL_left_in_buff -= advance;\
 }

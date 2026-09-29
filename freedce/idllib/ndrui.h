@@ -106,6 +106,8 @@
 { \
     IDL_UNMAR_ALIGN_MP( IDL_msp, size ); \
     rpc_ss_ndr_unmar_check_buffer( IDL_msp ); \
+    if (IDL_msp->IDL_left_in_buff < (idl_ulong_int)(size)) \
+        RAISE(rpc_x_invalid_bound); \
     marshalling_macro( IDL_msp->IDL_drep, ndr_g_local_drep, \
                         IDL_msp->IDL_mp, *(type *)(param_addr)); \
     RPC_DBG_NDR_ADD(("IDL_UNMAR_ALIGNED_SCALAR, %10p %10p %d %-9s ", \
@@ -165,6 +167,8 @@
 { \
     IDL_UNMAR_ALIGN_MP( IDL_msp, 4 ); \
     rpc_ss_ndr_unmar_check_buffer( IDL_msp ); \
+    if (IDL_msp->IDL_left_in_buff < 4) \
+        RAISE(rpc_x_invalid_bound); \
     rpc_convert_ulong_int( IDL_msp->IDL_drep, ndr_g_local_drep, \
                         IDL_msp->IDL_mp, *(idl_ulong_int *)(param_addr)); \
     RPC_DBG_NDR(("IDL_UNMAR_ERROR_STATUS, %10p %p %d %02d\n", \
@@ -180,6 +184,8 @@
 { \
     IDL_UNMAR_ALIGN_MP( IDL_msp, 4 ); \
     rpc_ss_ndr_unmar_check_buffer( IDL_msp ); \
+    if (IDL_msp->IDL_left_in_buff < 4) \
+        RAISE(rpc_x_invalid_bound); \
     rpc_convert_ulong_int( IDL_msp->IDL_drep, ndr_g_local_drep, \
                         IDL_msp->IDL_mp, *(idl_ulong_int *)(param_addr)); \
     RPC_DBG_NDR(("IDL_UNMAR_ERROR_STATUS, %10p %p %d %02d\n", \
@@ -277,6 +283,13 @@ void rpc_ss_ndr_alloc_storage
 #endif
 );
 
+idl_ulong_int rpc_ss_ndr_mul
+(
+#ifdef IDL_PROTOTYPES
+    idl_ulong_int a,
+    idl_ulong_int b
+#endif
+);
 idl_ulong_int rpc_ss_ndr_allocation_size
 (
 #ifdef IDL_PROTOTYPES

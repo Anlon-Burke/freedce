@@ -704,7 +704,8 @@ void rpc_ss_ndr_unmar_pipe
                 break;
             }
         }
-        (*p_pipe->alloc)(p_pipe->state, left_in_wire_array * element_size,
+        (*p_pipe->alloc)(p_pipe->state,
+                         rpc_ss_ndr_mul( left_in_wire_array, element_size ),
                          &chunk_ptr, &supplied_size);
         supplied_size /= element_size;
         if (supplied_size == 0)

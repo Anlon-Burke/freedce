@@ -47,6 +47,37 @@
 
 /******************************************************************************/
 /*                                                                            */
+/*  Multiply two counts taken from the data stream, raising                   */
+/*  rpc_x_invalid_bound if the product does not fit in an idl_ulong_int.      */
+/*                                                                            */
+/*  A conformance or variance count comes from the wire, so a product that    */
+/*  sizes an allocation or drives an unmarshalling loop can overflow.  A      */
+/*  wrapped (small) result would let the unmarshalled data overrun the        */
+/*  allocated object, so an overflowing count is rejected as bad data.        */
+/*                                                                            */
+/******************************************************************************/
+idl_ulong_int rpc_ss_ndr_mul
+#ifdef IDL_PROTOTYPES
+(
+    idl_ulong_int a,
+    idl_ulong_int b
+)
+#else
+(a, b)
+    idl_ulong_int a;
+    idl_ulong_int b;
+#endif
+{
+    idl_ulong_int product;
+
+    product = a * b;
+    if (a != 0 && product / a != b)
+        RAISE(rpc_x_invalid_bound);
+    return product;
+}
+
+/******************************************************************************/
+/*                                                                            */
 /*  Calculate storage allocation size                                         */
 /*                                                                            */
 /******************************************************************************/
@@ -91,10 +122,12 @@ idl_ulong_int rpc_ss_ndr_allocation_size
             allocation_size = rpc_ss_type_size(array_defn_ptr, IDL_msp);
         /* Multiply by number of array elements */
         for (i=0; i<dimensionality; i++)
-            allocation_size *= Z_values[i];
+            allocation_size = rpc_ss_ndr_mul( allocation_size, Z_values[i] );
     }
-    
+
     /* Add in the size of the fixed part */
+    if (allocation_size + fixed_part_size < allocation_size)
+        RAISE(rpc_x_invalid_bound);
     allocation_size += fixed_part_size;
 
     return(allocation_size);
@@ -619,7 +652,7 @@ void rpc_ss_ndr_unmar_by_copying
 			    IDL_msp, array_addr, 
 			    element_count, element_size,
 			    IDL_msp->IDL_mp));
-    bytes_required = element_count * element_size;
+    bytes_required = rpc_ss_ndr_mul( element_count, element_size );
     while (bytes_required != 0)
     {
         rpc_ss_ndr_unmar_check_buffer( IDL_msp );
@@ -936,7 +969,7 @@ void rpc_ss_ndr_u_fix_or_conf_arr
     element_count = 1;
     for (i=0; i<dimensionality; i++)
     {
-        element_count *= Z_values[i];
+        element_count = rpc_ss_ndr_mul( element_count, Z_values[i] );
     }
 
     if (element_count == 0)

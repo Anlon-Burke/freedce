@@ -947,7 +947,7 @@ void rpc_ss_ndr_u_f_or_c_arr_ptees
     element_count = 1;
     for (i=0; i<dimensionality; i++)
     {
-        element_count *= Z_values[i];
+        element_count = rpc_ss_ndr_mul( element_count, Z_values[i] );
     }
 
     base_type = *defn_vec_ptr;
@@ -1547,7 +1547,7 @@ void rpc_ss_init_new_array_ptrs
     element_count = 1;
     for (i=0; i<dimensionality; i++)
     {
-        element_count *= Z_values[i];
+        element_count = rpc_ss_ndr_mul( element_count, Z_values[i] );
     }
 
     base_type = *defn_vec_ptr;
