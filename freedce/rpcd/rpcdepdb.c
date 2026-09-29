@@ -94,6 +94,12 @@ INTERNAL void epdb_chk_map_entry
         error_status_t  *status
     ));
 
+INTERNAL void epdb_copy_annotation
+    _DCE_PROTOTYPE_((
+        unsigned_char_t *dst,
+        unsigned_char_t *src
+    ));
+
 INTERNAL void epdb_to_ept
     _DCE_PROTOTYPE_((
         db_entry_p_t    entp,
@@ -453,6 +459,23 @@ error_status_t  *status;
     tower_ss_copy(&entp->tower, &xentry->tower, status);
 }
 
+/*  epdb_copy_annotation
+ *  Copy the annotation of a caller's entry into a database entry.  The
+ *  stub sets only the bytes up to the terminating NUL; the rest is
+ *  cleared (the entry is written to disk) and the copy is always
+ *  terminated.
+ */
+INTERNAL void epdb_copy_annotation(dst, src)
+unsigned_char_t *dst;
+unsigned_char_t *src;
+{
+    unsigned32  n;
+
+    for (n = 0; n < ept_max_annotation_size - 1 && src[n] != '\0'; n++)
+        dst[n] = src[n];
+    memset((char *) &dst[n], 0, ept_max_annotation_size - n);
+}
+
 /*  epdb_insert_entry
  *  Allocate dsm storage for an entry in the endpoint database
  *  Fill the entry from xentry, tfp, and addr
@@ -492,8 +515,8 @@ error_status_t  *status;
     db_entp->rpc_protocol_vers_major = tfp->rpc_protocol_vers_major;
     db_entp->rpc_protocol_vers_minor = tfp->rpc_protocol_vers_minor;
     db_entp->addr = addr;
-    memcpy((char *)db_entp->annotation, (char *)xentry->annotation, 
-        sizeof(db_entp->annotation));
+    epdb_copy_annotation(db_entp->annotation,
+        (unsigned_char_t *) xentry->annotation);
     db_entp->tower.tower_length = xentry->tower->tower_length;
     memcpy((char *) db_entp->tower.tower_octet_string, (char *) xentry->tower->tower_octet_string, 
         xentry->tower->tower_length);
@@ -517,8 +540,8 @@ error_status_t  *status;
 {
     entp->ncomm_fails = 0;
     entp->delete_flag = false;
-    memcpy((char *)entp->annotation, (char *)xentry->annotation, 
-        sizeof(entp->annotation));
+    epdb_copy_annotation(entp->annotation,
+        (unsigned_char_t *) xentry->annotation);
 
     db_update_entry(h, entp, status);
 }        
