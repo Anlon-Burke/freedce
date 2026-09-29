@@ -159,7 +159,16 @@ unsigned32        *status;
      * the architecture specifies, so no endian conversion 
      * is necessary.
      */
-    related_data_size[0] = strlen(((struct sockaddr_un *)sa)->sun_path)+1;
+    related_data_size[0] = strnlen(((struct sockaddr_un *)sa)->sun_path,
+                                   sizeof(((struct sockaddr_un *)sa)->sun_path)) + 1;
+    if (related_data_size[0] > sizeof(((struct sockaddr_un *)sa)->sun_path))
+    {
+        /*
+         * No terminating NUL in sun_path.
+         */
+        *status = twr_s_unknown_sa;
+        return;
+    }
     related_data_ptr[0] = 
         (byte_p_t) (&((struct sockaddr_un *)sa)->sun_path);
 
@@ -455,7 +464,22 @@ unsigned32        *status;
     tower += RPC_C_TOWER_FLR_RHS_COUNT_SIZE;
 
     /*
-     * Copy the port number to the sockaddr.
+     * The socket path comes from the network (e.g. in an ept_map reply):
+     * it must fit into sun_path and end with its NUL.
+     */
+    if (addr_size == 0 ||
+        addr_size > sizeof(((struct sockaddr_un *)(*sa))->sun_path) ||
+        tower[addr_size - 1] != '\0')
+    {
+        *status = twr_s_unknown_tower;
+
+        RPC_MEM_FREE (*sa, RPC_C_MEM_SOCKADDR);
+
+        return;
+    }
+
+    /*
+     * Copy the socket path to the sockaddr.
      */
     memcpy ( &((struct sockaddr_un *)(*sa))->sun_path, tower, addr_size);
                     
