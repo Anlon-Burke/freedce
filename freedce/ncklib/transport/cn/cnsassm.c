@@ -1602,7 +1602,16 @@ pointer_t       sm;
 
     sec_addr->s[0] = '\0';
 
-    header_size = (2 + header_size + 3) & ~0x03;
+    /*
+     * Round up to the 4-byte boundary of the presentation result list and
+     * zero the pad, which would otherwise send old buffer contents.
+     */
+    {
+        unsigned32  end = header_size + 2 + sec_addr->length;
+
+        header_size = (end + 3) & ~0x03;
+        memset ((unsigned8 *) resp_header + end, 0, header_size - end);
+    }
 
     pres_cont_list = (rpc_cn_pres_cont_list_t *) 
         ((unsigned8 *) req_header + RPC_CN_PKT_SIZEOF_ALT_CTX_HDR);
@@ -2107,9 +2116,16 @@ pointer_t       sm;
                  * secondary address endpoint is variable length. Also note 
 		 * that the because the presentation result list must start 
 		 * on a 4-byte boundary  rounding up will be necessary.
+                 * Zero the pad, which would otherwise send old buffer
+                 * contents.
                  */
+                {
+                    unsigned32  end = header_size + 2 + sec_addr->length;
 
-                header_size = (header_size + 2 + sec_addr->length + 3) & ~0x3;
+                    header_size = (end + 3) & ~0x3;
+                    memset ((unsigned8 *) resp_header + end, 0,
+                            header_size - end);
+                }
 
                 pres_result_list = (rpc_cn_pres_result_list_t *)
                     ((unsigned8 *) resp_header + header_size);
