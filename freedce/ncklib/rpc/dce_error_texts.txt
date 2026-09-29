@@ -1,0 +1,122 @@
+# Texts of the most common status codes for dce_error_inq_text(), used when no message
+# catalog is found (see mkerrtab.awk).  One per line: symbol, a tab, the text.  Statuses not
+# listed here get a text derived from their symbol; the NCA codes the comment in ncastat.idl.
+# The symbol is appended to every text: "connection closed (rpc_s_connection_closed)".
+rpc_s_mod	base of the RPC status codes
+rpc_s_op_rng_error	operation number out of range for the interface
+rpc_s_cant_create_socket	cannot create a socket
+rpc_s_cant_bind_socket	cannot bind the socket to the address or endpoint
+rpc_s_no_port	no free endpoint (port) available
+rpc_s_wrong_boot_time	server was restarted (wrong boot time)
+rpc_s_too_many_sockets	too many sockets
+rpc_s_unbound_handle	binding handle has no endpoint
+rpc_s_addr_in_use	address or endpoint already in use
+rpc_s_in_args_too_big	input arguments too big
+rpc_s_string_too_long	string too long
+rpc_s_no_memory	out of memory
+rpc_s_call_faulted	call faulted on the server
+rpc_s_call_failed	call failed
+rpc_s_comm_failure	communication failure: no response from the server
+rpc_s_rpcd_comm_failure	cannot communicate with the endpoint mapper (rpcd) on the server host
+rpc_s_invalid_handle	invalid handle
+rpc_s_coding_error	invalid use of an RPC routine or internal error
+rpc_s_object_not_found	object not found
+rpc_s_invalid_binding	invalid binding handle
+rpc_s_already_registered	already registered
+rpc_s_endpoint_not_found	no endpoint found for the interface and object
+rpc_s_invalid_rpc_protseq	invalid protocol sequence
+rpc_s_already_listening	server is already listening
+rpc_s_no_protseqs_registered	no protocol sequences registered
+rpc_s_no_bindings	no bindings
+rpc_s_unknown_if	unknown interface (not registered with the server)
+rpc_s_unsupported_type	unsupported type (no manager for the object type)
+rpc_s_cancel_timeout	cancel timeout: the server did not end the cancelled call in time
+rpc_s_call_cancelled	call cancelled
+rpc_s_cannot_connect	cannot connect to the server
+rpc_s_connection_aborted	connection aborted
+rpc_s_connection_closed	connection closed
+rpc_s_assoc_grp_not_found	association group not found
+rpc_s_protocol_error	RPC protocol error
+rpc_s_invalid_string_binding	invalid string binding
+rpc_s_connect_timed_out	connect timed out
+rpc_s_connect_rejected	connection rejected (nothing listening on that endpoint)
+rpc_s_network_unreachable	network unreachable
+rpc_s_connect_no_resources	not enough resources to connect
+rpc_s_rem_network_shutdown	remote network shut down
+rpc_s_too_many_rem_connects	too many remote connections
+rpc_s_no_rem_endpoint	remote endpoint not found
+rpc_s_rem_host_down	remote host down
+rpc_s_host_unreachable	host unreachable
+rpc_s_loc_connect_aborted	local connection aborted
+rpc_s_connect_closed_by_rem	connection closed by the remote side
+rpc_s_rem_host_crashed	remote host crashed
+rpc_s_invalid_endpoint_format	invalid endpoint format
+rpc_s_unknown_mgr_type	unknown manager type
+rpc_s_assoc_shutdown	association shut down
+rpc_s_context_id_not_found	context handle not found (run down or never created)
+rpc_s_protseq_not_supported	protocol sequence not supported
+rpc_s_call_orphaned	call orphaned
+rpc_s_who_are_you_failed	server could not verify the client (conversation manager callback failed)
+rpc_s_invalid_arg	invalid argument
+rpc_s_not_supported	operation not supported
+rpc_s_wrong_kind_of_binding	wrong kind of binding handle (client or server binding)
+rpc_s_call_timeout	call timed out
+rpc_s_server_too_busy	server too busy (call queue full)
+rpc_s_not_listening	server is not listening
+rpc_s_unknown_reject	call rejected by the server for an unknown reason
+rpc_s_stub_protocol_error	stub protocol error
+rpc_s_socket_failure	socket failure
+rpc_s_unknown_error	unknown error
+rpc_s_fault_unspec	unspecified fault on the server
+rpc_s_fault_addr_error	fault on the server: memory access violation
+rpc_s_fault_int_div_by_zero	fault on the server: integer division by zero
+rpc_s_fault_remote_no_memory	fault on the server: out of memory
+rpc_s_unsupported_protect_level	protection level not supported
+rpc_s_unknown_authn_service	unknown authentication service
+rpc_s_binding_has_no_auth	binding has no authentication information
+rpc_s_auth_tkt_expired	authentication ticket expired
+rpc_s_auth_skew	clock skew too great for authentication
+rpc_s_ss_context_damaged	context handle damaged (a call with it failed)
+rpc_s_ss_in_null_context	null context handle passed as input
+dce_cs_c_ok	codeset registry: no error
+dce_cs_c_unknown	codeset registry: unknown codeset
+dce_cs_c_notfound	codeset registry: codeset not found
+dce_cs_c_cannot_open_file	codeset registry: cannot open the registry file
+dce_cs_c_cannot_read_file	codeset registry: cannot read the registry file
+dce_cs_c_cannot_allocate_memory	codeset registry: out of memory
+uuid_s_bad_version	UUID has an unknown version
+uuid_s_socket_failure	UUID generation: socket failure
+uuid_s_getconf_failure	UUID generation: cannot read the network configuration
+uuid_s_no_address	UUID generation: no network address found
+uuid_s_overrun	UUID generation: clock overrun
+uuid_s_internal_error	UUID: internal error
+uuid_s_coding_error	UUID: invalid use of a UUID routine
+uuid_s_invalid_string_uuid	invalid string UUID
+uuid_s_no_memory	UUID: out of memory
+twr_s_unknown_sa	protocol tower: unknown socket address
+twr_s_unknown_tower	unknown protocol tower
+twr_s_not_implemented	protocol tower operation not implemented
+ept_s_cant_perform_op	endpoint map: cannot perform the operation
+ept_s_no_memory	endpoint map: out of memory
+ept_s_database_invalid	endpoint map: database invalid
+ept_s_cant_create	endpoint map: cannot create the database
+ept_s_cant_access	endpoint map: cannot access the database
+ept_s_database_already_open	endpoint map: database already open
+ept_s_invalid_entry	endpoint map: invalid entry
+ept_s_update_failed	endpoint map: update failed
+ept_s_invalid_context	endpoint map: invalid lookup context
+ept_s_not_registered	no matching endpoint registered in the endpoint map
+ept_s_server_unavailable	endpoint map server (rpcd) unavailable
+nca_s_fault_int_div_by_zero	fault: integer division by zero
+nca_s_fault_addr_error	fault: memory access violation
+nca_s_fault_fp_div_zero	fault: floating point division by zero
+nca_s_fault_fp_underflow	fault: floating point underflow
+nca_s_fault_fp_overflow	fault: floating point overflow
+nca_s_fault_invalid_tag	fault: invalid union discriminant
+nca_s_fault_invalid_bound	fault: invalid array bound
+nca_s_rpc_version_mismatch	RPC protocol version mismatch
+nca_s_manager_not_entered	manager not entered
+nca_s_fault_cancel	fault: call cancelled
+nca_s_fault_unspec	unspecified fault
+nca_s_fault_remote_no_memory	fault: out of memory on the server
+nca_s_fault_context_mismatch	fault: context handle mismatch

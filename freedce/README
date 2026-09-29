@@ -121,6 +121,13 @@ The UUID functions (uuid_create etc.) are part of libdcerpc; do not link
 util-linux libuuid itself must call it from a separate shared library: both
 libraries define uuid_compare, with different arguments.
 
+Error texts: dce_error_inq_text() knows a text for every status code of
+rpcsts.idl and ncastat.idl, followed by the symbolic name, e.g.
+"connection closed (rpc_s_connection_closed) (dce / rpc)".  The texts are
+built into libdcerpc (freedce/ncklib/rpc/dce_error_texts.txt and
+mkerrtab.awk); a message catalog (dcerpc.cat) found through NLSPATH takes
+precedence.
+
 Runtime settings (ncacn_ip_tcp)
 -------------------------------
 
