@@ -561,27 +561,29 @@ rpc_cn_assoc_p_t        assoc;
         RPC_CN_PKT_DUMP (pktp, fragbuf_p->data_size);
 
         /*
-         * Keep some stats on the packets received.
-         */
-        RPC_CN_STATS_INCR (pstats[RPC_CN_PKT_PTYPE (pktp)].rcvd);
-        RPC_CN_STATS_INCR (pkts_rcvd);
-
-        /*
          * Setup some local variables.
          */
         ptype = RPC_CN_PKT_PTYPE (pktp);
 
 	/*
-	 * Make sure that we have a valid packet type.
-	 * If not, we return an error, and the caller will close
+	 * Make sure that we have a valid packet type before it is used to
+	 * index the per-type statistics or the packet info table; the type
+	 * comes from the wire and can be any value in 0..255.
+	 * If not valid, we return an error, and the caller will close
 	 * the connection.
-	 */        
+	 */
         if (/* (ptype < 0) ||*/ (ptype > RPC_C_CN_PKT_MAX_TYPE) ||
             (packet_info_table[ptype].class == DGRAM_CLASS_PKT))
         {
             st = rpc_s_protocol_error;
             break;
         }
+
+        /*
+         * Keep some stats on the packets received.
+         */
+        RPC_CN_STATS_INCR (pstats[ptype].rcvd);
+        RPC_CN_STATS_INCR (pkts_rcvd);
 
         /*
          * Do some first packet only processing...
