@@ -2314,7 +2314,7 @@ void rpc_ss_ndr_unmar_interp
                                                 pointee_defn_ptr,
                                                 &pointee_desc,
                                                 IDL_param_vector[param_index],
-                                                IDL_msp );
+                                                NULL, NULL, IDL_msp );
                         rpc_ss_ndr_unmar_pointee( type_byte,
                                                 pointee_defn_ptr,
                                                 &pointee_desc,
@@ -2340,7 +2340,7 @@ void rpc_ss_ndr_unmar_interp
                                                 pointee_defn_ptr,
                                                 &pointee_desc,
                                                 IDL_param_vector[param_index],
-                                                IDL_msp );
+                                                NULL, NULL, IDL_msp );
                         if ((IDL_msp->IDL_side == IDL_server_side_k)
                            || (*(rpc_void_p_t *)(IDL_param_vector[param_index])
                                                                        == NULL))
@@ -2370,7 +2370,7 @@ void rpc_ss_ndr_unmar_interp
                     rpc_ss_ndr_unmar_pointee_desc( type_byte, pointee_defn_ptr,
                                                 &pointee_desc,
                                                 IDL_param_vector[param_index],
-                                                IDL_msp );
+                                                NULL, NULL, IDL_msp );
                     rpc_ss_ndr_unmar_pointee( type_byte, pointee_defn_ptr,
                                                 &pointee_desc,
                                                 IDL_param_vector[param_index],

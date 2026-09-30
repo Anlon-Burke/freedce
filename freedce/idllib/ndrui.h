@@ -598,6 +598,8 @@ void rpc_ss_ndr_unmar_pointee_desc
     idl_byte *defn_vec_ptr,
     IDL_pointee_desc_t *p_pointee_desc,
     rpc_void_p_t *p_pointer,
+    rpc_void_p_t struct_addr,
+    idl_ulong_int *struct_offset_vec_ptr,
     IDL_msp_t IDL_msp
 #endif
 );

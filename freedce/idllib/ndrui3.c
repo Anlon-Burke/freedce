@@ -414,7 +414,8 @@ static void rpc_ss_ndr_unmar_union_ptees
                 pointee_desc.dimensionality = 0;
                 rpc_ss_ndr_unmar_pointee_desc( type_byte,
                                     pointee_defn_ptr, &pointee_desc,
-                                    (rpc_void_p_t *)body_addr, IDL_msp );
+                                    (rpc_void_p_t *)body_addr,
+                                    NULL, NULL, IDL_msp );
                 rpc_ss_ndr_unmar_pointee( type_byte,
                                     pointee_defn_ptr, &pointee_desc,
                                     (rpc_void_p_t *)body_addr, IDL_msp );

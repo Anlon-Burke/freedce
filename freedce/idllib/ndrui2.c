@@ -88,7 +88,8 @@ static void rpc_ss_ndr_unmar_ptr_ptee
             defn_vec_ptr++;
             pointee_desc.dimensionality = 0;
             rpc_ss_ndr_unmar_pointee_desc( pointee_type, defn_vec_ptr,
-                                              &pointee_desc, p_node, IDL_msp );
+                                              &pointee_desc, p_node,
+                                              NULL, NULL, IDL_msp );
             rpc_ss_ndr_unmar_pointee( pointee_type, defn_vec_ptr, &pointee_desc,
                                                              p_node, IDL_msp );
             rpc_ss_ndr_u_rlse_pointee_desc( &pointee_desc, IDL_msp );
@@ -102,7 +103,8 @@ static void rpc_ss_ndr_unmar_ptr_ptee
                 defn_vec_ptr++;
                 pointee_desc.dimensionality = 0;
                 rpc_ss_ndr_unmar_pointee_desc( pointee_type, defn_vec_ptr,
-                                             &pointee_desc, p_node, IDL_msp );
+                                             &pointee_desc, p_node,
+                                             NULL, NULL, IDL_msp );
                 if (*(rpc_void_p_t *)p_node == NULL)
                 {
                     *(rpc_void_p_t *)p_node = IDL_NEW_NODE;
@@ -116,7 +118,8 @@ static void rpc_ss_ndr_unmar_ptr_ptee
             defn_vec_ptr++;
             pointee_desc.dimensionality = 0;
             rpc_ss_ndr_unmar_pointee_desc( pointee_type, defn_vec_ptr,
-                                              &pointee_desc, p_node, IDL_msp );
+                                              &pointee_desc, p_node,
+                                              NULL, NULL, IDL_msp );
             rpc_ss_ndr_unmar_pointee( pointee_type, defn_vec_ptr, &pointee_desc,
                                                              p_node, IDL_msp );
             rpc_ss_ndr_u_rlse_pointee_desc( &pointee_desc, IDL_msp );
@@ -835,7 +838,7 @@ void rpc_ss_ndr_u_struct_pointees
                     rpc_ss_ndr_unmar_pointee_desc( type_byte,
                             field_defn_ptr, &pointee_desc,
                             (rpc_void_p_t *)((idl_byte *)struct_addr + offset),
-                            IDL_msp );
+                            struct_addr, struct_offset_vec_ptr, IDL_msp );
                     rpc_ss_ndr_unmar_pointee( type_byte,
                             field_defn_ptr, &pointee_desc,
                             (rpc_void_p_t *)((idl_byte *)struct_addr + offset),
@@ -855,7 +858,7 @@ void rpc_ss_ndr_u_struct_pointees
                     rpc_ss_ndr_unmar_pointee_desc( type_byte, field_defn_ptr,
                             &pointee_desc,
                             (rpc_void_p_t *)((idl_byte *)struct_addr + offset),
-                            IDL_msp );
+                            struct_addr, struct_offset_vec_ptr, IDL_msp );
                     rpc_ss_ndr_unmar_pointee( type_byte, field_defn_ptr,
                             &pointee_desc,
                             (rpc_void_p_t *)((idl_byte *)struct_addr + offset),
@@ -871,7 +874,7 @@ void rpc_ss_ndr_u_struct_pointees
                 rpc_ss_ndr_unmar_pointee_desc( type_byte, field_defn_ptr,
                         &pointee_desc,
                         (rpc_void_p_t *)((idl_byte *)struct_addr + offset),
-                        IDL_msp );
+                        struct_addr, struct_offset_vec_ptr, IDL_msp );
                 rpc_ss_ndr_unmar_pointee( type_byte, field_defn_ptr,
                         &pointee_desc,
                         (rpc_void_p_t *)((idl_byte *)struct_addr + offset),
@@ -991,7 +994,8 @@ void rpc_ss_ndr_u_f_or_c_arr_ptees
         for (i=0; i<element_count; i++)
         {
             rpc_ss_ndr_unmar_pointee_desc( base_type, defn_vec_ptr,
-                          &pointee_desc, array_elt_addr, IDL_msp );
+                          &pointee_desc, array_elt_addr,
+                          NULL, NULL, IDL_msp );
             rpc_ss_ndr_unmar_pointee( base_type, defn_vec_ptr, &pointee_desc,
                                          array_elt_addr, IDL_msp );
             array_elt_addr++;
@@ -1136,7 +1140,7 @@ void rpc_ss_ndr_u_v_or_o_arr_ptees
                 rpc_ss_ndr_unmar_pointee_desc(base_type, defn_vec_ptr,
                                           &pointee_desc,
                                           (rpc_void_p_t *)inner_slice_address,
-                                                                      IDL_msp);
+                                          NULL, NULL, IDL_msp);
                 rpc_ss_ndr_unmar_pointee(base_type, defn_vec_ptr, &pointee_desc,
                                           (rpc_void_p_t *)inner_slice_address,
                                                                       IDL_msp);
@@ -1746,14 +1750,28 @@ void rpc_ss_ndr_unmar_pointee_desc
                        Exit - for a full pointer, if pointee has already been
                               unmarshalled, points to the address of the pointee
                        Not used for non-full pointer */
+    /* [in] */ rpc_void_p_t struct_addr,
+                    /* Base of the struct the pointer is a field of, or NULL.
+                       Non-NULL selects the structure determinant path when a
+                       conformant/open array pointee is sized by a sibling
+                       field (see the conformant array case below).  Only the
+                       immediate struct field is covered here: a pointer to a
+                       pointer to, or an array of pointers to, such an array
+                       still uses the parameter path. */
+    /* [in] */ idl_ulong_int *struct_offset_vec_ptr,
+                    /* Start of offsets for that struct; NULL iff struct_addr
+                       is NULL */
     IDL_msp_t IDL_msp
 )
 #else
-( pointer_type, defn_vec_ptr, p_pointee_desc, p_pointer, IDL_msp )
+( pointer_type, defn_vec_ptr, p_pointee_desc, p_pointer, struct_addr,
+  struct_offset_vec_ptr, IDL_msp )
     idl_byte pointer_type;
     idl_byte *defn_vec_ptr;
     IDL_pointee_desc_t *p_pointee_desc;
     rpc_void_p_t *p_pointer;
+    rpc_void_p_t struct_addr;
+    idl_ulong_int *struct_offset_vec_ptr;
     IDL_msp_t IDL_msp;
 #endif
 {
@@ -1867,12 +1885,23 @@ void rpc_ss_ndr_unmar_pointee_desc
              * [size_is]/[max_is] bound before it is used to allocate and
              * unmarshal, as the parameter and structure field paths do, so
              * a pointee array too small for the determinant the manager
-             * trusts cannot be read past (see rpc_ss_ndr_check_conf).
+             * trusts cannot be read past.  When the pointer is a struct
+             * field the determinant may be a sibling field, whose index is
+             * a struct-offset index, so resolve it from the struct's own
+             * storage; otherwise it is a parameter index (see
+             * rpc_ss_ndr_check_conf / rpc_ss_ndr_check_conf_struct).
              */
-            rpc_ss_ndr_check_conf(
-                    IDL_msp->IDL_type_vec + array_defn_index + 1,
-                    p_pointee_desc->dimensionality,
-                    p_pointee_desc->Z_values, IDL_msp );
+            if (struct_addr != NULL)
+                rpc_ss_ndr_check_conf_struct(
+                        IDL_msp->IDL_type_vec + array_defn_index + 1,
+                        p_pointee_desc->dimensionality,
+                        p_pointee_desc->Z_values,
+                        struct_addr, struct_offset_vec_ptr, IDL_msp );
+            else
+                rpc_ss_ndr_check_conf(
+                        IDL_msp->IDL_type_vec + array_defn_index + 1,
+                        p_pointee_desc->dimensionality,
+                        p_pointee_desc->Z_values, IDL_msp );
             IDL_ADV_DEFN_PTR_OVER_BOUNDS( array_defn_ptr,
                                             p_pointee_desc->dimensionality );
             break;
@@ -1882,12 +1911,20 @@ void rpc_ss_ndr_unmar_pointee_desc
                     (p_pointee_desc->Z_values + p_pointee_desc->dimensionality);
             rpc_ss_ndr_unmar_Z_values( p_pointee_desc->dimensionality,
                                      &p_pointee_desc->Z_values, IDL_msp );
-            /* Check the wire conformance against the declared bound (see
-               the conformant array case above and rpc_ss_ndr_check_conf). */
-            rpc_ss_ndr_check_conf(
-                    IDL_msp->IDL_type_vec + array_defn_index + 1,
-                    p_pointee_desc->dimensionality,
-                    p_pointee_desc->Z_values, IDL_msp );
+            /* Check the wire conformance against the declared bound; use the
+               structure determinant path for a struct-field pointer (see the
+               conformant array case above). */
+            if (struct_addr != NULL)
+                rpc_ss_ndr_check_conf_struct(
+                        IDL_msp->IDL_type_vec + array_defn_index + 1,
+                        p_pointee_desc->dimensionality,
+                        p_pointee_desc->Z_values,
+                        struct_addr, struct_offset_vec_ptr, IDL_msp );
+            else
+                rpc_ss_ndr_check_conf(
+                        IDL_msp->IDL_type_vec + array_defn_index + 1,
+                        p_pointee_desc->dimensionality,
+                        p_pointee_desc->Z_values, IDL_msp );
             IDL_ADV_DEFN_PTR_OVER_BOUNDS( array_defn_ptr,
                                             p_pointee_desc->dimensionality );
             array_defn_ptr += p_pointee_desc->dimensionality
