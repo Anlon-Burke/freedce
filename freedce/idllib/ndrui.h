@@ -567,6 +567,9 @@ void rpc_ss_ndr_unmar_n_e_union
     rpc_void_p_t param_addr,
     idl_ulong_int defn_index,
     idl_ulong_int *p_switch_value,
+    idl_ulong_int switch_index,
+    rpc_void_p_t struct_addr,
+    idl_ulong_int *struct_offset_vec_ptr,
     IDL_msp_t IDL_msp
 #endif
 );

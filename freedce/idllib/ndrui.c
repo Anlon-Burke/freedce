@@ -456,6 +456,7 @@ void rpc_ss_ndr_unmar_struct
     idl_ulong_int array_dims;   /* Number of dimensions of array */
     idl_ulong_int unique_flag;  /* Wire form of [unique] pointer */
     idl_ulong_int switch_value; /* Discarded [out] parameter */
+    idl_ulong_int switch_index; /* Offset-list index of a union discriminant */
     idl_ulong_int node_number;
     idl_ulong_int shadow_length;
     idl_byte *shadow_defn_ptr = NULL;  /* Position after shadow_length */
@@ -703,12 +704,14 @@ void rpc_ss_ndr_unmar_struct
                 break;
             case IDL_DT_N_E_UNION:
                 defn_vec_ptr++;     /* Skip over properties byte */
-                IDL_DISCARD_LONG_FROM_VECTOR( defn_vec_ptr ); /* Switch index */
+                IDL_GET_LONG_FROM_VECTOR( switch_index, defn_vec_ptr );
                 IDL_GET_LONG_FROM_VECTOR(field_defn_index, defn_vec_ptr);
                 offset = *offset_vec_ptr;
                 offset_vec_ptr++;
                 rpc_ss_ndr_unmar_n_e_union( (idl_byte *)struct_addr+offset,
-                                      field_defn_index, &switch_value, IDL_msp);
+                                      field_defn_index, &switch_value,
+                                      switch_index, struct_addr,
+                                      struct_offset_vec_ptr, IDL_msp);
                 break;
             case IDL_DT_FULL_PTR:
                 defn_vec_ptr++;     /* Properties byte */
@@ -2290,7 +2293,8 @@ void rpc_ss_ndr_unmar_interp
                                                      /* Discard switch index */
                     IDL_GET_LONG_FROM_VECTOR(defn_index,type_vec_ptr);
                     rpc_ss_ndr_unmar_n_e_union( param_addr, defn_index,
-                                                     &switch_value, IDL_msp);
+                                                     &switch_value, 0, NULL,
+                                                     NULL, IDL_msp);
                     if (type_has_pointers)
                     {
                         rpc_ss_ndr_u_n_e_union_ptees( param_addr, switch_value,

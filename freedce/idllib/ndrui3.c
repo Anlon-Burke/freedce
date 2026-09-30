@@ -497,13 +497,25 @@ void rpc_ss_ndr_unmar_n_e_union
     /* [in] */ idl_ulong_int defn_index,    /* Points at dummy offset index
                                                 at start of union definition */
     /* [out] */ idl_ulong_int *p_switch_value,
+    /* [in] */ idl_ulong_int switch_index,
+                /* If union is a field, index in the offset list of the
+                   discriminant; not used if union is a parameter */
+    /* [in] */ rpc_void_p_t struct_addr,     /* Address of structure the union
+                                        is a field of. NULL if union is not a
+                                        structure field */
+    /* [in] */ idl_ulong_int *struct_offset_vec_ptr,
+                                                /* NULL iff struct_addr is NULL */
     IDL_msp_t IDL_msp
 )
 #else
-( union_addr, defn_index, p_switch_value, IDL_msp )
+( union_addr, defn_index, p_switch_value, switch_index, struct_addr,
+  struct_offset_vec_ptr, IDL_msp )
     rpc_void_p_t union_addr;
     idl_ulong_int defn_index;
     idl_ulong_int *p_switch_value;
+    idl_ulong_int switch_index;
+    rpc_void_p_t struct_addr;
+    idl_ulong_int *struct_offset_vec_ptr;
     IDL_msp_t IDL_msp;
 #endif
 {
@@ -523,6 +535,19 @@ void rpc_ss_ndr_unmar_n_e_union
     *p_switch_value = rpc_ss_get_typed_integer(switch_type,
                                                (rpc_void_p_t)&switch_work_area,
                                                IDL_msp);
+    /*
+     * For a [switch_is(field)] union the arm is selected by the sibling
+     * discriminant field, which has already been unmarshalled into the
+     * structure.  The deferred pointee pass (rpc_ss_ndr_u_n_e_union_ptees)
+     * selects the arm from that field, so the body pass must use the same
+     * source or the two passes can select different arms: a crafted PDU whose
+     * inline discriminant disagrees with the field would then have the pointee
+     * pass walk a pointer arm the body pass never filled, dereferencing
+     * uninitialised storage.  Take the switch value from the field here too.
+     */
+    if (struct_addr != NULL)
+        rpc_ss_get_switch_from_data(switch_index, switch_type, struct_addr,
+                                 struct_offset_vec_ptr, p_switch_value, IDL_msp);
     /* Unmarshall union */
     rpc_ss_ndr_unmar_union_body(defn_vec_ptr, *p_switch_value, union_addr,
                                                                       IDL_msp);
@@ -573,7 +598,7 @@ void rpc_ss_ndr_u_n_e_union_ptees
     if (struct_addr != NULL)
         rpc_ss_get_switch_from_data(switch_index, switch_type, struct_addr,
                                  struct_offset_vec_ptr, &switch_value, IDL_msp);
-    
+
     rpc_ss_ndr_unmar_union_ptees(defn_vec_ptr, switch_value, union_addr,
                                                                       IDL_msp);
 }
