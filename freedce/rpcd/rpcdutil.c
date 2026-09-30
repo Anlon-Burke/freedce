@@ -136,7 +136,8 @@ error_status_t  *status;
 {
     *addr = NULL;
 
-    rpc__naf_tower_flrs_to_addr(tower->tower_octet_string, addr, status);
+    rpc__naf_tower_flrs_to_addr(tower->tower_octet_string,
+        tower->tower_length, addr, status);
 
     CHECK_TOWER_STATUS(tower, status);
 }

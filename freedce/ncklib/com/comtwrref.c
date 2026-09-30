@@ -172,18 +172,20 @@ unsigned32          *status;
 **--
 */
 
-PRIVATE void rpc__tower_ref_alloc 
+PRIVATE void rpc__tower_ref_alloc
 #ifdef _DCE_PROTO_
 (
     byte_p_t            tower_octet_string,
+    unsigned32          tower_octet_length,
     unsigned32          num_flrs,
     unsigned32          start_flr,
     rpc_tower_ref_p_t   *tower_ref,
     unsigned32          *status
 )
 #else
-(tower_octet_string, num_flrs, start_flr, tower_ref, status)
+(tower_octet_string, tower_octet_length, num_flrs, start_flr, tower_ref, status)
 byte_p_t            tower_octet_string;
+unsigned32          tower_octet_length;
 unsigned32          num_flrs;
 unsigned32          start_flr;
 rpc_tower_ref_p_t   *tower_ref;
@@ -193,12 +195,38 @@ unsigned32          *status;
 
     byte_p_t        tower_floor;
     unsigned32      i;
+    boolean         do_bounds;
+    unsigned32      used = 0;
+    unsigned32      remaining = 0;
+    unsigned32      need = 0;
 
 
     CODING_ERROR (status);
 
     /*
-     * Allocate the tower reference structure allowing 
+     * tower_octet_length is the number of octets in tower_octet_string (the
+     * [size_is(tower_length)] extent of the twr_t).  A value of 0 means the
+     * caller could not supply a length (e.g. the public bare-octet-string
+     * entry points); in that case the floor walk trusts the floors' internal
+     * length prefixes as before.  A non-zero length bounds every read and
+     * advance so a malformed tower cannot walk off the end of the buffer.
+     */
+    do_bounds = (tower_octet_length != 0);
+
+    /*
+     * A tower with no floors would underflow the allocation size below, and a
+     * bounded tower must at least hold the floor count field.
+     */
+    if (num_flrs == 0
+        || (do_bounds && tower_octet_length < RPC_C_TOWER_FLR_COUNT_SIZE))
+    {
+        *tower_ref = NULL;
+        *status = rpc_s_not_rpc_tower;
+        return;
+    }
+
+    /*
+     * Allocate the tower reference structure allowing
      * for the number of tower floors desired.
      *
      * Note, the first floor is allocated via the "floor[1] 
@@ -239,7 +267,7 @@ unsigned32          *status;
         /*
          * Allocate the tower floor
          */
-        RPC_MEM_ALLOC ( 
+        RPC_MEM_ALLOC (
             (*tower_ref)->floor[i],
             rpc_tower_floor_p_t,
             sizeof (rpc_tower_floor_t),
@@ -247,8 +275,8 @@ unsigned32          *status;
             RPC_C_MEM_WAITOK );
 
         /*
-         * Initialize the floor's tower octet free flag to not 
-         * free the tower floor octet string, since they will be 
+         * Initialize the floor's tower octet free flag to not
+         * free the tower floor octet string, since they will be
          * freed by the caller who created them.
          */
         (*tower_ref)->floor[i]->free_twr_octet_flag = false;
@@ -257,6 +285,22 @@ unsigned32          *status;
          * Get the pointer to the octet string.
          */
         (*tower_ref)->floor[i]->octet_string = tower_floor;
+
+        /*
+         * Compute the octets remaining from this floor to the end of the
+         * tower octet string.  Each read and advance below is checked against
+         * it so a malformed floor cannot run past the buffer.
+         */
+        if (do_bounds)
+        {
+            used = (unsigned32) (tower_floor - tower_octet_string);
+            remaining = (used <= tower_octet_length)
+                            ? (tower_octet_length - used) : 0;
+
+            /* Must be room for the protocol identifier count. */
+            if (remaining < RPC_C_TOWER_FLR_LHS_COUNT_SIZE)
+                goto bad_tower;
+        }
 
         /*
          * Get the protocol identifier count.
@@ -271,10 +315,23 @@ unsigned32          *status;
         RPC_RESOLVE_ENDIAN_INT16 ((*tower_ref)->floor[i]->prot_id_count);
 
         /*
+         * Must be room for the protocol identifier and the additional
+         * information count that follows it.
+         */
+        if (do_bounds)
+        {
+            need = (unsigned32) RPC_C_TOWER_FLR_LHS_COUNT_SIZE
+                 + (*tower_ref)->floor[i]->prot_id_count
+                 + RPC_C_TOWER_FLR_RHS_COUNT_SIZE;
+            if (remaining < need)
+                goto bad_tower;
+        }
+
+        /*
          * Get the additional information count.
          */
         memcpy ((char *) &((*tower_ref)->floor[i]->address_count),
-                (char *) tower_floor + RPC_C_TOWER_FLR_LHS_COUNT_SIZE + 
+                (char *) tower_floor + RPC_C_TOWER_FLR_LHS_COUNT_SIZE +
                 (*tower_ref)->floor[i]->prot_id_count,
                 RPC_C_TOWER_FLR_RHS_COUNT_SIZE);
 
@@ -282,6 +339,20 @@ unsigned32          *status;
          * Convert address count to host's endian representation.
          */
         RPC_RESOLVE_ENDIAN_INT16 ((*tower_ref)->floor[i]->address_count);
+
+        /*
+         * The whole floor (both counts and their data) must fit before we
+         * advance past it.
+         */
+        if (do_bounds)
+        {
+            need = (unsigned32) RPC_C_TOWER_FLR_LHS_COUNT_SIZE
+                 + (*tower_ref)->floor[i]->prot_id_count
+                 + RPC_C_TOWER_FLR_RHS_COUNT_SIZE
+                 + (*tower_ref)->floor[i]->address_count;
+            if (remaining < need)
+                goto bad_tower;
+        }
 
         /*
          * Point to the next tower floor in the tower octet string.
@@ -294,6 +365,31 @@ unsigned32          *status;
 
 
     *status = rpc_s_ok;
+    return;
+
+bad_tower:
+
+    /*
+     * A floor did not fit in the tower octet string.  Free the floors this
+     * call allocated (floor[start_flr-1 .. i], all non-NULL) and the tower
+     * reference itself.  rpc__tower_ref_free is not used here because it
+     * dereferences every floor[0 .. count-1], and the floors below start_flr
+     * or above i are still NULL.
+     */
+    {
+        unsigned32 k;
+        unsigned32 tmp_st;
+
+        for (k = start_flr-1; k <= i && k < num_flrs; k++)
+        {
+            if ((*tower_ref)->floor[k] != NULL)
+                rpc__tower_flr_free (&((*tower_ref)->floor[k]), &tmp_st);
+        }
+
+        RPC_MEM_FREE (*tower_ref, RPC_C_MEM_TOWER_REF);
+        *tower_ref = NULL;
+        *status = rpc_s_not_rpc_tower;
+    }
     return;
 }
 
@@ -654,10 +750,12 @@ unsigned32          *status;
                 RPC_C_TOWER_PROT_ID_SIZE);
         /*
          * If the floor's protocol id also has an uuid,
-         * copy it.
+         * copy it.  Require the whole prefix + uuid to be present so the
+         * copy stays within the floor's protocol id.
          */
-        if (tower_ref->floor[i+j]->prot_id_count > RPC_C_TOWER_PROT_ID_SIZE)
-        { 
+        if (tower_ref->floor[i+j]->prot_id_count >=
+                RPC_C_TOWER_PROT_ID_SIZE + RPC_C_TOWER_UUID_SIZE)
+        {
             tp = (byte_p_t) RPC_PROT_ID_START(tower_ref->floor[i+j]);
 
             memcpy ((char *) &(tower_prot_ids[i].uuid),
@@ -1234,8 +1332,9 @@ unsigned32                  *status;
      * The number of floors is equal to the number of RPC (upper) floors
      * plus the number of network (lower) floors.
      */
-    rpc__tower_ref_alloc (lower_floors->tower_octet_string, 
-        RPC_C_NUM_RPC_FLOORS + lower_flr_count, 
+    rpc__tower_ref_alloc (lower_floors->tower_octet_string,
+        lower_floors->tower_length,
+        RPC_C_NUM_RPC_FLOORS + lower_flr_count,
         RPC_C_NUM_RPC_FLOORS+1, &((*tower_vector)->tower[0]), status);
 
     if (*status != rpc_s_ok)

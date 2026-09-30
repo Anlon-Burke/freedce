@@ -68,10 +68,11 @@ PRIVATE void rpc__tower_ref_add_floor _DCE_PROTOTYPE_ ((
 
 PRIVATE void rpc__tower_ref_alloc _DCE_PROTOTYPE_ ((
     unsigned8           * /*tower_octet_string*/,
+    unsigned32           /*tower_octet_length*/,
     unsigned32           /*num_flrs*/,
     unsigned32           /*start_flr*/,
     rpc_tower_ref_p_t   * /*tower_ref*/,
-    unsigned32          * /*status*/ 
+    unsigned32          * /*status*/
 ));
 
 PRIVATE void rpc__tower_ref_copy _DCE_PROTOTYPE_ ((

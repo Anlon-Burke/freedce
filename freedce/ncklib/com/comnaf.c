@@ -1786,16 +1786,18 @@ unsigned32         *status;
 **--
 **/
 
-PRIVATE void rpc__naf_tower_flrs_to_addr 
+PRIVATE void rpc__naf_tower_flrs_to_addr
 #ifdef _DCE_PROTO_
 (
   byte_p_t           tower_octet_string,
+  unsigned32         tower_octet_length,
   rpc_addr_p_t       *rpc_addr,
   unsigned32         *status
 )
 #else
-(tower_octet_string, rpc_addr, status)
+(tower_octet_string, tower_octet_length, rpc_addr, status)
 byte_p_t           tower_octet_string;
+unsigned32         tower_octet_length;
 rpc_addr_p_t       *rpc_addr;
 unsigned32         *status;
 #endif
@@ -1820,6 +1822,17 @@ unsigned32         *status;
      */
 
     /*
+     * A non-zero length must at least hold the floor count field.  A zero
+     * length means the caller could not supply one (see rpc__tower_ref_alloc).
+     */
+    if (tower_octet_length != 0
+        && tower_octet_length < RPC_C_TOWER_FLR_COUNT_SIZE)
+    {
+        *status = rpc_s_not_rpc_tower;
+        return;
+    }
+
+    /*
      * Get the floor count from the octet string and convert it to local
      * endian rep.
      */
@@ -1831,14 +1844,15 @@ unsigned32         *status;
     }
 
     /*
-     * Allocate a tower_ref_t, with flr_count floors and 
+     * Allocate a tower_ref_t, with flr_count floors and
      * initialize the tower ref with the tower_octet_string. We are in
      * the import path here, we must have a complete tower. So start at
      * floor 1.
      * beginning at floor 1.
+     * tower_octet_length bounds the floor walk against the octet extent.
      */
-    rpc__tower_ref_alloc (tower_octet_string, (unsigned32) flr_count, 1, 
-        &tower_ref, status);
+    rpc__tower_ref_alloc (tower_octet_string, tower_octet_length,
+        (unsigned32) flr_count, 1, &tower_ref, status);
 
     if (*status != rpc_s_ok)
     {

@@ -297,17 +297,28 @@ unsigned32          *status;
     CODING_ERROR (status);
 
     /*
+     * The tower octet string must at least hold the floor count field.
+     */
+    if (tower->tower_length < RPC_C_TOWER_FLR_COUNT_SIZE)
+    {
+        *tower_ref = NULL;
+        *status = rpc_s_not_rpc_tower;
+        return;
+    }
+
+    /*
      * Get the tower floor count and correct for proper endian.
      */
-    memcpy ((char *) &floor_count, (char *) tower->tower_octet_string, 
+    memcpy ((char *) &floor_count, (char *) tower->tower_octet_string,
             RPC_C_TOWER_FLR_COUNT_SIZE);
     RPC_RESOLVE_ENDIAN_INT16 (floor_count);
 
     /*
      * Allocate and initialize the tower reference structure to be returned.
+     * tower_length bounds the floor walk against the octet string extent.
      */
-    rpc__tower_ref_alloc (tower->tower_octet_string, floor_count, 1, 
-        tower_ref, status);
+    rpc__tower_ref_alloc (tower->tower_octet_string, tower->tower_length,
+        floor_count, 1, tower_ref, status);
 
     /*
      * Return status from the tower ref allocate operation.
@@ -388,9 +399,10 @@ unsigned32              *status;
     *binding = NULL;
 
     /*
-     * Obtain an RPC address for the tower.
+     * Obtain an RPC address for the tower.  prot_tower is a bare octet string
+     * with no accompanying length, so pass 0 (floor walk unbounded, as before).
      */
-    rpc__naf_tower_flrs_to_addr (prot_tower, &rpc_addr, status);
+    rpc__naf_tower_flrs_to_addr (prot_tower, 0, &rpc_addr, status);
     if (*status != rpc_s_ok)
     {
         return;

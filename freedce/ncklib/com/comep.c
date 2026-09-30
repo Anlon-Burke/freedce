@@ -2313,6 +2313,7 @@ unsigned32              *st;
 
         rpc__naf_tower_flrs_to_addr (
             &(towers[tower_to_use]->tower_octet_string[0]),
+            towers[tower_to_use]->tower_length,
             &tower_rpc_addr,
             st);
 

@@ -1588,6 +1588,7 @@ PRIVATE void rpc__naf_tower_flrs_from_addr _DCE_PROTOTYPE_ ((
 
 PRIVATE void rpc__naf_tower_flrs_to_addr _DCE_PROTOTYPE_ ((
         byte_p_t                   /* tower_octet_string */,
+        unsigned32                 /* tower_octet_length */,
         rpc_addr_p_t               */* rpc_addr */,
         unsigned32                 * /* status */
     ));
