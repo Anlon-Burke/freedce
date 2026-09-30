@@ -349,6 +349,22 @@ idl_long_int lt_ptrarr(handle_t h __attribute__((unused)),
     return (idl_long_int) sum;
 }
 
+idl_long_int lt_ptrbox(handle_t h __attribute__((unused)),
+                       lt_key_t *key __attribute__((unused)),
+                       lt_ptrbox_t *box)
+{
+    volatile idl_ulong_int sum = 0;
+    idl_ulong_int          i;
+
+    COUNT(LT_OP_PTRBOX);
+    /* Trust the determinant held in the struct: read box->n elements
+       (see size_is(n) in lt_ptrbox_t). */
+    if (box != NULL && box->p != NULL)
+        for (i = 0; i < box->n; i++)
+            sum += box->p[i].id;
+    return (idl_long_int) sum;
+}
+
 static void print_stats(void)
 {
     lt_stats_t s;

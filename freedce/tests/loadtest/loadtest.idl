@@ -59,6 +59,13 @@ typedef struct
     double              value;
 } lt_item_t;
 
+/* A determinant and a pointer to a conformant array sized by it. */
+typedef struct
+{
+    unsigned long               n;
+    [ptr, size_is(n)]           lt_item_t *p;
+} lt_ptrbox_t;
+
 /*
  * A full pointer to a string (a union arm cannot hold a [unique] pointer;
  * the typedef keeps the attributes in a form both dceidl and MIDL accept).
@@ -134,7 +141,7 @@ typedef pipe unsigned long lt_pipe_t;
 typedef [context_handle] void *lt_ctx_t;
 
 /* Server statistics. */
-const long lt_n_ops = 16;
+const long lt_n_ops = 17;
 
 typedef struct
 {
@@ -278,5 +285,17 @@ long lt_ptrarr
     [in]        lt_key_t        *key,
     [in]        unsigned long   n,
     [in, ptr, size_is(n)] lt_item_t *p
+);
+
+/*
+ * 16: a struct holding a pointer to a conformant array sized by a sibling
+ * field; the manager trusts box->n (the size_is determinant is a struct
+ * field, not a parameter).
+ */
+long lt_ptrbox
+(
+    [in]        handle_t        h,
+    [in]        lt_key_t        *key,
+    [in]        lt_ptrbox_t     *box
 );
 }
