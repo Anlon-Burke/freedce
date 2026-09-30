@@ -1101,10 +1101,40 @@ rpc_cn_assoc_p_t        assoc;
             }
             else
             {
-                RPC_CN_POST_CALL_SM_EVENT (assoc, 
-                                           packet_info_table[ptype].event, 
+                RPC_CN_POST_CALL_SM_EVENT (assoc,
+                                           packet_info_table[ptype].event,
                                            fragbuf_p,
                                            st);
+
+                /*
+                 * A queued call that the client orphaned is dequeued and
+                 * marked completed by stop_orphan_action_rtn, but it is not
+                 * ended there: ending it frees the call rep, and with it the
+                 * state machine control block, while the state machine and
+                 * the event-posting macro above still reference it.  The
+                 * orphan action asks us to end the call by returning
+                 * rpc_s_call_orphaned.  Now that the state machine is done
+                 * with the call rep, end the call and release its binding.
+                 */
+                if (st == rpc_s_call_orphaned
+                    && assoc->call_rep != NULL
+                    && assoc->call_rep->call_state.cur_state
+                           == RPC_C_SERVER_CALL_CALL_COMPLETED
+                    && assoc->call_rep->cn_call_status == rpc_s_call_orphaned)
+                {
+                    rpc_cn_call_rep_p_t     orphaned_call;
+                    rpc_binding_rep_t       *orphaned_binding;
+                    unsigned32              orphaned_st;
+
+                    orphaned_call = assoc->call_rep;
+                    orphaned_binding =
+                        (rpc_binding_rep_t *) orphaned_call->binding_rep;
+                    RPC_CN_UNLOCK ();
+                    rpc__cn_call_end ((rpc_call_rep_p_t *) &orphaned_call,
+                                      &orphaned_st);
+                    RPC_CN_LOCK ();
+                    RPC_BINDING_RELEASE (&orphaned_binding, &orphaned_st);
+                }
             }
         }
         else 

@@ -2598,9 +2598,8 @@ pointer_t       sm;
     rpc_cn_call_rep_p_t     call_rep;
     rpc_cn_fragbuf_p_t      fragbuf;
     unsigned32              status;
-    rpc_binding_rep_t       *binding_r;
     rpc_cn_assoc_p_t        assoc;
-    rpc_cn_sm_ctlblk_t 	    *sm_p; 
+    rpc_cn_sm_ctlblk_t 	    *sm_p;
 
     RPC_CN_DBG_RTN_PRINTF(SERVER stop_orphan_action_rtn);
 
@@ -2624,14 +2623,21 @@ pointer_t       sm;
     if (rpc__cthread_dequeue((rpc_call_rep_t *) call_rep))
     {
         RPC_DBG_PRINTF(rpc_e_dbg_orphan, RPC_C_CN_DBG_ORPHAN,
-                       ("(stop_orphan_action_rtn) call_rep->%p queued call ... dequeued call id = %x\n", 
+                       ("(stop_orphan_action_rtn) call_rep->%p queued call ... dequeued call id = %x\n",
                         call_rep,
                         RPC_CN_PKT_CALL_ID ((rpc_cn_packet_p_t) RPC_CN_CREP_SEND_HDR(call_rep))));
-        binding_r = (rpc_binding_rep_t *) call_rep->binding_rep;
-        RPC_CN_UNLOCK ();
-        rpc__cn_call_end ((rpc_call_rep_p_t *) &call_rep, &status);
-        RPC_CN_LOCK ();
-        RPC_BINDING_RELEASE (&binding_r, &status);
+        /*
+         * The call was still queued (no call executor thread is running
+         * it), so it has to be ended.  We must not call rpc__cn_call_end
+         * here, though: it would free the call rep, and with it this state
+         * machine control block (sm_p points inside the call rep), while
+         * the state machine evaluator and the RPC_CN_POST_CALL_SM_EVENT
+         * macro that drove this event still reference it.  Instead report
+         * rpc_s_call_orphaned back through the state machine so that the
+         * receiver (rpc__cn_network_receiver) ends the call once the state
+         * machine is done with this control block.
+         */
+        status = rpc_s_call_orphaned;
     }
     else
     {
@@ -2687,11 +2693,15 @@ pointer_t       sm;
     (*fragbuf->fragbuf_dealloc) (fragbuf);
 
     /*
-     * We do not need to call CALL_END since the call_executor
-     * thread will do so when it processes the cancel.
+     * The call is not ended here.  For a running call the call executor
+     * thread ends it when it processes the cancel; for a queued call the
+     * receiver ends it (status was set to rpc_s_call_orphaned above to ask
+     * it to) once the state machine is done with this control block.  In
+     * both cases the call rep, and with it this control block, is still
+     * valid, so record the completed state before returning.
      */
     sm_p->cur_state = RPC_C_SERVER_CALL_CALL_COMPLETED;
-    return(status);  
+    return(status);
 }
 
 
