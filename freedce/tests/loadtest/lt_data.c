@@ -10,7 +10,8 @@
 const char *lt_op_names[LT_N_OPS] =
 {
     "null", "null_idem", "struct", "array", "union", "list", "graph",
-    "pipe_in", "pipe_out", "open", "ctx_op", "close", "slow", "stats", "maybe"
+    "pipe_in", "pipe_out", "open", "ctx_op", "close", "slow", "stats", "maybe",
+    "ptrarr"
 };
 
 idl_void_p_t (*lt_alloc)(idl_size_t size);

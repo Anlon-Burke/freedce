@@ -270,4 +270,13 @@ void lt_stats
     [in]        unsigned long   len,
     [in, size_is(len)] lt_item_t items[]
 );
+
+/* 15: full pointer to a conformant array; the manager trusts size_is(n). */
+long lt_ptrarr
+(
+    [in]        handle_t        h,
+    [in]        lt_key_t        *key,
+    [in]        unsigned long   n,
+    [in, ptr, size_is(n)] lt_item_t *p
+);
 }

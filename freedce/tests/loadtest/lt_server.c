@@ -334,6 +334,21 @@ void lt_maybe(handle_t h __attribute__((unused)), lt_key_t *key,
     report(LT_OP_MAYBE, key, bad, err);
 }
 
+idl_long_int lt_ptrarr(handle_t h __attribute__((unused)),
+                       lt_key_t *key __attribute__((unused)),
+                       idl_ulong_int n, lt_item_t *p)
+{
+    volatile idl_ulong_int sum = 0;
+    idl_ulong_int          i;
+
+    COUNT(LT_OP_PTRARR);
+    /* Trust the declared count: read all n elements (see size_is(n)). */
+    if (p != NULL)
+        for (i = 0; i < n; i++)
+            sum += p[i].id;
+    return (idl_long_int) sum;
+}
+
 static void print_stats(void)
 {
     lt_stats_t s;
