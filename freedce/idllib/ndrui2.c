@@ -1862,6 +1862,17 @@ void rpc_ss_ndr_unmar_pointee_desc
         case IDL_DT_CONF_ARRAY:
             rpc_ss_ndr_unmar_Z_values( p_pointee_desc->dimensionality,
                                      &p_pointee_desc->Z_values, IDL_msp );
+            /*
+             * Check the wire conformance against the declared
+             * [size_is]/[max_is] bound before it is used to allocate and
+             * unmarshal, as the parameter and structure field paths do, so
+             * a pointee array too small for the determinant the manager
+             * trusts cannot be read past (see rpc_ss_ndr_check_conf).
+             */
+            rpc_ss_ndr_check_conf(
+                    IDL_msp->IDL_type_vec + array_defn_index + 1,
+                    p_pointee_desc->dimensionality,
+                    p_pointee_desc->Z_values, IDL_msp );
             IDL_ADV_DEFN_PTR_OVER_BOUNDS( array_defn_ptr,
                                             p_pointee_desc->dimensionality );
             break;
@@ -1871,6 +1882,12 @@ void rpc_ss_ndr_unmar_pointee_desc
                     (p_pointee_desc->Z_values + p_pointee_desc->dimensionality);
             rpc_ss_ndr_unmar_Z_values( p_pointee_desc->dimensionality,
                                      &p_pointee_desc->Z_values, IDL_msp );
+            /* Check the wire conformance against the declared bound (see
+               the conformant array case above and rpc_ss_ndr_check_conf). */
+            rpc_ss_ndr_check_conf(
+                    IDL_msp->IDL_type_vec + array_defn_index + 1,
+                    p_pointee_desc->dimensionality,
+                    p_pointee_desc->Z_values, IDL_msp );
             IDL_ADV_DEFN_PTR_OVER_BOUNDS( array_defn_ptr,
                                             p_pointee_desc->dimensionality );
             array_defn_ptr += p_pointee_desc->dimensionality
