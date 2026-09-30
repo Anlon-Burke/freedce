@@ -670,8 +670,17 @@ have to be done now).
 static void rework_pointer(unsigned long *num  __attribute__((__unused__)))
 {
 	static int max_ptr = 1;
+	/*
+	 * A wire referent id is 32 bits.  On LP64 the pointer slot this node
+	 * number is read from is 64 bits, so an uninitialised or desynchronised
+	 * slot (for example a non-encapsulated union arm the body pass did not
+	 * fill) can carry garbage in the high word.  That value would slip past
+	 * the "already reworked" test below and index the node number table far
+	 * out of bounds.  Keep only the 32-bit referent.
+	 */
+	*num &= 0xffffffffUL;
 	if ((*num) == 0) /* null needs no rework */
-		return; 
+		return;
 	if ((*num) > 0xffff0000) /* already reworked */
 		return;
 	if ((*num) < 0x00010000) /* assume no more than 65536 pointers */
