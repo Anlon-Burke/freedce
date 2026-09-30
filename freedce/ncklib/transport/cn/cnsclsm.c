@@ -1277,19 +1277,24 @@ pointer_t       event_param;
 **/
 #define RPC_CN_FRAGBUF_DATA_SIZE(header_p, fragbuf)\
 {\
-    if (RPC_CN_PKT_OBJ_UUID_PRESENT (header_p)) \
-    { \
-        fragbuf->data_size = RPC_CN_PKT_FRAG_LEN (header_p) - \
-                             RPC_CN_PKT_AUTH_TLR_LEN (header_p) - \
-                             RPC_CN_PKT_SIZEOF_RQST_HDR_W_OBJ; \
-    } \
+    unsigned32 rpc_cn_hdr_ovhd; \
+    rpc_cn_hdr_ovhd = (unsigned32) RPC_CN_PKT_AUTH_TLR_LEN (header_p) + \
+        (RPC_CN_PKT_OBJ_UUID_PRESENT (header_p) ? \
+             (unsigned32) RPC_CN_PKT_SIZEOF_RQST_HDR_W_OBJ : \
+             (unsigned32) RPC_CN_PKT_SIZEOF_RQST_HDR_NO_OBJ); \
+    /* \
+     * The fragment length and auth trailer length come off the wire.  If \
+     * they do not leave room for the request header the subtraction below \
+     * would underflow and yield a huge stub data size, which the stub would \
+     * then read far past the received packet.  Treat such a truncated \
+     * request as having no stub data. \
+     */ \
+    if ((unsigned32) RPC_CN_PKT_FRAG_LEN (header_p) < rpc_cn_hdr_ovhd) \
+        fragbuf->data_size = 0; \
     else \
-    { \
-        fragbuf->data_size = RPC_CN_PKT_FRAG_LEN (header_p) - \
-                             RPC_CN_PKT_AUTH_TLR_LEN (header_p) - \
-                             RPC_CN_PKT_SIZEOF_RQST_HDR_NO_OBJ; \
-    } \
-} 
+        fragbuf->data_size = (unsigned32) RPC_CN_PKT_FRAG_LEN (header_p) \
+                             - rpc_cn_hdr_ovhd; \
+}
 
  
 /*
