@@ -78,6 +78,160 @@ idl_ulong_int rpc_ss_ndr_mul
 
 /******************************************************************************/
 /*                                                                            */
+/*  Common conformance check (unsigned-safe)                                  */
+/*                                                                            */
+/*  Parses an array bounds definition the same way as rpc_ss_build_bounds_    */
+/*  list, but derives each dimension's declared element count with 64-bit      */
+/*  unsigned arithmetic and rejects a wire conformance smaller than it.        */
+/*                                                                            */
+/*  rpc_ss_build_bounds_list / rpc_ss_Z_values_from_bounds compute the count   */
+/*  with signed 32-bit bounds (IDL_bound_pair_t is idl_long_int), so a          */
+/*  [size_is]/[max_is] determinant of 2^31 or more wraps negative, trips the   */
+/*  "inside out bounds" clamp and yields a declared count of zero.  A forged   */
+/*  frame whose determinant is huge but whose wire conformance is small would  */
+/*  then pass the check and be over-read by the manager, which trusts the      */
+/*  determinant.  The count computed here cannot wrap, so such a frame is      */
+/*  rejected.                                                                  */
+/*                                                                            */
+/*  struct_addr == NULL selects the parameter determinant path (indexed in    */
+/*  IDL_param_vec); otherwise the determinant is a field of the structure at   */
+/*  struct_addr, indexed in struct_offset_vec_ptr - as rpc_ss_build_bounds_    */
+/*  list.  [string] dimensions get their count from the (already bounded)      */
+/*  array data, never from a determinant, so they cannot exceed the wire       */
+/*  conformance and are only skipped over here.                               */
+/*                                                                            */
+/******************************************************************************/
+static void rpc_ss_ndr_conf_check
+#ifdef IDL_PROTOTYPES
+(
+    idl_byte *defn_vec_ptr,
+    idl_ulong_int dimensionality,
+    idl_ulong_int *Z_values,
+    rpc_void_p_t struct_addr,
+    idl_ulong_int *struct_offset_vec_ptr,
+    IDL_msp_t IDL_msp
+)
+#else
+(defn_vec_ptr, dimensionality, Z_values, struct_addr,
+ struct_offset_vec_ptr, IDL_msp)
+    idl_byte *defn_vec_ptr;
+    idl_ulong_int dimensionality;
+    idl_ulong_int *Z_values;
+    rpc_void_p_t struct_addr;
+    idl_ulong_int *struct_offset_vec_ptr;
+    IDL_msp_t IDL_msp;
+#endif
+{
+    unsigned32 i;
+    idl_byte bound_kind, bound_type;
+    idl_ulong_int attribute_index;
+    idl_ulong_int string_field_offset;
+    rpc_void_p_t bound_addr;
+    idl_long_int fixed_val;
+    long long lower;            /* lower bound (may be negative), 64-bit */
+    long long decl_count;       /* declared element count, 64-bit */
+    idl_ulong_int det;          /* determinant, read with unsigned value kept */
+    byte func_code;
+
+    for (i = 0; i < dimensionality; i++)
+    {
+        idl_boolean have_count = idl_true;
+
+        /* Lower bound */
+        bound_kind = *defn_vec_ptr;
+        defn_vec_ptr++;
+        if (bound_kind == IDL_BOUND_FIXED)
+        {
+            IDL_GET_LONG_FROM_VECTOR(fixed_val, defn_vec_ptr);
+            lower = (long long)fixed_val;
+        }
+        else
+        {
+            /* [min_is] */
+            bound_type = *defn_vec_ptr;
+            defn_vec_ptr++;
+            IDL_GET_LONG_FROM_VECTOR(attribute_index, defn_vec_ptr);
+            if (struct_addr == NULL)
+                bound_addr = IDL_msp->IDL_param_vec[attribute_index];
+            else
+                bound_addr = (rpc_void_p_t)((idl_byte *)struct_addr
+                                     + struct_offset_vec_ptr[attribute_index]);
+            lower = (long long)rpc_ss_get_typed_integer(
+                                             bound_type, bound_addr, IDL_msp );
+        }
+
+        /* Upper bound / element count */
+        bound_kind = *defn_vec_ptr;
+        defn_vec_ptr++;
+        decl_count = 0;
+        if (bound_kind == IDL_BOUND_FIXED)
+        {
+            IDL_GET_LONG_FROM_VECTOR(fixed_val, defn_vec_ptr);
+            decl_count = (long long)fixed_val - lower + 1;
+        }
+        else if (bound_kind == IDL_BOUND_STRING)
+        {
+            /* Skip element size and string field offset; not checked here. */
+            defn_vec_ptr++;
+            IDL_GET_LONG_FROM_VECTOR(string_field_offset, defn_vec_ptr);
+            have_count = idl_false;
+        }
+        else
+        {
+            /* [size_is] or [max_is] */
+            if (bound_kind == IDL_BOUND_SIZE_IS)
+            {
+                func_code = *defn_vec_ptr;
+                defn_vec_ptr++;
+            }
+            else
+                func_code = IDL_FC_NONE;
+            bound_type = *defn_vec_ptr;
+            defn_vec_ptr++;
+            IDL_GET_LONG_FROM_VECTOR(attribute_index, defn_vec_ptr);
+            if (struct_addr == NULL)
+                bound_addr = IDL_msp->IDL_param_vec[attribute_index];
+            else
+                bound_addr = (rpc_void_p_t)((idl_byte *)struct_addr
+                                     + struct_offset_vec_ptr[attribute_index]);
+            /* Keep the determinant's unsigned value (get_typed_integer
+               returns idl_long_int, so a >= 2^31 ulong would be negative). */
+            det = (idl_ulong_int)rpc_ss_get_typed_integer(
+                                             bound_type, bound_addr, IDL_msp );
+            if (bound_kind == IDL_BOUND_MAX_IS)
+                decl_count = (long long)(unsigned long long)det - lower + 1;
+            else
+            {
+                unsigned long long c = (unsigned long long)det;
+                switch (func_code)
+                {
+                    case IDL_FC_DIV_2:   c = c / 2;                    break;
+                    case IDL_FC_MUL_2:   c = c * 2;                    break;
+                    case IDL_FC_SUB_1:   c = (c == 0) ? 0 : c - 1;     break;
+                    case IDL_FC_ADD_1:   c = c + 1;                    break;
+                    case IDL_FC_ALIGN_2: c = (c + 1) & ~1ULL;         break;
+                    case IDL_FC_ALIGN_4: c = (c + 3) & ~3ULL;         break;
+                    case IDL_FC_ALIGN_8: c = (c + 7) & ~7ULL;         break;
+                    case IDL_FC_NONE:
+                    default:                                          break;
+                }
+                decl_count = (long long)c;
+            }
+        }
+
+        if (have_count)
+        {
+            /* An inside-out declared bound means no elements. */
+            if (decl_count < 0)
+                decl_count = 0;
+            if ((unsigned long long)Z_values[i] < (unsigned long long)decl_count)
+                RAISE(rpc_x_invalid_bound);
+        }
+    }
+}
+
+/******************************************************************************/
+/*                                                                            */
 /*  Check the conformance read from the data stream for a conformant array    */
 /*  parameter against its declared [size_is]/[max_is] bound.                  */
 /*                                                                            */
@@ -106,35 +260,8 @@ void rpc_ss_ndr_check_conf
     IDL_msp_t IDL_msp;
 #endif
 {
-    IDL_bound_pair_t normal_bounds[IDL_NORMAL_DIMS];
-    IDL_bound_pair_t *bounds_list;
-    idl_ulong_int normal_decl_Z[IDL_NORMAL_DIMS];
-    idl_ulong_int *decl_Z;
-    unsigned32 i;
-
-    if (dimensionality > IDL_NORMAL_DIMS)
-    {
-        bounds_list = NULL;
-        decl_Z = NULL;
-    }
-    else
-    {
-        bounds_list = normal_bounds;
-        decl_Z = normal_decl_Z;
-    }
-    rpc_ss_build_bounds_list( &bounds_defn_ptr, NULL, NULL, NULL,
-                              dimensionality, &bounds_list, IDL_msp );
-    rpc_ss_Z_values_from_bounds( bounds_list, dimensionality, &decl_Z, IDL_msp );
-    for (i = 0; i < dimensionality; i++)
-    {
-        if (Z_values[i] < decl_Z[i])
-            RAISE(rpc_x_invalid_bound);
-    }
-    if (dimensionality > IDL_NORMAL_DIMS)
-    {
-        rpc_ss_mem_item_free( &IDL_msp->IDL_mem_handle, (byte_p_t)bounds_list );
-        rpc_ss_mem_item_free( &IDL_msp->IDL_mem_handle, (byte_p_t)decl_Z );
-    }
+    rpc_ss_ndr_conf_check( bounds_defn_ptr, dimensionality, Z_values,
+                           NULL, NULL, IDL_msp );
 }
 
 /******************************************************************************/
@@ -174,36 +301,8 @@ void rpc_ss_ndr_check_conf_struct
     IDL_msp_t IDL_msp;
 #endif
 {
-    IDL_bound_pair_t normal_bounds[IDL_NORMAL_DIMS];
-    IDL_bound_pair_t *bounds_list;
-    idl_ulong_int normal_decl_Z[IDL_NORMAL_DIMS];
-    idl_ulong_int *decl_Z;
-    unsigned32 i;
-
-    if (dimensionality > IDL_NORMAL_DIMS)
-    {
-        bounds_list = NULL;
-        decl_Z = NULL;
-    }
-    else
-    {
-        bounds_list = normal_bounds;
-        decl_Z = normal_decl_Z;
-    }
-    rpc_ss_build_bounds_list( &bounds_defn_ptr, NULL,
-                              struct_addr, struct_offset_vec_ptr,
-                              dimensionality, &bounds_list, IDL_msp );
-    rpc_ss_Z_values_from_bounds( bounds_list, dimensionality, &decl_Z, IDL_msp );
-    for (i = 0; i < dimensionality; i++)
-    {
-        if (Z_values[i] < decl_Z[i])
-            RAISE(rpc_x_invalid_bound);
-    }
-    if (dimensionality > IDL_NORMAL_DIMS)
-    {
-        rpc_ss_mem_item_free( &IDL_msp->IDL_mem_handle, (byte_p_t)bounds_list );
-        rpc_ss_mem_item_free( &IDL_msp->IDL_mem_handle, (byte_p_t)decl_Z );
-    }
+    rpc_ss_ndr_conf_check( bounds_defn_ptr, dimensionality, Z_values,
+                           struct_addr, struct_offset_vec_ptr, IDL_msp );
 }
 
 /******************************************************************************/
