@@ -1265,7 +1265,20 @@ void rpc_ss_ndr_u_var_or_open_arr
     {
         for (i=0; (unsigned32)i<dimensionality; i++)
         {
-            if ((unsigned32)(range_list[i].upper - range_list[i].lower) > Z_values[i])
+            /*
+             * The data occupies indices [lower, upper) = [A, A+B) of a
+             * Z_values[i]-element array, where A and B come off the wire.
+             * Reject a stream whose count (upper - lower) exceeds the bound,
+             * whose upper index A+B exceeds it, or whose A+B wrapped so that
+             * upper < lower.  Bounding only the count (the original check) let
+             * a large A offset drive the unmarshalling past the allocated
+             * array, so bound the upper index and detect the wrap as well.
+             */
+            if (((unsigned32)(range_list[i].upper - range_list[i].lower)
+                        > Z_values[i])
+                || ((unsigned32)range_list[i].upper > Z_values[i])
+                || ((unsigned32)range_list[i].upper
+                        < (unsigned32)range_list[i].lower))
             {
                 /* Bogus data stream with A,B values outside of Z bound value */
                 RAISE(rpc_x_invalid_bound);
