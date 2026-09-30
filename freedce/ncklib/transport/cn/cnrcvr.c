@@ -675,7 +675,21 @@ rpc_cn_assoc_p_t        assoc;
             {
                 SWAB_INPLACE_16 (auth_len);
             }
-            
+
+            /*
+             * auth_len comes off the wire.  Make sure the authentication
+             * trailer it describes actually fits within the received PDU.
+             * Otherwise the trailer offset computed below would underflow
+             * and point outside the packet buffer, and reading the trailer
+             * would be an out-of-bounds access.
+             */
+            if ((unsigned32) auth_len + RPC_CN_PKT_SIZEOF_COM_AUTH_TLR >
+                fragbuf_p->data_size)
+            {
+                st = rpc_s_protocol_error;
+                break;
+            }
+
 	    auth_tlr = (rpc_cn_auth_tlr_t *) ((unsigned8 *)(pktp) +
                 fragbuf_p->data_size - 
                 (auth_len + RPC_CN_PKT_SIZEOF_COM_AUTH_TLR));
