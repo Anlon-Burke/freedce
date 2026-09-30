@@ -299,6 +299,17 @@ void rpc_ss_ndr_check_conf
     IDL_msp_t IDL_msp
 #endif
 );
+void rpc_ss_ndr_check_conf_struct
+(
+#ifdef IDL_PROTOTYPES
+    idl_byte *bounds_defn_ptr,
+    idl_ulong_int dimensionality,
+    idl_ulong_int *Z_values,
+    rpc_void_p_t struct_addr,
+    idl_ulong_int *struct_offset_vec_ptr,
+    IDL_msp_t IDL_msp
+#endif
+);
 idl_ulong_int rpc_ss_ndr_allocation_size
 (
 #ifdef IDL_PROTOTYPES
