@@ -250,7 +250,32 @@ rpc_cn_sm_ctlblk_t      *sm;
     boolean                     more_events;
     rpc_cn_sm_state_entry_t     *state_entry_p;
 
-    /* 
+    /*
+     * Table dimensions (number of states, number of events) for each
+     * state machine, indexed by sm->tbl_id (see cnp.h).  Index 0 is
+     * unused.  These bound the state and event indices used below so that
+     * a control block which has been left in an out-of-range state (for
+     * example after a malformed packet) cannot index outside its state
+     * table.  The values are fixed by the protocol state machines
+     * (rpc_g_cn_*_sm[] and their row widths) and are kept here as literals
+     * to avoid pulling every machine's header into this file.
+     */
+    static const struct
+    {
+        unsigned8               n_states;
+        unsigned8               n_events;
+    } rpc_cn_sm_dims[] =
+    {
+        {  0,  0 },     /* 0 - unused                                       */
+        {  7, 16 },     /* 1 rpc_c_cn_svr_assoc (rpc_g_cn_server_assoc_sm)  */
+        {  6, 15 },     /* 2 rpc_c_cn_cl_assoc  (rpc_g_cn_client_assoc_sm)  */
+        {  4,  8 },     /* 3 rpc_c_cn_svr_call  (rpc_g_cn_server_call_sm)   */
+        {  8, 12 },     /* 4 rpc_c_cn_cl_call   (rpc_g_cn_client_call_sm)   */
+        {  4,  4 },     /* 5 rpc_c_cn_svr_a_g   (rpc_g_cn_server_grp_sm)    */
+        {  3,  3 }      /* 6 rpc_c_cn_cl_a_g    (rpc_g_cn_client_grp_sm)    */
+    };
+
+    /*
      * Initialize action status to ok.  This allows state transitions
      * which do not invoke action routines to signal normal completion.
      */
@@ -268,6 +293,27 @@ rpc_cn_sm_ctlblk_t      *sm;
     more_events = true;
     while (more_events)
     {
+        /*
+         * Bound the current state and event against this machine's state
+         * table before using them as indices.  A control block that has
+         * been driven into an out-of-range state or that is asked to
+         * process an out-of-range event would otherwise index outside the
+         * state table and dereference a wild pointer.  Treat either as a
+         * protocol error and stop processing events for this machine.
+         */
+        if (sm->tbl_id == 0
+            || sm->tbl_id >= (sizeof (rpc_cn_sm_dims) / sizeof (rpc_cn_sm_dims[0]))
+            || sm->cur_state < RPC_C_CN_STATEBASE
+            || (unsigned32) (sm->cur_state - RPC_C_CN_STATEBASE)
+                   >= rpc_cn_sm_dims[sm->tbl_id].n_states
+            || next_event.event_id < RPC_C_CN_STATEBASE
+            || (next_event.event_id - RPC_C_CN_STATEBASE)
+                   >= rpc_cn_sm_dims[sm->tbl_id].n_events)
+        {
+            sm->action_status = rpc_s_protocol_error;
+            break;
+        }
+
         /*
          * Pick up the state table entry to the current state. The
 	 * value in the state table is going to be either a next
