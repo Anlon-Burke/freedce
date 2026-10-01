@@ -7,13 +7,18 @@ ABI changed.
 - The RPC runtime, the NDR marshaling code and the IDL compiler work on
   LP64 (pointer and long sizes, alignment, union discriminants, full
   pointers, format strings).
-- Builds with current toolchains (C23 IDL compiler; tested with gcc 14 to
-  16, autoconf 2.71 to 2.73 on Ubuntu 26.04, Debian 13, AlmaLinux 10 and
-  Arch Linux), in tree and out of tree, parallel make; "make check" in
-  dcethreads, the perf suite and the new load test (tests/loadtest).
+- Builds with current toolchains (C23 IDL compiler; tested with gcc 13 to
+  16, autoconf 2.69 to 2.73), in tree and out of tree, parallel make;
+  "make check" in dcethreads, the perf suite, the new load test
+  (tests/loadtest) and the error text test (tests/errtext).
+- Packages (packaging/): .deb for Debian 13, Ubuntu 24.04 and 26.04, .rpm
+  for Fedora, RHEL/AlmaLinux/Rocky 9 and 10, openSUSE Tumbleweed and Leap
+  16.0, and an Arch Linux package; installed below /opt/dce with a systemd
+  unit for rpcd.
 - dcethreads delivers DCE cancels itself instead of through NPTL
   cancellation (DCETHREADS_CANCEL=nptl selects the old code); lost wakeup
-  in the condition wait fixed.
+  in the condition wait fixed.  The wake-up signal can be changed
+  (DCETHREADS_WAKE_SIG).
 - The UUID functions are part of libdcerpc (there is no DCE libuuid any
   more; do not link -luuid); libdcerpc symbols are versioned DCERPC_1.1.
 - Connections: poll listener without the FD_SETSIZE limit, accept backoff,
@@ -21,9 +26,31 @@ ABI changed.
   for killed clients and vanished client hosts, idle connection reclaim
   (RPC_CN_SERVER_IDLE_TIMEOUT), client bind timeout, per-connection
   keepalive and user timeout (RPC_CN_KEEPALIVE, RPC_CN_USER_TIMEOUT).
-- Many runtime fixes found by the tests, ASan and valgrind (maybe calls,
-  liveness monitoring lock, association group reference counts, status
-  exceptions, UDP cancels).
+- A cancel now also ends a call whose send is blocked because the server
+  stopped reading (after the cancel timeout, like any other cancel), and
+  timers set by application threads no longer expire early (cancel
+  timeout, call timeouts).
+- Network input is checked before it is used: the CN and DG packet
+  headers and bodies, the NDR unmarshaling of arrays, strings, pointers,
+  unions and pipes, protocol towers, and the endpoint map requests of rpcd.
+  The fixes come from fuzzing these paths under ASan and UBSan.  They
+  include a stack buffer overflow and an unbounded allocation in rpcd that
+  unauthenticated clients could trigger over the network (port 135).
+- dce_error_inq_text() has a built-in text for every status code (a
+  message catalog through NLSPATH still takes precedence).
+- ncalrpc: the sockets are in one directory (/tmp/.ncalrpc by default,
+  configure --with-ncalrpc-dir; /run/freedce/ncalrpc in the packages),
+  dynamic endpoints get unique names, and no socket files are left behind.
+- rpc_ep_register works after rpc_server_use_all_protseqs.
+- Many runtime fixes found by the tests, ASan, UBSan and valgrind (maybe
+  calls, liveness monitoring lock, association group reference counts,
+  status exceptions, UDP cancels, uninitialized bytes in PDUs).
+- The license of every file is recorded in packaging/debian/copyright,
+  with an overview in COPYING and the license texts in LICENSES/.
+
+Not built by default and not tested: the authentication modules (NTLMSSP,
+GSS) and code set conversion.  The UDP broadcast test of the perf suite is
+skipped by "make check" unless PERF_BROADCAST=1.
 
 See README for the build and the runtime settings.
 

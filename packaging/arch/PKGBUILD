@@ -4,7 +4,7 @@
 # The sha256sum below must match that tarball (updpkgsums updates it).
 pkgname=freedce
 pkgver=2.0.0
-pkgrel=2
+pkgrel=3
 pkgdesc="DCE RPC runtime, IDL compiler and endpoint mapper (FreeDCE, 64-bit)"
 arch=('x86_64')
 url="https://sourceforge.net/projects/freedce/"

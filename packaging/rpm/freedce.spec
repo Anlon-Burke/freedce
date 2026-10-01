@@ -15,7 +15,7 @@
 
 Name:           freedce
 Version:        2.0.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        DCE RPC runtime and endpoint mapper (FreeDCE, 64-bit)
 # Per package (details: packaging/debian/copyright, /opt/dce/share/doc/freedce/licenses):
 # libdcerpc, protocol modules, rpcd: OSF notice (+ UCB notice in rpcdbg.c); libdcethreads: GPL
@@ -147,6 +147,15 @@ export QA_RPATHS=$(( 0x0002 ))
 /opt/dce/lib/liblsarpc.so*
 
 %changelog
+* Fri Oct 02 2026 Anlon-Burke <Anlon-Burke@users.noreply.github.com> - 2.0.0-3
+- Release: network input checked before use (CN and DG packets, NDR
+  unmarshaling, protocol towers, rpcd endpoint map requests; fixes a
+  stack buffer overflow and an unbounded allocation in rpcd reachable
+  over the network), ncalrpc sockets in /run/freedce/ncalrpc without
+  leftover files, a cancel ends a call whose send is blocked by a
+  stalled server, timers no longer expire early, maybe call fixes,
+  complete license metadata and license texts.
+
 * Tue Sep 29 2026 Anlon-Burke <Anlon-Burke@users.noreply.github.com> - 2.0.0-2
 - Second preview: built-in texts for the status codes, fixes found with
   ASan/UBSan, zeroed pad bytes in bind_ack, rpc_ep_register with

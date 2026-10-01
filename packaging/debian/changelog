@@ -1,3 +1,15 @@
+freedce (2.0.0-3) unstable; urgency=medium
+
+  * Release: network input checked before use (CN and DG packets, NDR
+    unmarshaling, protocol towers, rpcd endpoint map requests; fixes a
+    stack buffer overflow and an unbounded allocation in rpcd reachable
+    over the network), ncalrpc sockets in /run/freedce/ncalrpc without
+    leftover files, a cancel ends a call whose send is blocked by a
+    stalled server, timers no longer expire early, maybe call fixes,
+    complete license metadata and license texts.
+
+ -- Anlon-Burke <Anlon-Burke@users.noreply.github.com>  Fri, 02 Oct 2026 12:00:00 +0200
+
 freedce (2.0.0-2) unstable; urgency=medium
 
   * Second preview: built-in texts for the status codes, fixes found with
