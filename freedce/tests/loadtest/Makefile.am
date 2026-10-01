@@ -7,13 +7,15 @@ IDLCC=-I$(top_builddir)/include -I$(IDL_INCLUDE_DIR)/.. \
 
 libs=$(top_builddir)/dcelib/libdcerpc.la
 
-noinst_PROGRAMS=lt_server lt_client
+noinst_PROGRAMS=lt_server lt_client lt_cancel
 
 lt_server_SOURCES=lt_server.c lt_data.c lt_data.h lt_port.h
 lt_client_SOURCES=lt_client.c lt_data.c lt_data.h lt_port.c lt_port.h
+lt_cancel_SOURCES=lt_cancel.c lt_data.c lt_data.h lt_port.c lt_port.h
 
 lt_server_LDADD=loadtest_sstub.o $(libs)
 lt_client_LDADD=loadtest_cstub.o $(libs)
+lt_cancel_LDADD=loadtest_cstub.o $(libs)
 
 # "make check" runs a short load test against a local server (run_check.sh).
 TESTS=run_check.sh

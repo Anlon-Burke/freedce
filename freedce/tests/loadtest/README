@@ -73,8 +73,16 @@ and the threads whose last outage lasted until the end.
 "make check" (run_check.sh) runs a short test against a local server on
 endpoint 2101 (LT_ENDPOINT) over TCP, UDP and ncalrpc (LT_UDP=0 and
 LT_NCALRPC=0 skip them), maybe calls mixed with other calls on the same
-connections (the server must run all of them) and a context rundown test;
-rpcd is not needed.
+connections (the server must run all of them), a context rundown test and
+a cancel test; rpcd is not needed.
+
+lt_cancel (Linux only) tests a cancel while a send is blocked: a thread
+sends an endless pipe, the server process is stopped (SIGSTOP) so the
+socket buffers fill up, and the thread is canceled with a cancel timeout
+(-c, default 3 s).  The call must end within that timeout plus 3 s; the
+server is continued (SIGCONT) at the end:
+
+  lt_cancel -h 127.0.0.1 -e 2101 -p <pid of lt_server> [-c secs]
 
 Windows client
 --------------

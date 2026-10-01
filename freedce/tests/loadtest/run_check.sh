@@ -11,6 +11,9 @@
 #      x 400 calls over TCP; the server must have run all of them
 #   5. context rundown: a client exits without closing its 4 contexts;
 #      the server has to run them down within 60 s
+#   6. cancel of a blocked send: the server is stopped while a client sends
+#      a pipe; the canceled call must end within its cancel timeout
+#      (lt_cancel), and the continued server must take further calls
 # The server must still run at the end and must not have found differences.
 
 EP=${LT_ENDPOINT:-2101}
@@ -104,6 +107,11 @@ while :; do
         fi
         sleep 1
 done
+
+echo "Cancel of a blocked send"
+./lt_cancel -h $HOST -e $EP -p $server_pid -c 3 || rc=1
+kill -CONT $server_pid 2> /dev/null
+./lt_client -h $HOST -e $EP -t 2 -n 100 || rc=1
 
 ./lt_client -h $HOST -e $EP -Q
 if ! kill -0 $server_pid 2> /dev/null; then
