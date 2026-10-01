@@ -906,6 +906,22 @@ void rpc_ss_ndr_unmar_by_copying
     while (bytes_required != 0)
     {
         rpc_ss_ndr_unmar_check_buffer( IDL_msp );
+        /*
+         * IDL_left_in_buff is the number of bytes still to be read from the
+         * current receive fragment.  rpc_ss_ndr_unmar_check_buffer sets it to
+         * the fragment's data_len and it then only decreases, so it can never
+         * legitimately exceed data_len.  A wire-controlled length can corrupt
+         * it, though: an unchecked [string]/varying pointee length
+         * (IDL_BOUND_STRING is skipped by the conformance check) can drive a
+         * prior copy to underflow it to a near-4GB value, after which this bulk
+         * copy would read far past the fragment.  Detect the corruption here
+         * and reject the stream rather than over-read.  Pickling uses a
+         * separate buffer discipline and has no IDL_elt_p, so leave it alone.
+         */
+        if (IDL_msp->IDL_pickling_handle == NULL
+            && IDL_msp->IDL_elt_p != NULL
+            && IDL_msp->IDL_left_in_buff > IDL_msp->IDL_elt_p->data_len)
+            RAISE(rpc_x_invalid_bound);
         if (bytes_required > IDL_msp->IDL_left_in_buff)
             bytes_to_copy = IDL_msp->IDL_left_in_buff;
         else
@@ -1448,6 +1464,28 @@ void rpc_ss_ndr_u_var_or_open_arr
     {
         /* Arrays of strings have a special representation */
         dimensionality--;
+        /*
+         * The range check below runs over [0, dimensionality) and so skips the
+         * innermost (string) dimension.  A [string] has no declared bound
+         * (IDL_BOUND_STRING is skipped by rpc_ss_ndr_check_conf), so without
+         * this its wire [lower, upper) is unbounded and drives the unmarshalling
+         * past the allocated storage.  Bound that dimension against its Z value,
+         * exactly as the loop does for the others.
+         */
+        if (Z_values != NULL)
+        {
+            if (((unsigned32)(range_list[dimensionality].upper
+                        - range_list[dimensionality].lower)
+                            > Z_values[dimensionality])
+                || ((unsigned32)range_list[dimensionality].upper
+                        > Z_values[dimensionality])
+                || ((unsigned32)range_list[dimensionality].upper
+                        < (unsigned32)range_list[dimensionality].lower))
+            {
+                /* Bogus data stream: string length outside the Z bound */
+                RAISE(rpc_x_invalid_bound);
+            }
+        }
     }
 
     if (Z_values != NULL)   /* NULL possible for transmit_as case */
