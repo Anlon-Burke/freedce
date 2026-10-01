@@ -1,36 +1,401 @@
-FreeDCE, 64-bit port (packaged below /opt/dce)
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: FreeDCE
 Source: https://sourceforge.net/projects/freedce/
+Comment: FreeDCE 2.0.0, 64-bit port, installed below /opt/dce.
+ The tree combines code under several licenses; the paragraphs below follow
+ the notices in the files.  Files without a notice of their own fall under
+ the statement in README (LicenseRef-FreeDCE-README), except in dcethreads,
+ whose COPYING places the whole package under the GNU General Public License.
+ Binary packages: freedce (libdcerpc, libdcethreads, protocol modules, rpcd,
+ uuid), freedce-dev (dceidl, headers, IDL files), freedce-examples (echo,
+ samr, liblsarpc).  The NTLMSSP and GSS authentication modules
+ (freedce/ncklib/auth), DCOM (freedce/dcom), netlogon and the tests are part
+ of the source only; they are not built into the packages.
+ .
+ freedce/COPYING begins with the sentence "Basically, you can't distribute
+ this for money."  It is a historical note; none of the licenses below
+ contains such a restriction.
 
-freedce (RPC runtime, IDL compiler, rpcd, examples):
+Files: *
+Copyright: 1997-2009 Jim Doyle, Luke Kenneth Casson Leighton and other FreeDCE contributors
+ 2026 Anlon-Burke <Anlon-Burke@users.noreply.github.com>
+License: LicenseRef-FreeDCE-README
 
-  (c) Copyright 1989-1994 OPEN SOFTWARE FOUNDATION, INC.
-  (c) Copyright 1989-1994 HEWLETT-PACKARD COMPANY
-  (c) Copyright 1989-1994 DIGITAL EQUIPMENT CORPORATION
-  To anyone who acknowledges that this file is provided "AS IS"
-  without any express or implied warranty:
-                  permission to use, copy, modify, and distribute this
-  file for any purpose is hereby granted without fee, provided that
-  the above copyright notices and this notice appears in all source
-  code copies, and that none of the names of Open Software
-  Foundation, Inc., Hewlett-Packard Company, or Digital Equipment
-  Corporation be used in advertising or publicity pertaining to
-  distribution of the software without specific, written prior
-  permission.  Neither Open Software Foundation, Inc., Hewlett-
-  Packard Company, nor Digital Equipment Corporation makes any
-  representations about the suitability of this software for any
-  purpose.
+Files: freedce/*.c
+ freedce/*.h
+ freedce/*.idl
+ freedce/*.acf
+ freedce/*.l
+ freedce/*.y
+ freedce/idl/nidlmsg.m
+ freedce/idl/sysdep.h.in
+ freedce/perf/README
+ freedce/perf/*.sh
+Copyright: 1989-1994 Open Software Foundation, Inc.
+ 1989-1994 Hewlett-Packard Company
+ 1989-1994 Digital Equipment Corporation
+ 1997-2001 Jim Doyle
+ 2001 Luke Kenneth Casson Leighton
+License: LicenseRef-OSF-DCE
+Comment: The OSF DCE 1.1 RPC code: IDL compiler, NDR runtime, RPC runtime,
+ rpcd, uuid library, perf test suite.  Some files add a copyright of Jim
+ Doyle or Luke Kenneth Casson Leighton (e.g. freedce/ncklib/naf/uxdnaf.c,
+ freedce/include/dce/linux-gnu/sec_authn.h) above the same notice.
 
-  Later additions are under the GNU General Public License, version 2
-  (see /usr/share/common-licenses/GPL-2).
+Files: freedce/dcelib/dummyfuncs.c
+ freedce/dcom/init.c
+ freedce/dcom/wtypes.idl
+ freedce/demos/echo_server/*
+ freedce/demos/samr/*
+ freedce/demos/lsa/lsarpc.acf
+ freedce/demos/lsa/lsarpc_lib.c
+ freedce/idl/astp_exp.c
+ freedce/idl/flex_bison_support.h
+ freedce/idllib/ndrdebug.c
+ freedce/idllib/ndrdebug.h
+ freedce/include/dce/alpha/*
+ freedce/include/dce/config.h
+ freedce/include/dce/linux-gnu/pthreads_rename.h
+ freedce/include/dce/mingw32msvc/dce_win32mem.h
+ freedce/include/dce/mingw32msvc/mini_winbase.h
+ freedce/include/dce/mingw32msvc/pthreads_rename.h
+ freedce/include/dce/powerpc/ndr_rep.h
+ freedce/include/dce/powerpc/ndrtypes.h
+ freedce/include/dce/sparc/ndr_rep.h
+ freedce/include/dce/sparc/ndrtypes.h
+ freedce/include/dce/wtypes.idl
+ freedce/ncklib/auth/crc32.h
+ freedce/ncklib/auth/lib_smb_proto.h
+ freedce/ncklib/auth/md5.h
+ freedce/ncklib/auth/ntlmauth.c
+ freedce/ncklib/auth/ntlmssp_api.h
+ freedce/ncklib/auth/ntlmssp_config.h
+ freedce/ncklib/auth/parse_net.h
+ freedce/ncklib/auth/proto.h
+ freedce/ncklib/auth/util.c
+ freedce/ncklib/include/comimage.h
+ freedce/ncklib/include/mingw32msvc/comsoc_win32_np.h
+ freedce/ncklib/include/mini_win32_net.h
+ freedce/ncklib/include/ncacn_np.h
+ freedce/ncklib/transport/comsoc.c
+ freedce/ncklib/transport/comsoc_win32.c
+ freedce/ncklib/transport/comsoc_win32_np.c
+ freedce/perf/run_tests.sh
+ freedce/rpcd/oxids.cxx
+ freedce/uuid/get_ether_addr.c
+ freedce/uuid/win32mem.c
+ freedce/uuid/win32timeofday.c
+ freedce/uuid/win32uuid.c
+Copyright: 1997-2009 Jim Doyle, Luke Kenneth Casson Leighton and other FreeDCE contributors
+License: LicenseRef-FreeDCE-README
+Comment: These files carry no license notice (some only an author line, e.g.
+ Jim Doyle in the echo and samr demos and get_ether_addr.c); the statement in
+ README applies.
 
-dcethreads (DCE threads and exceptions emulation):
+Files: freedce/include/dce/winerror.h
+Copyright: unknown (no notice)
+License: LicenseRef-FreeDCE-README
+Comment: The file carries no notice.  Its comment says that the NT status
+ codes were collected for Samba ("extracted using a loop in smbclient");
+ it consists of numeric constants only.
 
-  Copyright (C) 1998 James R. Doyle, Andrew Sandoval, et al.
-  Copyright (C) 1995, 1996 Michael T. Peterson
-  Provided under the GNU General Public License (see
-  /usr/share/common-licenses/GPL); the parts from PCthreads are under the
-  GNU Library General Public License, version 2 or later (see
-  /usr/share/common-licenses/LGPL-2).
+Files: freedce/tests/*
+ freedce/dcelib/libdcerpc.map
+ freedce/ncklib/rpc/dce_error_texts.txt
+ freedce/ncklib/rpc/mkerrtab.awk
+ freedce/rpcd/freedce-rpcd.service
+ packaging/*
+Copyright: 2026 Anlon-Burke <Anlon-Burke@users.noreply.github.com>
+License: LicenseRef-FreeDCE-README
+Comment: Added in 2026 (load test, error text test, error text table,
+ symbol versions, systemd unit, packaging); no notice in the files.
 
-The full texts shipped with the source are in
-/opt/dce/share/doc/freedce/COPYING and COPYING.dcethreads.
+Files: dcethreads/*
+Copyright: 1995-1996 Michael T. Peterson
+ 1998 James R. Doyle, Andrew Sandoval, et al.
+ 2000 Miroslaw Dobrzanski-Neumann
+ 2003-2004 Loic Domaigne
+ 2026 Anlon-Burke <Anlon-Burke@users.noreply.github.com>
+License: GPL-1+
+Comment: dcethreads/COPYING: "This DCE Threads package is provided under the
+ GNU General Public License", without a version number; any version may
+ therefore be chosen (GPL version 2, section 9).  This also covers the
+ files of the package without a notice of their own (e.g. the 2026 files
+ dcethreads/src/pthd4_cancel.c, pthd4_cancel.h, dcethreads/tests/test6.c to
+ test8.c).
+
+Files: dcethreads/include/dce/pthread.h
+ dcethreads/include/dce/pthread_dce.h
+ dcethreads/include/dce/pthread_dce_common.h
+ dcethreads/include/dce/pthread_dce_exc.h
+ dcethreads/include/dce/pthread_exc.h
+ dcethreads/src/pthread_dce.c
+ dcethreads/src/pthread_dceexc.c
+ dcethreads/src/pthread_dce_atfork.c
+ dcethreads/src/pthread_dce_atfork.h
+Copyright: 1995-1996 Michael T. Peterson
+ 1998 James R. Doyle, Andrew Sandoval, et al.
+ 2000 Miroslaw Dobrzanski-Neumann
+License: GPL-1+ and LGPL-2+
+Comment: Contains parts of the PCthreads package of Michael T. Peterson,
+ which are under the GNU Library General Public License, version 2 or later.
+
+Files: dcethreads/include/dce/exc_handling.h
+ dcethreads/src/exc_handling.c
+Copyright: 1991 Open Software Foundation, Inc.
+ 1991 Hewlett-Packard Company
+ 1991 Digital Equipment Corporation
+ 1998 James R. Doyle
+License: GPL-1+ and LicenseRef-OSF-DCE
+
+Files: freedce/uuid/tool/uuidtool.cpp
+ freedce/uuid/tool/uuid-cpp.cpp
+ freedce/uuid/tool/uuid.hpp
+Copyright: 1998 Jim Doyle
+License: LGPL-2+
+
+Files: freedce/demos/lsa/msrpc_lsa.c
+ freedce/demos/lsa/lsarpc.idl
+ freedce/demos/ntsec/ntsec.idl
+Copyright: 1992-2000 Andrew Tridgell
+ 1996-2001 Luke Kenneth Casson Leighton
+ 1997 Paul Ashton
+ 1998-2000 Jean Francois Micouleau
+ 1999-2000 Matthew Chapman
+ 2000 Elrond
+ 2001 PADL Software Pty Ltd
+License: GPL-2+
+Comment: freedce-examples ships liblsarpc, built from lsarpc.idl; the headers
+ generated from lsarpc.idl and ntsec.idl (/opt/dce/include/nt) are in
+ freedce-dev.
+
+Files: freedce/ncklib/auth/byteorder.h
+ freedce/ncklib/auth/hmacmd5.c
+ freedce/ncklib/auth/hmacmd5.h
+ freedce/ncklib/auth/includes.h
+ freedce/ncklib/auth/md4.c
+ freedce/ncklib/auth/ntdomain.h
+ freedce/ncklib/auth/ntlmssp_api.c
+ freedce/ncklib/auth/parse_misc.c
+ freedce/ncklib/auth/parse_net.c
+ freedce/ncklib/auth/parse_ntlmssp.c
+ freedce/ncklib/auth/parse_prs.c
+ freedce/ncklib/auth/pwd_cache.c
+ freedce/ncklib/auth/rpc_misc.h
+ freedce/ncklib/auth/rpc_ntlmssp.h
+ freedce/ncklib/auth/rpc_parse.h
+ freedce/ncklib/auth/safe_string.h
+ freedce/ncklib/auth/sma.c
+ freedce/ncklib/auth/sma.h
+ freedce/ncklib/auth/smb.h
+ freedce/ncklib/auth/smb_macros.h
+ freedce/ncklib/auth/smbdes.c
+ freedce/ncklib/auth/smbencrypt.c
+Copyright: 1992-2000 Andrew Tridgell
+ 1995-2000 Jeremy Allison
+ 1996-2000 John H Terpstra
+ 1996-2001 Luke Kenneth Casson Leighton
+ 1997-2000 Paul Ashton
+ 2000 Elrond
+ 2000 Sander Striker
+License: GPL-2+
+Comment: Samba-derived NTLMSSP code; only built with --enable-ntlmsspauth
+ (off by default), not part of the packages.
+
+Files: freedce/ncklib/auth/ntlmsspauthcn.c
+Copyright: 1989-1994 Open Software Foundation, Inc.
+ 1989-1994 Hewlett-Packard Company
+ 1989-1994 Digital Equipment Corporation
+ 2001 Luke Kenneth Casson Leighton
+License: LicenseRef-OSF-DCE
+Comment: The file begins with "(c) Copyright 2001 Luke Kenneth Casson
+ Leighton ... All rights reserved.  Specifically, this code is NOT released
+ under the GPL." followed by the OSF notice.  Not built into the packages.
+
+Files: freedce/ncklib/auth/md5.c
+Copyright: none claimed for the MD5 code (Colin Plumb, 1993)
+ 1995 Tatu Ylonen
+License: public-domain and LicenseRef-Ylonen-getput
+Comment: Not built into the packages.
+
+Files: freedce/ncklib/auth/crc32.c
+Copyright: 1998 Francesco Ferrara
+License: LicenseRef-crc32-permission
+Comment: Not built into the packages.
+
+Files: freedce/ncklib/auth/gssauth.c
+ freedce/ncklib/auth/gssauthcn.c
+Copyright: 1989-1994 Open Software Foundation, Inc.
+ 1989-1994 Hewlett-Packard Company
+ 1989-1994 Digital Equipment Corporation
+ 2001 PADL Software Pty Ltd
+License: LicenseRef-OSF-DCE and LicenseRef-PADL
+Comment: Not built into the packages.
+
+Files: freedce/include/dce/winnt.idl
+Copyright: 2001 PADL Software Pty Ltd
+License: LicenseRef-PADL
+
+Files: freedce/include/dce/obase.idl
+ freedce/include/dce/objex.idl
+ freedce/include/dce/remact.idl
+ freedce/dcom/dcom.h
+ freedce/dcom/obase.idl
+ freedce/dcom/objex.idl
+ freedce/dcom/scmscm.idl
+Copyright: 1992-1998 Microsoft Corporation
+ 2001 Luke Kenneth Casson Leighton (obase.idl)
+License: LicenseRef-Microsoft-COM-Spec
+Comment: These interface definitions state that they are derived from the
+ COM specification, Copyright Microsoft Corporation; they contain no license
+ notice.  rpcd links the server stub generated from objex.idl, and
+ freedce-dev installs obase.idl, objex.idl, remact.idl and the headers
+ generated from them.
+
+Files: freedce/ncklib/rpc/rpcdbg.c
+Copyright: 1989-1994 Open Software Foundation, Inc.
+ 1989-1994 Hewlett-Packard Company
+ 1989-1994 Digital Equipment Corporation
+ 1988 Regents of the University of California
+ 1983 Eric P. Allman
+License: LicenseRef-OSF-DCE and LicenseRef-UCB-1988
+Comment: rpc__dbg_set_switches is derived from the tTflag function of
+ sendmail.
+
+Files: freedce/ylwrap
+Copyright: 1996-2005 Free Software Foundation, Inc.
+License: GPL-2+ with Autoconf-data exception
+
+Files: LICENSES/*
+Copyright: 1989, 1991 Free Software Foundation, Inc. (GPL-2.0.txt, LGPL-2.0.txt)
+ the holders named in the quoted notices (LicenseRef-*.txt)
+License: LicenseRef-license-texts
+Comment: The license texts and quoted notices installed with the packages
+ (/opt/dce/share/doc/freedce/licenses).
+
+Files: netlogon/*
+Copyright: 1996-2001 Luke Kenneth Casson Leighton
+ 1998 Jim Doyle
+License: LicenseRef-FreeDCE-README
+Comment: A separate example package, not built.  netlogon/COPYING contains
+ only "[not the GPL]"; the files without a notice of their own fall under
+ the statement in README.
+
+Files: netlogon/include/byteorder.h
+ netlogon/lib/netlogon/credentials.c
+ netlogon/lib/netlogon/smbhash.c
+Copyright: 1992-2000 Andrew Tridgell
+ 1996 Paul Ashton
+ 1996-2001 Luke Kenneth Casson Leighton
+ 2001 Luke Howard
+License: GPL-2+
+
+License: LicenseRef-FreeDCE-README
+ From README: "The source code and binaries are freely redistributable
+ provided you maintain the copyright notices of the source components."
+
+License: LicenseRef-OSF-DCE
+ To anyone who acknowledges that this file is provided "AS IS"
+ without any express or implied warranty:
+                 permission to use, copy, modify, and distribute this
+ file for any purpose is hereby granted without fee, provided that
+ the above copyright notices and this notice appears in all source
+ code copies, and that none of the names of Open Software
+ Foundation, Inc., Hewlett-Packard Company, or Digital Equipment
+ Corporation be used in advertising or publicity pertaining to
+ distribution of the software without specific, written prior
+ permission.  Neither Open Software Foundation, Inc., Hewlett-
+ Packard Company, nor Digital Equipment Corporation makes any
+ representations about the suitability of this software for any
+ purpose.
+
+License: LicenseRef-PADL
+ To anyone who acknowledges that this file is provided "AS IS"
+ without any express or implied warranty:
+                 permission to use, copy, modify, and distribute this
+ file for any purpose is hereby granted without fee, provided that
+ the above copyright notices and this notice appears in all source
+ code copies, and that the name PADL Software Pty Ltd not be used in
+ advertising or publicity pertaining to distribution of the software
+ without specific, written prior permission.  PADL Software Pty Ltd
+ makes no representation about the suitability of this software for
+ any purpose.
+
+License: LicenseRef-UCB-1988
+ Copyright (c) 1988 Regents of the University of California.
+ All rights reserved.
+ .
+ Redistribution and use in source and binary forms are permitted
+ provided that this notice is preserved and that due credit is given
+ to the University of California at Berkeley. The name of the University
+ may not be used to endorse or promote products derived from this
+ software without specific prior written permission. This software
+ is provided ``as is'' without express or implied warranty.
+
+License: LicenseRef-Microsoft-COM-Spec
+ The files state: "This file is derived from the COM specification,
+ Copyright (C) Microsoft Corporation, 1992-1995."  They contain no license
+ notice.
+
+License: LicenseRef-license-texts
+ GPL-2.0.txt and LGPL-2.0.txt: "Everyone is permitted to copy and
+ distribute verbatim copies of this license document, but changing it is
+ not allowed."  LicenseRef-*.txt quote the notices of the files named in
+ them.
+
+License: LicenseRef-Ylonen-getput
+ The getput.h macros included in md5.c state: "Copyright (c) 1995 Tatu
+ Ylonen <ylo@cs.hut.fi>, Espoo, Finland.  All rights reserved."  (The file
+ says the code comes from the ssh-1.2.27 sources.)
+
+License: LicenseRef-crc32-permission
+ Copyright Francesco Ferrara, 1998 <francesco@aerra.it>
+ .
+ Used by kind permission, 14th October 1998.
+
+License: public-domain
+ "This code was written by Colin Plumb in 1993, no copyright is claimed.
+ This code is in the public domain; do with it what you wish."
+
+License: GPL-1+
+ This program is free software; you can redistribute it and/or modify it
+ under the terms of the GNU General Public License as published by the Free
+ Software Foundation; any version of the License (dcethreads/COPYING names
+ no version number).
+ .
+ On Debian systems, the complete text of the GNU General Public License
+ version 1 is in /usr/share/common-licenses/GPL-1, version 2 in
+ /usr/share/common-licenses/GPL-2.  The packages also ship the text of
+ version 2 in /opt/dce/share/doc/freedce/licenses/GPL-2.0.txt.
+
+License: GPL-2+
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+ .
+ On Debian systems, the complete text of the GNU General Public License
+ version 2 is in /usr/share/common-licenses/GPL-2.
+
+License: GPL-2+ with Autoconf-data exception
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2, or (at your option)
+ any later version.
+ .
+ As a special exception to the GNU General Public License, if you
+ distribute this file as part of a program that contains a
+ configuration script generated by Autoconf, you may include it under
+ the same distribution terms that you use for the rest of that program.
+ .
+ On Debian systems, the complete text of the GNU General Public License
+ version 2 is in /usr/share/common-licenses/GPL-2.
+
+License: LGPL-2+
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Library General Public
+ License as published by the Free Software Foundation; either
+ version 2 of the License, or (at your option) any later version.
+ .
+ On Debian systems, the complete text of the GNU Library General Public
+ License version 2 is in /usr/share/common-licenses/LGPL-2.

@@ -1,0 +1,9 @@
+The interface definitions freedce/include/dce/obase.idl, objex.idl,
+remact.idl and freedce/dcom/*.idl, dcom.h state:
+
+  This file is derived from the COM specification,
+  Copyright (C) Microsoft Corporation, 1992-1995.
+
+They contain no license notice.  rpcd links the server stub generated from
+objex.idl; the development files include obase.idl, objex.idl, remact.idl
+and the headers generated from them.

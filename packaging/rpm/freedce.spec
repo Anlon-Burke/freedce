@@ -17,7 +17,12 @@ Name:           freedce
 Version:        2.0.0
 Release:        2%{?dist}
 Summary:        DCE RPC runtime and endpoint mapper (FreeDCE, 64-bit)
-License:        LicenseRef-OSF-DCE AND GPL-2.0-only AND LGPL-2.0-or-later
+# Per package (details: packaging/debian/copyright, /opt/dce/share/doc/freedce/licenses):
+# libdcerpc, protocol modules, rpcd: OSF notice (+ UCB notice in rpcdbg.c); libdcethreads: GPL
+# without version number (any version) with LGPL-2.0-or-later parts; uuid tool: LGPL-2.0-or-later;
+# rpcd links the stub of objex.idl (derived from the COM specification, no license notice);
+# files without a notice: the statement in README.
+License:        LicenseRef-OSF-DCE AND LicenseRef-UCB-1988 AND GPL-1.0-or-later AND LGPL-2.0-or-later AND LicenseRef-Microsoft-COM-Spec AND LicenseRef-FreeDCE-README
 URL:            https://sourceforge.net/projects/freedce/
 Source0:        freedce-%{version}.tar.gz
 ExclusiveArch:  x86_64
@@ -39,6 +44,10 @@ below /opt/dce.
 
 %package devel
 Summary:        DCE RPC development files and IDL compiler (FreeDCE, 64-bit)
+# dceidl and headers: OSF notice; winnt.idl: PADL notice; obase/objex/remact.idl: derived from
+# the COM specification, no license notice; nt/lsarpc.h, nt/ntsec.h: GPL-2.0-or-later;
+# libdcethreads headers: GPL with LGPL-2.0-or-later parts; files without a notice: README
+License:        LicenseRef-OSF-DCE AND LicenseRef-PADL AND LicenseRef-Microsoft-COM-Spec AND GPL-2.0-or-later AND GPL-1.0-or-later AND LGPL-2.0-or-later AND LicenseRef-FreeDCE-README
 Requires:       %{name} = %{version}-%{release}
 Requires:       cpp
 
@@ -48,6 +57,8 @@ development links of libdcerpc and libdcethreads, below /opt/dce.
 
 %package examples
 Summary:        DCE RPC example clients and servers (FreeDCE, 64-bit)
+# echo and samr demos: no license notice (README statement); liblsarpc: GPL-2.0-or-later
+License:        LicenseRef-FreeDCE-README AND GPL-2.0-or-later
 Requires:       %{name} = %{version}-%{release}
 
 %description examples
@@ -115,6 +126,7 @@ export QA_RPATHS=$(( 0x0002 ))
 %doc /opt/dce/share/doc/freedce/NEWS
 %license /opt/dce/share/doc/freedce/COPYING
 %license /opt/dce/share/doc/freedce/COPYING.dcethreads
+%license /opt/dce/share/doc/freedce/licenses
 %{_unitdir}/freedce-rpcd.service
 %{_tmpfilesdir}/freedce.conf
 %dir /var/opt/freedce

@@ -8,7 +8,10 @@ pkgrel=2
 pkgdesc="DCE RPC runtime, IDL compiler and endpoint mapper (FreeDCE, 64-bit)"
 arch=('x86_64')
 url="https://sourceforge.net/projects/freedce/"
-license=('LicenseRef-OSF-DCE' 'GPL-2.0-only' 'LGPL-2.0-or-later')
+# details: packaging/debian/copyright and /opt/dce/share/doc/freedce/licenses
+license=('LicenseRef-OSF-DCE' 'LicenseRef-UCB-1988' 'LicenseRef-PADL'
+         'LicenseRef-Microsoft-COM-Spec' 'LicenseRef-FreeDCE-README'
+         'GPL-1.0-or-later' 'GPL-2.0-or-later' 'LGPL-2.0-or-later')
 depends=('glibc' 'gcc-libs')
 makedepends=('autoconf' 'automake' 'libtool' 'flex' 'bison')
 optdepends=('gcc: C preprocessor for the IDL compiler dceidl')
@@ -28,4 +31,8 @@ package() {
     ln -s /opt/dce/share/doc/freedce/COPYING "$pkgdir/usr/share/licenses/$pkgname/COPYING"
     ln -s /opt/dce/share/doc/freedce/COPYING.dcethreads \
         "$pkgdir/usr/share/licenses/$pkgname/COPYING.dcethreads"
+    for f in "$pkgdir"/opt/dce/share/doc/freedce/licenses/*.txt; do
+        ln -s "/opt/dce/share/doc/freedce/licenses/${f##*/}" \
+            "$pkgdir/usr/share/licenses/$pkgname/${f##*/}"
+    done
 }
