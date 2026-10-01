@@ -5,7 +5,7 @@
  * flows, the server process is stopped (SIGSTOP), so the socket buffers
  * fill up and the client blocks in its send.  Then the thread is canceled
  * with a cancel timeout set: the call must give up after about that
- * timeout instead of waiting for the peer.  The server is continued
+ * timeout (neither early nor by waiting for the peer).  The server is continued
  * (SIGCONT), and a further call on the same binding must succeed.
  *
  * usage: lt_cancel -h host -e endpoint -p server_pid [options]
@@ -15,8 +15,9 @@
  *   -c secs      cancel timeout of the calling thread (default 3)
  *   -w secs      give up waiting for the call after secs seconds (default 60)
  *
- * The exit status is 0 if the call ended within the cancel timeout plus
- * 3 seconds and the further call succeeded, else 1.  DCE RPC only (Linux).
+ * The exit status is 0 if the call ended between the cancel timeout minus
+ * 0.5 seconds and the timeout plus 3 seconds and the further call
+ * succeeded, else 1.  DCE RPC only (Linux).
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -203,9 +204,17 @@ int main(int argc, char *argv[])
     elapsed = ended_at - cancel_at;
     printf("call ended %.1f s after the cancel (cancel timeout %ld s): %s\n",
            elapsed, cancel_timeout, result);
-    rc = elapsed <= cancel_timeout + 3 ? 0 : 1;
-    if (rc != 0)
+    rc = 0;
+    if (elapsed > cancel_timeout + 3)
+    {
         printf("FAIL: the cancel did not interrupt the send\n");
+        rc = 1;
+    }
+    else if (elapsed < cancel_timeout - 0.5)
+    {
+        printf("FAIL: the cancel timeout expired early\n");
+        rc = 1;
+    }
     pthread_join(t, NULL);
 
     /* the binding must still work (over a new connection) */
