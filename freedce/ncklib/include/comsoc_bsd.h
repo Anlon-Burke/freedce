@@ -257,6 +257,74 @@ sendmsg_again:
 	}
 }
 
+/*
+ * RPC_SOCKET_SENDMSG for a blocking stream socket whose sender must stay
+ * cancelable while the peer does not take the data (CN).  The send itself
+ * never blocks; a full socket buffer is waited for in poll(), which is a
+ * cancellation point.  A cancel is therefore only raised while nothing of
+ * this call's data has been sent; a partial send returns its count.
+ */
+#include <poll.h>
+
+#ifdef MSG_NOSIGNAL
+#define RPC_C_SOCKET_SENDMSG_WAIT_FLAGS (MSG_DONTWAIT | MSG_NOSIGNAL)
+#else
+#define RPC_C_SOCKET_SENDMSG_WAIT_FLAGS MSG_DONTWAIT
+#endif
+
+inline static void RPC_SOCKET_SENDMSG_WAIT(
+	rpc_socket_t sock,
+	rpc_socket_iovec_p_t iovp,
+	int iovlen,
+	rpc_addr_p_t addrp,
+	volatile int *ccp,
+	volatile rpc_socket_error_t *serrp
+		)
+{
+	struct msghdr msg;
+	struct pollfd pfd;
+
+	for (;;)
+	{
+		memset(&msg, 0, sizeof(msg));
+		RPC_LOG_SOCKET_SENDMSG_NTR;
+		RPC_SOCKET_INIT_MSGHDR(&msg);
+		if ((addrp) != NULL)
+		{
+			RPC_SOCKET_FIX_ADDRLEN(addrp);
+			msg.msg_name = (caddr_t) &(addrp)->sa;
+			msg.msg_namelen = (addrp)->len;
+		}
+		else
+		{
+			msg.msg_name = (caddr_t) NULL;
+		}
+		msg.msg_iov = (struct iovec *) iovp;
+		msg.msg_iovlen = iovlen;
+		*(ccp) = sendmsg ((int) sock, (struct msghdr *) &msg,
+				  RPC_C_SOCKET_SENDMSG_WAIT_FLAGS);
+		*(serrp) = (*(ccp) == -1) ? errno : RPC_C_SOCKET_OK;
+		RPC_LOG_SOCKET_SENDMSG_XIT;
+		if (*(serrp) == EINTR)
+		{
+			continue;
+		}
+		if (*(serrp) != EAGAIN && *(serrp) != EWOULDBLOCK)
+		{
+			return;
+		}
+		/* the socket buffer is full: wait for room (cancelable) */
+		pfd.fd = (int) sock;
+		pfd.events = POLLOUT;
+		pfd.revents = 0;
+		if (poll (&pfd, 1, -1) == -1 && errno != EINTR)
+		{
+			*(serrp) = errno;
+			return;
+		}
+	}
+}
+
 #if 0
 #define RPC_SOCKET_SENDMSG(sock, iovp, iovlen, addrp, ccp, serrp) \
     { \

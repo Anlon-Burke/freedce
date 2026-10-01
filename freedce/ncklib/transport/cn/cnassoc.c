@@ -167,6 +167,13 @@ INTERNAL void rpc__cn_assoc_timer_reclaim _DCE_PROTOTYPE_ ((
     pointer_t                   /*type*/));
 
 /*
+ * R P C _ _ C N _ A S S O C _ A B O R T _ C O N N
+ */
+
+INTERNAL void rpc__cn_assoc_abort_conn _DCE_PROTOTYPE_ ((
+    rpc_cn_assoc_p_t            /*assoc*/));
+
+/*
  * pthread start routine: calls rpc__cn_network_receiver() with the right
  * function type
  */
@@ -2275,6 +2282,7 @@ unsigned32              *st;
     static rpc_addr_p_t         addr = NULL;
 #endif
     volatile unsigned32         bytes_to_send;
+    volatile unsigned32         frag_len;
     volatile boolean32          free_iov_buffer;
     volatile boolean32          retry_op;
     volatile rpc_socket_error_t serr;
@@ -2358,6 +2366,7 @@ unsigned32              *st;
      * Now send the constructed system iov array on the connection
      * identified in the association control block.
      */
+    frag_len = bytes_to_send;
     serr = 0;
     retry_op = true;
     while ((bytes_to_send) && (!RPC_SOCKET_IS_ERR (serr)))
@@ -2389,7 +2398,12 @@ unsigned32              *st;
 	    sys_pthread_testcancel();
 #endif
 #ifdef USE_SOCKETS
-            RPC_SOCKET_SENDMSG (assoc->cn_ctlblk.cn_sock, 
+            /*
+             * A full socket buffer is waited for in a cancellation
+             * point, and only while nothing of this send has gone out:
+             * the handlers below can take cc as 0.
+             */
+            RPC_SOCKET_SENDMSG_WAIT (assoc->cn_ctlblk.cn_sock,
                                 iovp, 
                                 iovcnt,
                                 addr,
@@ -2508,9 +2522,20 @@ unsigned32              *st;
          * If a cancel was caught and the operation should not be
          * retried just return now. The error status is already set
          * up.
+         *
+         * If part of this fragment went out, the byte stream is out of
+         * step with the PDUs, so the connection cannot be used any more.
+         * A client gives up only after its cancel timeout while the peer
+         * does not take data; the orphan PDU that follows would block
+         * again.  Abort the connection in both cases.
          */
         if (!retry_op)
         {
+            if (bytes_to_send != frag_len
+                || !(assoc->assoc_flags & RPC_C_CN_ASSOC_SERVER))
+            {
+                rpc__cn_assoc_abort_conn (assoc);
+            }
             return;
         }
 
@@ -2594,6 +2619,63 @@ unsigned32              *st;
         assoc->security.assoc_next_snd_seq++;
     }
     RPC_LOG_CN_ASSOC_SEND_FRAG_XIT;
+}
+
+
+/******************************************************************************/
+/*
+**++
+**
+**  ROUTINE NAME:       rpc__cn_assoc_abort_conn
+**
+**  SCOPE:              INTERNAL - declared locally
+**
+**  DESCRIPTION:
+**
+**  Abort the connection of an association after a send was given up
+**  (see rpc__cn_assoc_send_frag).  The socket is only shut down, not
+**  closed: the receiver thread still owns the descriptor, sees the end
+**  of the connection and runs the normal clean-up; further sends fail at
+**  once.
+**
+**  INPUTS:
+**
+**      assoc           The association.
+**
+**  INPUTS/OUTPUTS:     none
+**
+**  OUTPUTS:            none
+**
+**  IMPLICIT INPUTS:    none
+**
+**  IMPLICIT OUTPUTS:   none
+**
+**  FUNCTION VALUE:     none
+**
+**  SIDE EFFECTS:       none
+**
+**--
+**/
+
+INTERNAL void rpc__cn_assoc_abort_conn
+#ifdef _DCE_PROTO_
+(
+  rpc_cn_assoc_p_t        assoc
+)
+#else
+(assoc)
+rpc_cn_assoc_p_t        assoc;
+#endif
+{
+    RPC_CN_LOCK_ASSERT ();
+
+    RPC_DBG_PRINTF (rpc_e_dbg_general, RPC_C_CN_DBG_ERRORS,
+                    ("(rpc__cn_assoc_abort_conn) assoc->%p send given up, aborting the connection\n",
+                     assoc));
+    assoc->assoc_status = rpc_s_connection_aborted;
+#ifdef USE_SOCKETS
+    (void) shutdown (assoc->cn_ctlblk.cn_sock, SHUT_RDWR);
+#endif
 }
 
 

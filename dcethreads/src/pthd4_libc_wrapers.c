@@ -372,9 +372,10 @@ wait_fd (pthd4_cancel_state_t *s, int fd, short events)
  *                                                                          *
  * In NPTL mode they are cancellation points before and after the call.     *
  * With the own cancel implementation they are no cancellation points: the  *
- * RPC runtime sends on non-blocking sockets and only expects cancels at    *
- * its own waits, which are enclosed in TRY blocks; a cancel raised in the  *
- * middle of a send would escape into the stub.                             *
+ * RPC runtime only expects cancels at its own waits, which are enclosed in *
+ * TRY blocks; a cancel raised in the middle of a send would escape into    *
+ * the stub.  It sends without blocking (DG sockets are non-blocking, CN    *
+ * waits for a full socket buffer in poll()).                               *
  ****************************************************************************/
 
 #define CANCELABLE_SYSCALL(res_type, name, param_list, params)      \
