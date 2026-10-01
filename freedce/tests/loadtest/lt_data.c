@@ -160,6 +160,14 @@ static void gen_rec_into(const lt_key_t *key, unsigned int stream,
     rec->color = (lt_color_t) lt_rng_below(&r, 3);
     for (i = 0; i < lt_tag_len; i++)
         rec->tag[i] = 'a' + lt_rng_below(&r, 26);
+    /* arrays of strings: 0 .. lt_max_labels labels in the varying array,
+       always two in the fixed one; each 0 .. lt_label_len - 1 characters */
+    memset(rec->labels, 0, sizeof rec->labels);
+    rec->n_labels = lt_rng_below(&r, lt_max_labels + 1);
+    for (i = 0; (idl_ulong_int) i < rec->n_labels; i++)
+        gen_string(&r, (char *) rec->labels[i], lt_label_len - 1, 0);
+    for (i = 0; i < 2; i++)
+        gen_string(&r, (char *) rec->pair[i], lt_label_len - 1, 0);
     rec->name = (idl_char *) gen_string(&r, namebuf, lt_max_name, 1);
 }
 
@@ -177,6 +185,7 @@ int lt_check_rec(const lt_key_t *key, unsigned int stream, const lt_rec_t *rec,
     char     namebuf[lt_max_name + 1];
     lt_rec_t e;
     int      bad = 0;
+    int      i;
 
 #define CHK(cond, what) \
     if (cond) { if (bad++ == 0) lt_errf(err, errlen, "rec.%s differs", what); }
@@ -196,6 +205,13 @@ int lt_check_rec(const lt_key_t *key, unsigned int stream, const lt_rec_t *rec,
     CHK(rec->raw != e.raw, "raw");
     CHK(rec->color != e.color, "color");
     CHK(memcmp(rec->tag, e.tag, sizeof e.tag) != 0, "tag");
+    CHK(rec->n_labels != e.n_labels, "n_labels");
+    for (i = 0; (idl_ulong_int) i < e.n_labels && (idl_ulong_int) i < rec->n_labels; i++)
+        CHK(strncmp((const char *) rec->labels[i], (const char *) e.labels[i],
+                    lt_label_len) != 0, "labels");
+    for (i = 0; i < 2; i++)
+        CHK(strncmp((const char *) rec->pair[i], (const char *) e.pair[i],
+                    lt_label_len) != 0, "pair");
     CHK(str_differs(rec->name, (char *) e.name), "name");
 #undef CHK
     return bad;

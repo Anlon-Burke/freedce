@@ -14,8 +14,14 @@ interface loadtest
 {
 const long lt_tag_len = 16;
 const long lt_max_name = 64;
+const long lt_label_len = 12;
+const long lt_max_labels = 4;
 
 typedef enum { lt_red, lt_green, lt_blue } lt_color_t;
+
+/* A fixed-size string: arrays of it are arrays of strings, whose elements
+   carry their own length on the wire. */
+typedef [string] char lt_label_t[lt_label_len];
 
 /*
  * Identifies one call: seed plus client, thread and call number.  flags
@@ -30,7 +36,7 @@ typedef struct
     unsigned long       flags;
 } lt_key_t;
 
-/* Scalars of every size, a fixed array and a string. */
+/* Scalars of every size, a fixed array, arrays of strings and a string. */
 typedef struct
 {
     hyper               h;
@@ -47,6 +53,9 @@ typedef struct
     byte                raw;
     lt_color_t          color;
     char                tag[lt_tag_len];
+    unsigned long       n_labels;
+    [length_is(n_labels)] lt_label_t labels[lt_max_labels];
+    lt_label_t          pair[2];
     [string] char       *name;
 } lt_rec_t;
 

@@ -8,7 +8,7 @@ The interface (loadtest.idl) has one operation per area:
 
   null, null_idem   empty calls (plain and idempotent)
   struct            scalars of every size, hyper, float/double, enum, fixed
-                    array, string
+                    array, varying and fixed arrays of strings, string
   array             conformant varying array of structs, in and out
   union             non-encapsulated unions with small/short/long
                     discriminants and an encapsulated union
