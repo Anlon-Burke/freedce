@@ -1146,6 +1146,16 @@ void rpc_ss_ndr_unmar_by_looping
                                  IDL_msp->IDL_mp, B);
                     IDL_msp->IDL_mp += 4;
                     IDL_msp->IDL_left_in_buff -= 4;
+                    /*
+                     * B, the string's element count, comes off the wire, and
+                     * the string is unmarshaled into an array element of
+                     * element_size bytes: reject a count that does not fit.
+                     */
+                    if (base_type_size == 0
+                        || B > element_size / base_type_size)
+                    {
+                        RAISE(rpc_x_invalid_bound);
+                    }
                     if ( ( (*element_defn_ptr == IDL_DT_CHAR)
                           && (IDL_msp->IDL_drep.char_rep
                                                  != ndr_g_local_drep.char_rep) )
@@ -1462,30 +1472,14 @@ void rpc_ss_ndr_u_var_or_open_arr
     if ( (*defn_vec_ptr == IDL_DT_STRING)
         || (*defn_vec_ptr == IDL_DT_V1_STRING) )
     {
-        /* Arrays of strings have a special representation */
-        dimensionality--;
         /*
-         * The range check below runs over [0, dimensionality) and so skips the
-         * innermost (string) dimension.  A [string] has no declared bound
-         * (IDL_BOUND_STRING is skipped by rpc_ss_ndr_check_conf), so without
-         * this its wire [lower, upper) is unbounded and drives the unmarshalling
-         * past the allocated storage.  Bound that dimension against its Z value,
-         * exactly as the loop does for the others.
+         * Arrays of strings have a special representation: the innermost
+         * (string) dimension has no entry in range_list
+         * (rpc_ss_ndr_unmar_range_list skips it too); each element carries its
+         * own offset and count, which rpc_ss_ndr_unmar_by_looping bounds
+         * against the element size.
          */
-        if (Z_values != NULL)
-        {
-            if (((unsigned32)(range_list[dimensionality].upper
-                        - range_list[dimensionality].lower)
-                            > Z_values[dimensionality])
-                || ((unsigned32)range_list[dimensionality].upper
-                        > Z_values[dimensionality])
-                || ((unsigned32)range_list[dimensionality].upper
-                        < (unsigned32)range_list[dimensionality].lower))
-            {
-                /* Bogus data stream: string length outside the Z bound */
-                RAISE(rpc_x_invalid_bound);
-            }
-        }
+        dimensionality--;
     }
 
     if (Z_values != NULL)   /* NULL possible for transmit_as case */
