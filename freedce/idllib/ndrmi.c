@@ -125,15 +125,23 @@ void rpc_ss_xmit_iovec_if_necess
         /* Despatch the iovector */
         IDL_msp->IDL_iovec.num_elt = IDL_msp->IDL_elts_in_use;
         rpc_call_transmit( (rpc_call_handle_t)IDL_msp->IDL_call_h,
-                           (rpc_iovector_p_t)&IDL_msp->IDL_iovec, 
+                           (rpc_iovector_p_t)&IDL_msp->IDL_iovec,
                            (unsigned32 *)&IDL_msp->IDL_status );
-        if (IDL_msp->IDL_status != error_status_ok)
-            RAISE(rpc_x_ss_pipe_comm_error);
-        /* And re-initialize the iovector */
+        /*
+         * rpc_call_transmit takes ownership of the iovector buffers and frees
+         * them (through each element's buff_dealloc) even when it then reports
+         * an error, such as rpc_s_call_orphaned when the peer has gone away.
+         * Re-initialize the iovector before raising on that error: otherwise
+         * the stub's CATCH_ALL cleanup (rpc_ss_ndr_clean_up) walks
+         * IDL_elts_in_use and frees the same buffers a second time, a
+         * double-free a client can trigger by disconnecting mid-response.
+         */
         IDL_msp->IDL_elts_in_use = 0;
         /* If there is a stack packet, mark it as reusable */
         if (IDL_msp->IDL_stack_packet_addr != NULL)
             IDL_msp->IDL_stack_packet_status = IDL_stack_packet_unused_k;
+        if (IDL_msp->IDL_status != error_status_ok)
+            RAISE(rpc_x_ss_pipe_comm_error);
     }
 }
 
