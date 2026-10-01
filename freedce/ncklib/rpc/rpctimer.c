@@ -374,8 +374,15 @@ rpc_timer_proc_p_t      proc;
 pointer_t               parg;
 rpc_clock_t             freq;
 #endif
-{    
+{
     RPC_TIMER_LOCK (0);
+    /*
+     * The clock is otherwise only brought up to date by the timer thread
+     * when it wakes up; a timer set from another thread would then be due
+     * early by the time since that wakeup (up to the timer thread's longest
+     * sleep).
+     */
+    rpc__clock_update ();
     rpc__timer_set_int (t, proc, parg, freq);
     RPC_TIMER_UNLOCK (0);
 }
