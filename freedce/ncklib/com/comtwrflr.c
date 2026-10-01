@@ -1043,7 +1043,7 @@ unsigned32              *status;
     rpc_protseq_id_t    protseq_id;
     unsigned32          i,
                         temp_vers_minor;
-    unsigned16          prot_vers_minor;
+    unsigned16          prot_vers_minor = 0;
     unsigned8           network_prot_id;
 
 
@@ -1114,6 +1114,17 @@ unsigned32              *status;
          * from the tower and convert to the host's
          * endian representation.
          */
+        /*
+         * The right-hand side holds the 2-byte protocol minor version.
+         * Bound the copy to the destination so a tower that lies about
+         * its address_count cannot overflow the stack.
+         */
+        if (floor->address_count > sizeof (prot_vers_minor))
+        {
+            *status = rpc_s_invalid_rpc_floor;
+            return;
+        }
+
         memcpy ((char *)&prot_vers_minor, (char *)RPC_ADDRESS_START (floor),
                 floor->address_count);
         RPC_RESOLVE_ENDIAN_INT16 (prot_vers_minor);
@@ -1199,7 +1210,7 @@ unsigned32              *version_minor;
 unsigned32              *status;
 #endif
 {
-    unsigned16          flr_vers_minor;
+    unsigned16          flr_vers_minor = 0;
 
     CODING_ERROR (status);
 
@@ -1219,6 +1230,12 @@ unsigned32              *status;
      * Obtain the address information (right hand side) from the 
      * tower floor and convert to host's endian.
      */
+    if (floor->address_count > sizeof (flr_vers_minor))
+    {
+        *status = rpc_s_invalid_rpc_floor;
+        return;
+    }
+
     memcpy ((char *)&flr_vers_minor, (char *)RPC_ADDRESS_START (floor),
             floor->address_count);
 

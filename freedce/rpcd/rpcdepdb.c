@@ -73,6 +73,15 @@ INTERNAL epdb_handle_t    epdb_handle = NULL;
  */
 #define epdb_c_file_version (sizeof(void *) == 8 ? 9 : 8)
 
+/*
+ * Upper bound on the number of entries a single lookup/map request may ask
+ * for.  max_ents comes straight from the client (ept_lookup max_ents and
+ * ept_map max_towers, neither range-limited in ep.idl) and sizes a working
+ * array, so an absurd value is rejected before the array is allocated to keep
+ * a hostile request from driving a multi-gigabyte allocation.
+ */
+#define epdb_c_max_request_ents 4096
+
 
 INTERNAL void epdb_recreate_lists
     _DCE_PROTOTYPE_((
@@ -1310,13 +1319,21 @@ unsigned32              *status;
     if (db_different_context(h, map_handle, status))
         return;
 
-    db_entries = (db_entry_t **) sys_malloc(max_ents * sizeof(db_entry_p_t));
-
     /* lock database before delete_context or lookup
      */
     db_lock(h);
 
-    if ((fwd_addrs == NULL) || (db_entries == NULL) || (max_ents == 0) || (*num_ents > max_ents))
+    if ((max_ents == 0) || (max_ents > epdb_c_max_request_ents))
+    {
+        db_delete_context(h, map_handle);
+        SET_STATUS(status, ept_s_cant_perform_op);
+        db_unlock(h);
+        return;
+    }
+
+    db_entries = (db_entry_t **) sys_malloc(max_ents * sizeof(db_entry_p_t));
+
+    if ((fwd_addrs == NULL) || (db_entries == NULL) || (*num_ents > max_ents))
     {
         if (db_entries != NULL) sys_free(db_entries);
         db_delete_context(h, map_handle);
@@ -1420,17 +1437,25 @@ unsigned32          *status;
     } 
 
     epdb_chk_map_entry(&twr_fields, status);
-    if (! STATUS_OK(status)) 
+    if (! STATUS_OK(status))
     {
         db_delete_context(h, map_handle);
         SET_STATUS(status, ept_s_invalid_entry);
         db_unlock(h);
         return;
-    } 
+    }
+
+    if ((max_ents == 0) || (max_ents > epdb_c_max_request_ents))
+    {
+        db_delete_context(h, map_handle);
+        SET_STATUS(status, ept_s_cant_perform_op);
+        db_unlock(h);
+        return;
+    }
 
     db_entries = (db_entry_t **) sys_malloc(max_ents * sizeof(db_entry_p_t));
 
-    if ((db_entries == NULL) || (fwd_towers == NULL) || (max_ents == 0) || (*num_ents > max_ents))
+    if ((db_entries == NULL) || (fwd_towers == NULL) || (*num_ents > max_ents))
     {
         if (db_entries != NULL) sys_free(db_entries);
         db_delete_context(h, map_handle);
