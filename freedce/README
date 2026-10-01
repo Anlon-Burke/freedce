@@ -176,6 +176,16 @@ settings (net.ipv4.tcp_keepalive_time/intvl/probes, about 2 hours, and
 net.ipv4.tcp_retries2, about 15 minutes) in effect.  A live peer answers
 the probes, so long-running calls are not affected.
 
+License:
+--------
+The parts of FreeDCE come under different licenses: the OSF notice for the
+OSF DCE code, the GNU General Public License for dcethreads (with LGPL
+parts), the GNU Library General Public License for the uuid tool, the GNU
+General Public License version 2 or later for the LSA/NT security demos,
+and a few others.  freedce/COPYING gives an overview, packaging/debian/
+copyright the details per file, and LICENSES/ the texts (installed in
+/opt/dce/share/doc/freedce/licenses).
+
 ----------------------
 
 Maintainers:

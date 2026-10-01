@@ -3,6 +3,33 @@ licenses - they are listed below.
 
 Basically, you can't distribute this for money.
 
+(Note added in 2026: the sentence above is a historical note; none of the
+licenses below contains such a restriction.)
+
+Overview (details per file: packaging/debian/copyright; license texts and
+notices: LICENSES/):
+
+  - OSF DCE 1.1 RPC code (IDL compiler, NDR and RPC runtime, rpcd, uuid
+    library, perf test suite): the OSF/HP/DEC notice below
+    (LicenseRef-OSF-DCE).
+  - dcethreads: GNU General Public License without a version number (any
+    version), with parts of PCthreads under the GNU Library General Public
+    License, version 2 or later; see dcethreads/COPYING.
+  - uuid tool (freedce/uuid/tool): GNU Library General Public License,
+    version 2 or later.
+  - freedce/ncklib/rpc/rpcdbg.c: also the 1988 notice of the University of
+    California (from sendmail).
+  - freedce/include/dce/winnt.idl, gssauth*.c: notice of PADL Software.
+  - obase.idl, objex.idl, remact.idl, freedce/dcom: derived from the COM
+    specification, Copyright Microsoft Corporation, without a license
+    notice.
+  - LSA and NT security demos (freedce/demos/lsa, ntsec), the NTLMSSP
+    module (freedce/ncklib/auth, not built by default) and parts of netlogon:
+    GNU General Public License, version 2 or later.
+  - Files without a notice of their own: the statement in README ("freely
+    redistributable provided you maintain the copyright notices of the
+    source components").
+
 The DCE/RPC backend:
 
  (c) Copyright 1994 OPEN SOFTWARE FOUNDATION, INC.
